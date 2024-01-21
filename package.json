@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "coverage": "ng test --coverage"
   },
   "private": true,
   "dependencies": {
@@ -23,16 +24,24 @@
     "zone.js": "~0.14.2"
   },
   "devDependencies": {
+    "@analogjs/platform": "0.2.29",
+    "@analogjs/vite-plugin-angular": "0.2.29",
     "@angular-devkit/build-angular": "^17.0.7",
     "@angular/cli": "^17.0.7",
     "@angular/compiler-cli": "^17.0.0",
-    "@types/jasmine": "~5.1.0",
-    "jasmine-core": "~5.1.0",
-    "karma": "~6.4.0",
-    "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage": "~2.2.0",
-    "karma-jasmine": "~5.1.0",
-    "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.2.2"
+    "@testing-library/angular": "15.1.0",
+    "@testing-library/jest-dom": "6.2.0",
+    "@testing-library/user-event": "14.5.2",
+    "@typescript-eslint/eslint-plugin": "6.19.0",
+    "@typescript-eslint/parser": "6.19.0",
+    "@vitest/coverage-v8": "1.2.1",
+    "eslint": "8.56.0",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-jest-dom": "5.1.0",
+    "eslint-plugin-testing-library": "6.2.0",
+    "jsdom": "24.0.0",
+    "prettier": "3.2.4",
+    "typescript": "~5.2.2",
+    "vitest": "1.2.1"
   }
 }
