@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "coverage": "ng test --coverage"
+    "coverage": "ng test --coverage",
+    "lint": "ng lint"
   },
   "private": true,
   "dependencies": {
@@ -27,6 +28,11 @@
     "@analogjs/platform": "0.2.29",
     "@analogjs/vite-plugin-angular": "0.2.29",
     "@angular-devkit/build-angular": "^17.0.7",
+    "@angular-eslint/builder": "17.2.1",
+    "@angular-eslint/eslint-plugin": "17.2.1",
+    "@angular-eslint/eslint-plugin-template": "17.2.1",
+    "@angular-eslint/schematics": "17.2.1",
+    "@angular-eslint/template-parser": "17.2.1",
     "@angular/cli": "^17.0.7",
     "@angular/compiler-cli": "^17.0.0",
     "@testing-library/angular": "15.1.0",
@@ -35,7 +41,7 @@
     "@typescript-eslint/eslint-plugin": "6.19.0",
     "@typescript-eslint/parser": "6.19.0",
     "@vitest/coverage-v8": "1.2.1",
-    "eslint": "8.56.0",
+    "eslint": "^8.56.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-jest-dom": "5.1.0",
     "eslint-plugin-testing-library": "6.2.0",
