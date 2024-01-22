@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => ({
       all: true,
     },
     reporters: ["default"],
-    environment: "jsdom",
+    environment: "happy-dom",
     globals: true,
   },
   define: {
