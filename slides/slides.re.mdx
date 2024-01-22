@@ -1,0 +1,338 @@
+export { Components } from "./Components";
+export { Themes } from "./Themes";
+
+# Testing Angular apps
+
+> The more your tests resemble the way your software is used, the more confidence they can give you.
+
+---
+
+# Our tools
+
+- Vitest
+- Angular Testing Library
+
+---
+
+# Why vitest?
+
+- Jest has massive adoption, but...
+- It was created in a different context (2014).
+  - This was before we had ES6 (ES modules,`let`, `const`, arrow functions, descructuring, spreading, default parameters, variadic functions...)
+- Vitest offers compatibility with most of the Jest API and ecosystem libraries.
+  - In most projects, it should be a drop-in replacement for Jest.
+- It can become a bottleneck.
+  - The time to run can increase in proportion to the number of tests.
+
+---
+
+# Why vitest? Developer Experience
+
+- A test runner that uses the same configuration of your app through `vite.config.ts`.
+- Vitest provides better DX thanks to the default watch mode using Vite instant Hot Module Reload.
+- Jest can become difficult to configure for ES Modules and TypeScript.
+- Its support for ESM is _still_ experimental.
+- **Who wants to manage a build pipeline for tests?**
+  - `tsconfig`, `ts-jest`, `babel`, unstable Node flags like `unstable_mockModule`, etc.
+
+---
+
+# Why vitest? It can be faster
+
+- Vitest uses `esbuild` instead of Babel to bundle tests.
+- To mock browser APIs Jest uses `jsdom` by default. Vitest can use `happy-dom`.
+- Vitest uses Worker threads to run as much as possible in parallel.
+  - Jest has `test.concurrent`, but it has been marked as "experimental" for years.
+  - Vitest has the same feature to run tests in parallel, and it's stable.
+- **Who likes waiting 5-10 minutes (or more) for tests to finish before merging a PR?**
+
+---
+
+# Why (Angular) Testing Library?
+
+> The more your tests resemble the way your software is used, the more confidence they can give you.
+
+- Testing a component's internals is problematic.
+- Changing the implementation (but not the interaction and output) of a component **shouldn't** break your tests.
+
+---
+
+# Why ATL? An example
+
+- The user clicks the `Increment` button in a counter component.
+- The user expects the counter to go from `0` to `1`.
+
+---
+
+# Why ATL? An example
+
+Internally you may call a simple `increment()` method.
+
+```typescript
+class CounterComponent {
+  protected increment() {
+    this.count.update((c) => c + 1);
+  }
+}
+```
+
+```html
+<button (click)="increment()">Increment</button>
+```
+
+---
+
+# Why ATL? An example
+
+Internally you may use bitwise operators.
+
+```typescript
+class CounterComponent {
+  protected increment(n: number) {
+    if(n & 1) {
+      return increment(n >>> 1) << 1;
+    }
+
+    return n | 1;
+  }
+}
+```
+
+---
+
+# Why ATL? An example
+
+Internally you may call a backend API.
+
+```typescript
+class CounterComponent {
+  protected increment(n: number) {
+    this.#countService.post(n).subscribe((/* ... */);
+  }
+}
+```
+
+---
+
+# Why ATL? An example
+
+Internally you may use AI.
+
+```typescript
+await chatModel.invoke(`
+Hello Mr. GPT.
+
+Could you kindly ask WolframAlpha
+for the result of adding 1 to ${n}?
+
+Thank you very much. (Please don't take my job yet).
+`);
+```
+
+---
+
+# Why ATL? An example
+
+- The end-user doesn't care what you do internally.
+- The user just wants `0` to become `1` when they click `Increment`.
+- Users aren't going to find elements with `document.querySelector()` or `XPath` (looking at you, Selenium).
+- Users aren't going to "call a method called `increment` once with parameter `n`, where `n` is `0`".
+- Most users don't even know what the above is.
+- **The user doesn't care, so why would your tests?**
+
+---
+
+# Please don't.
+
+<div style={{ fontSize: '0.4em' }}>
+```typescript
+describe("CounterComponent",  () => {
+  let fixture: ComponentFixture<CounterComponent>;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [
+        CounterComponent,
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    });
+    fixture = TestBed.createComponent(CounterComponent);
+  });
+
+  it("should increment the counter on click", () => {
+    // run ngOnInit
+    fixture.detectChanges();
+
+    const incrementButton = fixture.debugElement.queryAll(By.css("button"))[0];
+
+    incrementButton.triggerEventHandler("click");
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.increment).toHaveBeenCalledTimes(1);
+    expect(fixture.componentInstance.increment).toHaveBeenCalledWith(0);
+
+    const counterText = fixture.debugElement.query(By.css("p")).nativeElement.textContent;
+    expect(counterText).toContain("Current count: 1");
+  });
+})
+```
+</div>
+
+---
+
+# This is better
+
+> The more your tests resemble the way your software is used, the more confidence they can give you.
+
+<div style={{ fontSize: '0.8em' }}>
+```typescript
+test("should increment the counter on click", async () => {
+  await render(CounterComponent);
+
+  fireEvent.click(screen.getByText("Increment"));
+
+  expect(screen.getByText("Current count: 1")).toBeInTheDocument();
+});
+```
+</div>
+
+---
+
+# I mean it, please don't.
+
+The counter was just a simple example.
+
+<div style={{fontSize: "0.25em", display: 'flex', justifyContent: 'space-between'}}>
+  <div>
+```typescript
+describe("HeroesComponent", () => {
+  let fixture: ComponentFixture<HeroesComponent>;
+  let mockHeroService;
+  let HEROES;
+
+  beforeEach(() => {
+    HEROES = [
+      { id: 1, name: "SpiderDude", strength: 8 },
+      { id: 2, name: "Wonderful Woman", strength: 24 },
+      { id: 3, name: "SuperDude", strength: 55 },
+    ];
+    mockHeroService = jasmine.createSpyObj(["getHeroes", "addHero", "deleteHero"]);
+
+    TestBed.configureTestingModule({
+      declarations: [
+        HeroesComponent,
+        HeroComponent,
+      ],
+      providers: [{ provide: HeroService, useValue: mockHeroService }],
+      schemas: [NO_ERRORS_SCHEMA],
+    });
+    fixture = TestBed.createComponent(HeroesComponent);
+  });
+
+  it("should render each hero as a HeroComponent", () => {
+    mockHeroService.getHeroes.and.returnValue(of(HEROES));
+    // run ngOnInit
+    fixture.detectChanges();
+
+    const heroComponentDebugElements = fixture.debugElement.queryAll(By.directive(HeroComponent));
+    expect(heroComponentDebugElements.length).toEqual(3);
+
+    for (let i = 0; i < heroComponentDebugElements.length; i += 1) {
+      expect(heroComponentDebugElements[i].componentInstance.hero).toEqual(HEROES[i]);
+    }
+  });
+```
+  </div>
+  <div>
+```typescript
+  it("should call heroService.deleteHero when the Hero Component's delete button is clicked", () => {
+    spyOn(fixture.componentInstance, "delete");
+    mockHeroService.getHeroes.and.returnValue(of(HEROES));
+
+    // run ngOnInit
+    fixture.detectChanges();
+
+    const heroComponents = fixture.debugElement.queryAll(
+      By.directive(HeroComponent),
+    );
+    heroComponents[0].triggerEventHandler("delete");
+
+    expect(fixture.componentInstance.delete).toHaveBeenCalledWith(HEROES[0]);
+  });
+
+  it("should add a new hero to the list when add button is clicked", () => {
+    mockHeroService.getHeroes.and.returnValue(of(HEROES));
+
+    // run ngOnInit
+    fixture.detectChanges();
+
+    const name = "Mr Freeze";
+    mockHeroService.addHero.and.returnValue(of({ id: 5, name, strength: 4 }));
+
+    const inputElement = fixture
+      .debugElement
+      .query(By.css("input"))
+      .nativeElement;
+    const addButton = fixture.debugElement.queryAll(By.css("button"))[0];
+
+    inputElement.value = name;
+    addButton.triggerEventHandler("click");
+    fixture.detectChanges();
+
+    const heroText = fixture.debugElement.query(By.css("ul")).nativeElement.textContent;
+    expect(heroText).toContain(name);
+  });
+});
+```
+  </div>
+</div>
+
+---
+
+# The 2 testing users
+
+1. The end-user who interacts with our app (clicking buttons, etc.)
+2. The developer user who uses our code (rendering it, calling our functions, etc.)
+
+- You want to avoid the Test User.
+- This user creeps in when you test implementation details.
+  - Internal things which your developer user and end user don't know or care about.
+- Remember, the test user doesn't pay the bills.
+
+---
+
+# Guidelines
+
+- **Don't** test implementation details
+  - The more your tests resemble the way your software is used, the more confidence they can give you.
+- Tests should behave like the application's user
+- It’s important to **clean up before each** test
+
+---
+
+# ATL niceties
+
+- ATL abstracts the boilerplate of creating DOM nodes and appending them to the body
+- Its `render` function internally creates a container`<div />` for us and automatically cleans up
+
+---
+
+# From here on it's WIP
+
+---
+
+<Center>
+  Let's take a look at our first test
+</Center>
+
+---
+
+# TODO
+
+- tips notes
+- `act` notes
+- testing playground extension
+
+---
+
+Made with [ReMDX](https://github.com/nkzw-tech/remdx)
