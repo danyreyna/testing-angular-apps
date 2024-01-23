@@ -9,7 +9,7 @@
     "test": "ng test",
     "coverage": "ng test --coverage",
     "lint": "ng lint",
-    "prepare": "husky install"
+    "prepare": "cd .. && husky install code/.husky"
   },
   "private": true,
   "dependencies": {
