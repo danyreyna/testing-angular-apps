@@ -1,4 +1,5 @@
-module.exports = {
+/** @type {import("prettier").Config} */
+const config = {
   printWidth: 80,
   tabWidth: 2,
   useTabs: false,
@@ -17,3 +18,5 @@ module.exports = {
   embeddedLanguageFormatting: "auto",
   singleAttributePerLine: false,
 };
+
+export default config;
