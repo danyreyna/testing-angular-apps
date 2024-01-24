@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/angular";
-import { userEvent } from "@testing-library/user-event";
+import userEvent from "@testing-library/user-event";
 import { expect, test } from "vitest";
 import { CounterComponent } from "./counter.component";
 
