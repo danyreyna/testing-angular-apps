@@ -107,7 +107,7 @@ Internally you may call a backend API.
 ```typescript
 class CounterComponent {
   protected increment(n: number) {
-    this.#countService.post(n).subscribe((/* ... */);
+    this.#countService.post(n).subscribe({ /* ... */});
   }
 }
 ```
@@ -301,7 +301,7 @@ describe("HeroesComponent", () => {
 
 ---
 
-# Guidelines
+# General guidelines
 
 - **Don't** test implementation details
   - The more your tests resemble the way your software is used, the more confidence they can give you.
