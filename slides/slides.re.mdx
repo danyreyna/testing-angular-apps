@@ -317,12 +317,44 @@ describe("HeroesComponent", () => {
 
 ---
 
-# From here on it's WIP
+# Avoid implementation details: TL;DR
+
+- Use `screen.getBy*` queries instead of stuff like `container.firstChild`.
+  - Because if you change your HTML markup, **your tests will break**.
+- For example, when wrapping a button in a `<span>,` the button will no longer be the first child.
+- The user doesn't even know or care when you make these types of HTML changes.
+  - We should write our tests in a way that passes in either case.
+
+---
+
+# Avoid implementation details: TL;DR
+
+- Use `userEvent` instead of `fireEvent`.
+- `fireEvent` fires a single event.
+- A real user fires multiple events.
+- This is what `userEvent` emulates.
+
+---
+
+# Avoid implementation details: TL;DR
+
+<div style={{fontSize: '0.8em'}}>
+- For example, clicking a button also fires
+  - `mouse move` and `mouse leave` if another element was focused
+  - `mouse over`
+  - `mouse move`
+  - `mouse down`
+  - if another element was focused it will fire `blur`
+  - the clicked element will fire `focus`
+  - `mouse up`
+  - and finally, `click`
+- [ Click implementation in `userEvent`](https://github.com/testing-library/user-event/blob/1af67066f57377c5ab758a1215711dddabad2d83/src/index.js#L109)
+</div>
 
 ---
 
 <Center>
-  Let's take a look at our first test
+`code/src/app/counter/counter-test-01.test.ts`
 </Center>
 
 ---
