@@ -17,7 +17,7 @@ const buildLoginForm = build<LoginFormValues>({
 
 test("submitting the form calls onSubmit with username and password", async () => {
   await render(LoginReactiveComponent);
-  const { username, password } = buildLoginForm();
+  const { username, password } = buildLoginForm.one();
 
   await userEvent.type(screen.getByLabelText(/username/i), username);
   await userEvent.type(screen.getByLabelText(/password/i), password);
