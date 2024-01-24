@@ -22,7 +22,7 @@ import {
 })
 export class CounterComponent implements OnInit {
   @Input()
-  initialCount = 0;
+  protected readonly initialCount = 0;
 
   protected readonly count = signal(0);
 
