@@ -1,5 +1,11 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  type OnInit,
+  signal,
+} from "@angular/core";
 
 @Component({
   selector: "app-counter",
@@ -14,8 +20,15 @@ import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
     </article>
   `,
 })
-export class CounterComponent {
+export class CounterComponent implements OnInit {
+  @Input()
+  initialCount = 0;
+
   protected readonly count = signal(0);
+
+  ngOnInit() {
+    this.count.set(this.initialCount);
+  }
 
   protected increment() {
     this.count.update((c) => c + 1);
