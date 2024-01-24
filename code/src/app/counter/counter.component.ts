@@ -27,7 +27,9 @@ export class CounterComponent implements OnInit {
   protected readonly count = signal(0);
 
   ngOnInit() {
-    this.count.set(this.initialCount);
+    if (this.initialCount !== undefined) {
+      this.count.set(this.initialCount);
+    }
   }
 
   protected increment() {
