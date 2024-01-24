@@ -359,6 +359,30 @@ describe("HeroesComponent", () => {
 
 ---
 
+# Avoid implementation details: Guidelines
+
+- "Implementation details" refers to how an abstraction accomplishes an outcome.
+- They are things that users of your code will not typically use, see, or even know about.
+
+---
+
+# Avoid implementation details: Guidelines
+
+- The users don't care about the implementation of your abstractions.
+- If you want confidence that your app continues to work through refactors, then neither should your tests care about implementations.
+
+---
+
+# Avoid implementation details: Guidelines
+
+- Tests that care about implementation details:
+- Can break when you refactor application code: False negatives.
+  - E.g., by renaming `increment` to `updateCount`.
+- May not fail when you break application code: False positives.
+  - E.g., by making a typo in my `<button>`'s `click` assignment.
+
+---
+
 # TODO
 
 - tips notes
