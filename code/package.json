@@ -36,6 +36,8 @@
     "@angular-eslint/template-parser": "17.2.1",
     "@angular/cli": "^17.0.7",
     "@angular/compiler-cli": "^17.0.0",
+    "@faker-js/faker": "8.3.1",
+    "@jackfranklin/test-data-bot": "2.1.0",
     "@testing-library/angular": "15.1.0",
     "@testing-library/jest-dom": "6.2.0",
     "@testing-library/user-event": "14.5.2",
