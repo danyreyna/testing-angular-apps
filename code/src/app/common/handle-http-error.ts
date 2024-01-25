@@ -7,7 +7,8 @@ export function handleHttpError(errorResponse: HttpErrorResponse) {
 
   const message = isNetworkError
     ? "A network error ocurred"
-    : `Backend returned code ${errorResponse.status}: ${errorResponse.message}`;
+    : errorResponse.error?.message ??
+      `Backend returned code ${errorResponse.status}: ${errorResponse.message}`;
 
   // in a real world app, we may send the error to some remote logging infrastructure
   // instead of just logging it to the console
