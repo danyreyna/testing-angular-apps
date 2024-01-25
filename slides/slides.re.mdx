@@ -461,10 +461,98 @@ Since we're not testing implementation details, the same test works for template
 
 ---
 
+# Testing HTTP requests
+
+- Setting up an environment to test with a real HTTP backend API is not trivial.
+- This is one of the responsibilities of E2E tests, using tools like Playwright or Cypress.
+- For integration and unit tests, we'll trade off some confidence for convenience.
+- Create a mock server with MSW.
+- MSW doesn't create an actual server. It uses a Service Worker to intercept requests and return any response we want.
+
+---
+
+# Testing HTTP requests
+
+- You can use MSW during development, too. Not only for tests.
+- For example, to develop against an API that is not yet ready
+- Or to develop against an external API that isn't currently available.
+- You can import and reuse the same HTTP `handlers` during development and in tests.
+
+---
+
+# Testing HTTP requests
+
+- Use `waitForElementToBeRemoved` to wait for loading indicators to go away.
+- Test unhappy paths too.
+  - What happens if the response to our request is an error?
+
+---
+
+# Use toMatchInlineSnapshot() for error messages
+
+- Copy-pasting output into assertions is not reliable.
+  - For example, error messages may change in the future.
+- Inline snapshots are written **automatically** back into the source code.
+
+---
+
+# Use toMatchInlineSnapshot() for error messages: example
+
+Look at this test, before running it for the first time.
+
+<div style={{fontSize: '0.75em'}}>
+```typescript
+test("omitting the password results in an error", async () => {
+  /* ... */
+  expect(screen.getByRole("alert").textContent).toMatchInlineSnapshot();
+});
+```
+</div>
+
+---
+
+# Use toMatchInlineSnapshot() for error messages: example
+
+After running the test, a text snapshot is added inline:
+
+<div style={{ fontSize: '0.75em' }}>
+```typescript
+test("omitting the password results in an error", async () => {
+  /* ... */
+  expect(screen.getByRole("alert").textContent).toMatchInlineSnapshot(
+    `" password required "`,
+  );
+});
+```
+</div>
+
+---
+
+# Use toMatchInlineSnapshot() for error messages: example
+
+- If the message changes, the test fails.
+- If you didn't expect this change, you are now aware of it and can fix your code.
+- If the change is correct, you can update the snapshot by removing the previous snapshot and re-running the test.
+
+---
+
+# Use one-off server handlers
+
+- To test any situations where the server can fail.
+  - E.g., `500` server errors.
+- Write them directly in the test that needs it:
+  - To avoid cluttering the application-wide handlers.
+  - To avoid confusing developers by having a one-off handler in another place.
+- Use msw's `server.use()`.
+- Use `server.resetHandlers()` in `afterEach()`.
+
+---
+
 # TODO
 
-- tips notes
+- what to mock
 - `act` notes
+- tips notes
 - testing playground extension
 
 ---
