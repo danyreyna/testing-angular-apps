@@ -41,6 +41,7 @@ export { Themes } from "./Themes";
 
 - Vitest uses `esbuild` instead of Babel to bundle tests.
 - To mock browser APIs Jest uses `jsdom` by default. Vitest can use `happy-dom`.
+  - Warning: `happy-dom` is still missing some APIs.
 - Vitest uses Worker threads to run as much as possible in parallel.
   - Jest has `test.concurrent`, but it has been marked as "experimental" for years.
   - Vitest has the same feature to run tests in parallel, and it's stable.
