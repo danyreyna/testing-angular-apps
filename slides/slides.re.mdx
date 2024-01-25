@@ -575,6 +575,70 @@ test("omitting the password results in an error", async () => {
 
 ---
 
+# Mocking Browser APIs
+
+- Vitest/Jest uses tools like `jsdom` to simulate a browser environment in node.
+- But it's still not capable of simulating things like:
+  - window resize
+  - geolocation
+  - media queries
+- For this, you have to mock `window.resizeTo`, `window.navigator.geolocation.getCurrentPosition`, and polyfill `window.matchMedia`.
+
+---
+
+# Mocking Browser APIs
+
+- Why simulate a browser in node? Because existing test tools are faster and more capable when run in node.
+- But
+  - If you're testing something that heavily relies on:
+    - browser APIs
+    - layout (like drag and drop)
+  - Then it's better to test that in a real browser with Playwright or Cypress.
+
+---
+
+# Mocking modules: example
+
+<div style={{fontSize: '0.8em'}}>
+- All functions exported from `math.ts` are converted to mock functions.
+- We can call `.mockImplementation(() => {})` on them.
+- `vi.mock` will always be executed before all imports.
+
+```typescript
+// math.ts
+export const add = (a, b) => a + b;
+export const subtract = (a, b) => a - b;
+
+// __tests__/some-test.ts
+import {vi} from "vitest";
+import {add, subtract} from '../math';
+
+vi.mock("../math");
+```
+</div>
+
+---
+
+# Mock only parts of a module
+
+<div style={{ fontSize: '0.8em' }}>
+- Call `vi.importActual('some-path')`, spread the imported members, and override what you need to.
+
+```typescript
+import {vi} from "vitest";
+
+vi.mock('../math', () => {
+  const actualMath = vi.importActual('../math')
+  return {
+    ...actualMath,
+    subtract: jest.fn(),
+  }
+});
+```
+</div>
+
+---
+
 # TODO
 
 - tips notes
