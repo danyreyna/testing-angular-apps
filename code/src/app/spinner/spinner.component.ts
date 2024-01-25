@@ -17,8 +17,8 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
   `,
   template: `
     <div class="lds-ripple" aria-label="loading...">
-      <div />
-      <div />
+      <div></div>
+      <div></div>
     </div>
   `,
 })
