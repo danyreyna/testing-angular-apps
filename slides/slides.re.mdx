@@ -554,10 +554,27 @@ test("omitting the password results in an error", async () => {
 
 ---
 
+# What to mock? Some examples
+
+- **Payment** processors.
+- **Network** calls in unit and integration tests.
+- **Disk** operations. Mock node's `fs` module.
+- **Animation** libraries to avoid waiting for animations before elements are removed from the page.
+
+---
+
+# When NOT to mock
+
+- Don't mock to save a few milliseconds per test.
+- Don't shallow render to save a few milliseconds.
+- If it takes too long to render your component tree:
+  - Then you don't have problems to fix in your test.
+  -  You have a performance issue in your app.
+
+---
+
 # TODO
 
-- what to mock
-- `act` notes
 - tips notes
 - testing playground extension
 
