@@ -15,7 +15,7 @@ const buildLoginForm = build<LoginFormValues>({
   },
 });
 
-test("submitting the form calls onSubmit with username and password", async () => {
+test("submitting the form displays a welcome message", async () => {
   await render(LoginTemplateDrivenComponent);
   const { username, password } = buildLoginForm.one();
 
