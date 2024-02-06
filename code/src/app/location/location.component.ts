@@ -1,21 +1,20 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { catchError, map, Observable, of, startWith } from "rxjs";
-import type { QueryWithState } from "../common/response-state/query-with-state";
+import { Observable } from "rxjs";
 import {
   type ErrorResponse,
   isErrorResponse,
   isPending,
   isSuccessResponse,
   type PendingState,
-  type SuccessResponse,
 } from "../common/response-state/response-states";
 import { type TypeGuard, TypeGuardPipe } from "../common/type-guard.pipe";
 import { SpinnerComponent } from "../spinner/spinner.component";
-import { LocationService } from "./location.service";
-
-type GeolocationResponseWithState = QueryWithState<GeolocationPosition>;
-type SuccessLocationResponse = SuccessResponse<GeolocationPosition>;
+import {
+  type GeolocationResponseWithState,
+  LocationService,
+  type SuccessLocationResponse,
+} from "./location.service";
 
 @Component({
   selector: "app-location",
@@ -52,19 +51,7 @@ export class LocationComponent {
   readonly #locationService = inject(LocationService);
 
   position$: Observable<GeolocationResponseWithState> =
-    this.#locationService.location$.pipe(
-      map((response) => ({
-        state: "success" as const,
-        data: response,
-      })),
-      catchError((error) => {
-        return of({
-          state: "error" as const,
-          message: error.message,
-        });
-      }),
-      startWith({ state: "pending" as const }),
-    );
+    this.#locationService.location$;
 
   protected readonly isPending: TypeGuard<
     GeolocationResponseWithState,
