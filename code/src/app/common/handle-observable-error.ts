@@ -1,7 +1,9 @@
 import { HttpErrorResponse } from "@angular/common/http";
 import { throwError } from "rxjs";
 
-export type HandledObservableError = { message: string; status?: number };
+export type HandledObservableError =
+  | { message: string; status: number }
+  | { message: string };
 
 function handleHttpError(errorResponse: HttpErrorResponse) {
   const isNetworkError =
