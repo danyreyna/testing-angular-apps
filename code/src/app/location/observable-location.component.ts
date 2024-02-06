@@ -16,7 +16,7 @@ import {
 } from "./observable-location.service";
 
 @Component({
-  selector: "app-location",
+  selector: "app-observable-location",
   standalone: true,
   imports: [CommonModule, TypeGuardPipe, SpinnerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
