@@ -15,6 +15,17 @@ export default defineConfig(({ mode }) => ({
     reporters: ["default"],
     environment: "jsdom",
     globals: true,
+    alias: [
+      {
+        find: /^@ng-web-apis\/common$/,
+        replacement: "@ng-web-apis/common/fesm2015/ng-web-apis-common.js",
+      },
+      {
+        find: /^@ng-web-apis\/geolocation$/,
+        replacement:
+          "@ng-web-apis/geolocation/fesm2015/ng-web-apis-geolocation.js",
+      },
+    ],
   },
   define: {
     "import.meta.vitest": mode !== "production",
