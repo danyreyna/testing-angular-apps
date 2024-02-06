@@ -75,6 +75,12 @@ export function createMock<T>(type: Type<T>) {
   return mock as CreatedMock<T>;
 }
 
+/*
+ * Basic implementation inspired by React Testing Library's `renderHook`:
+ * https://testing-library.com/docs/react-testing-library/api/#renderhook
+ * Recommended when publishing services as packages or for complex services.
+ * For all other services, prefer testing a component using the service instead.
+ */
 export async function renderService<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TService extends abstract new (...args: any) => any,
