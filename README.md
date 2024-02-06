@@ -12,8 +12,10 @@ Angular project with test examples.
   - Since we don't test implementation details, testing template-driven forms and reactive forms is the same.
 - Test HTTP requests: `code/src/app/login-submission/login-submission-test-04.test.ts`
 - Mock browser APIs: `code/src/app/location/location-test-05.test.ts`
-- Mock modules (not recommended, mock services instead): `code/src/app/location/location-test-06.test.ts`
-- Mock Angular services: `code/src/app/location/location-test-07.test.ts`
+- Mock modules: `code/src/app/location/location-test-06.test.ts`
+  - Not recommended, mock services instead.
+- Mock observables: `code/src/app/location/location-test-07.test.ts`
+- Mock Angular services: `code/src/app/location/location-test-08.test.ts`
 
 ## Slides
 
