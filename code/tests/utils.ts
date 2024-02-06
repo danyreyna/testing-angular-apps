@@ -33,11 +33,11 @@ function render<ComponentType>(
  * @testing-library/angular/jest-utils/lib/create-mock.d.ts
  * @testing-library/angular/fesm2022/testing-library-angular-jest-utils.mjs
  */
-type CreatedMock<T> = T & {
+export type CreatedMock<T> = T & {
   [K in keyof T]: T[K] & VitestFunctionMock;
 };
 
-function createMock<T>(type: Type<T>) {
+export function createMock<T>(type: Type<T>) {
   const mock: { [property: string]: VitestFunctionMock } = {};
 
   function mockFunctions(
@@ -71,4 +71,4 @@ function createMock<T>(type: Type<T>) {
 
 export * from "@testing-library/angular";
 // override Angular Testing Library's render with our own
-export { render, CreatedMock, createMock };
+export { render };
