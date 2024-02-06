@@ -7,7 +7,8 @@ import {
 } from "@testing-library/angular";
 import { type Mock as VitestFunctionMock, vi } from "vitest";
 import { routes } from "../src/app/app.routes";
-import type { Theme } from "../src/app/common/theme.service";
+import { type Theme } from "../src/app/common/theme.service";
+import { provideTheme } from "../src/app/common/theme.service.provider";
 
 function render<ComponentType>(
   ui: Type<ComponentType>,
@@ -20,10 +21,7 @@ function render<ComponentType>(
     providers: [
       provideRouter(routes),
       provideHttpClient(),
-      {
-        provide: "initialTheme",
-        useValue: theme,
-      },
+      ...provideTheme(theme),
       ...(options.providers ?? []),
     ],
     ...options,
