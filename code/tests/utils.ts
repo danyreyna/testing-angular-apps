@@ -21,7 +21,7 @@ function render<ComponentType>(
     providers: [
       provideRouter(routes),
       provideHttpClient(),
-      ...provideTheme(theme),
+      provideTheme(theme),
       ...(options.providers ?? []),
     ],
     ...options,

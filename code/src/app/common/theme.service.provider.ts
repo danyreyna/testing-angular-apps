@@ -1,3 +1,4 @@
+import { makeEnvironmentProviders } from "@angular/core";
 import { INITIAL_THEME, type Theme, ThemeService } from "./theme.service";
 
 function themeServiceFactory(initialTheme: Theme) {
@@ -5,7 +6,7 @@ function themeServiceFactory(initialTheme: Theme) {
 }
 
 export function provideTheme(initialTheme: Theme) {
-  return [
+  return makeEnvironmentProviders([
     {
       provide: ThemeService,
       useFactory: themeServiceFactory,
@@ -15,5 +16,5 @@ export function provideTheme(initialTheme: Theme) {
       provide: INITIAL_THEME,
       useValue: initialTheme,
     },
-  ];
+  ]);
 }
