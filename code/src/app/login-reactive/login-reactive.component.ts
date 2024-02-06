@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
-  Input,
   signal,
 } from "@angular/core";
 import { NonNullableFormBuilder, ReactiveFormsModule } from "@angular/forms";
