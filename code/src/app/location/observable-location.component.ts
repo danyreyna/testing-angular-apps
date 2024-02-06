@@ -1,6 +1,5 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { Observable } from "rxjs";
 import {
   type ErrorResponse,
   isErrorResponse,
@@ -50,8 +49,7 @@ import {
 export class ObservableLocationComponent {
   readonly #locationService = inject(ObservableLocationService);
 
-  position$: Observable<GeolocationResponseWithState> =
-    this.#locationService.location$;
+  position$ = this.#locationService.location$;
 
   protected readonly isPending: TypeGuard<
     GeolocationResponseWithState,
