@@ -6,13 +6,13 @@ import {
   signal,
 } from "@angular/core";
 import { catchError, EMPTY, map, startWith } from "rxjs";
+import { type CommandWithState } from "../common/response-state/command-with-state";
 import {
   type ErrorResponse,
   isErrorResponse,
   isSuccessResponse,
-  type ResponseWithStatus,
   type SuccessResponse,
-} from "../common/response-with-status";
+} from "../common/response-state/response-states";
 import { type TypeGuard, TypeGuardPipe } from "../common/type-guard.pipe";
 import { SpinnerComponent } from "../spinner/spinner.component";
 import {
@@ -24,7 +24,7 @@ import {
   LoginSubmissionService,
 } from "./login-submission.service";
 
-type LoginResponseWithStatus = ResponseWithStatus<LoginResponse>;
+type LoginResponseWithState = CommandWithState<LoginResponse>;
 type SuccessLoginResponse = SuccessResponse<LoginResponse>;
 
 @Component({
@@ -60,7 +60,7 @@ type SuccessLoginResponse = SuccessResponse<LoginResponse>;
     }
 
     <div class="height-200">
-      @if (loginResponse().status === "pending") {
+      @if (loginResponse().state === "pending") {
         <app-spinner />
       }
 
@@ -75,24 +75,24 @@ type SuccessLoginResponse = SuccessResponse<LoginResponse>;
 export class LoginSubmissionComponent {
   readonly #loginSubmissionService = inject(LoginSubmissionService);
 
-  protected readonly loginResponse = signal<LoginResponseWithStatus>({
-    status: "idle",
+  protected readonly loginResponse = signal<LoginResponseWithState>({
+    state: "idle",
   });
 
   protected handleSubmit(formValues: LoginFormValues) {
     this.#loginSubmissionService
       .postLogin(formValues)
       .pipe(
-        map((response) => ({ status: "success" as const, data: response })),
+        map((response) => ({ state: "success" as const, data: response })),
         catchError((error) => {
           this.loginResponse.set({
-            status: "error",
+            state: "error",
             message: error.message,
           });
 
           return EMPTY;
         }),
-        startWith({ status: "pending" as const }),
+        startWith({ state: "pending" as const }),
       )
       .subscribe({
         next: (response) => {
@@ -102,12 +102,12 @@ export class LoginSubmissionComponent {
   }
 
   protected readonly isSuccessResponse: TypeGuard<
-    LoginResponseWithStatus,
+    LoginResponseWithState,
     SuccessLoginResponse
   > = isSuccessResponse;
 
   protected readonly isErrorResponse: TypeGuard<
-    LoginResponseWithStatus,
+    LoginResponseWithState,
     ErrorResponse
   > = isErrorResponse;
 }
