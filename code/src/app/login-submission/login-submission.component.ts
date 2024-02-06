@@ -1,12 +1,5 @@
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  type OnDestroy,
-  type OnInit,
-} from "@angular/core";
-import { Subscription } from "rxjs";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import {
   type ErrorResponse,
   isErrorResponse,
@@ -45,49 +38,37 @@ import {
   `,
   template: `
     @if (
-      loginSubmissionService.loginResponseWithState()
-        | typeGuard: isSuccessResponse;
-      as successLoginResponse
+      loginSubmissionService.loginResponseWithState$ | async;
+      as loginResponse
     ) {
-      <div>
-        Welcome
-        <strong>{{ successLoginResponse.data.username }}</strong>
-      </div>
-    } @else {
-      <app-login-submission-form (formSubmitted)="handleSubmit($event)" />
-    }
-
-    <div class="height-200">
       @if (
-        loginSubmissionService.loginResponseWithState().state === "pending"
+        loginResponse | typeGuard: isSuccessResponse;
+        as successLoginResponse
       ) {
-        <app-spinner />
-      }
-
-      @if (
-        loginSubmissionService.loginResponseWithState()
-          | typeGuard: isErrorResponse;
-        as errorResponse
-      ) {
-        <div role="alert" class="color-red">
-          {{ errorResponse.message }}
+        <div>
+          Welcome
+          <strong>{{ successLoginResponse.data.username }}</strong>
         </div>
+      } @else {
+        <app-login-submission-form (formSubmitted)="handleSubmit($event)" />
       }
-    </div>
+
+      <div class="height-200">
+        @if (loginResponse.state === "pending") {
+          <app-spinner />
+        }
+
+        @if (loginResponse | typeGuard: isErrorResponse; as errorResponse) {
+          <div role="alert" class="color-red">
+            {{ errorResponse.message }}
+          </div>
+        }
+      </div>
+    }
   `,
 })
-export class LoginSubmissionComponent implements OnInit, OnDestroy {
+export class LoginSubmissionComponent {
   protected readonly loginSubmissionService = inject(LoginSubmissionService);
-  #postLoginSubscription: null | Subscription = null;
-
-  ngOnInit() {
-    this.#postLoginSubscription =
-      this.loginSubmissionService.postLogin$.subscribe();
-  }
-
-  ngOnDestroy() {
-    this.#postLoginSubscription?.unsubscribe();
-  }
 
   protected handleSubmit(formValues: LoginFormValues) {
     this.loginSubmissionService.loginSubject.next(formValues);

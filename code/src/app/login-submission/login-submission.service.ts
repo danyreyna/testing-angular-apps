@@ -1,20 +1,24 @@
 import { HttpClient } from "@angular/common/http";
-import { inject, Injectable, signal } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import {
+  BehaviorSubject,
   catchError,
-  EMPTY,
   map,
+  type Observable,
+  of,
   startWith,
-  Subject,
   switchMap,
-  tap,
 } from "rxjs";
 import {
   type HandledObservableError,
   handleObservableError,
 } from "../common/handle-observable-error";
 import type { CommandWithState } from "../common/response-state/command-with-state";
-import type { SuccessResponse } from "../common/response-state/response-states";
+import type {
+  ErrorResponse,
+  IdleState,
+  SuccessResponse,
+} from "../common/response-state/response-states";
 import type { LoginFormValues } from "./login-submission-form.component";
 
 type LoginResponse = {
@@ -24,44 +28,46 @@ type LoginResponse = {
 export type LoginResponseWithState = CommandWithState<LoginResponse>;
 export type SuccessLoginResponse = SuccessResponse<LoginResponse>;
 
+const INITIAL_IDLE_STATE = of<IdleState>({ state: "idle" });
+
 @Injectable({
   providedIn: "root",
 })
 export class LoginSubmissionService {
   readonly #http = inject(HttpClient);
 
-  readonly loginResponseWithState = signal<LoginResponseWithState>({
-    state: "idle",
-  });
-
-  readonly loginSubject = new Subject<LoginFormValues>();
+  readonly loginSubject = new BehaviorSubject<null | LoginFormValues>(null);
   readonly #loginAction$ = this.loginSubject.asObservable();
 
-  readonly #loginRequest$ = this.#loginAction$.pipe(
-    switchMap((formData) =>
-      this.#http.post<LoginResponse>(
-        "https://auth-provider.example.com/api/login",
-        formData,
-      ),
-    ),
-    map<LoginResponse, SuccessLoginResponse>((response) => ({
-      state: "success",
-      data: response,
-    })),
-    catchError((errorResponse) => handleObservableError(errorResponse)),
-  );
-  readonly postLogin$ = this.#loginRequest$.pipe(
-    startWith<LoginResponseWithState>({ state: "pending" }),
-    tap((responseWithState) => {
-      this.loginResponseWithState.set(responseWithState);
-    }),
-    catchError((error: HandledObservableError) => {
-      this.loginResponseWithState.set({
-        state: "error",
-        message: error.message,
-      });
+  readonly loginResponseWithState$: Observable<LoginResponseWithState> =
+    this.#loginAction$.pipe(
+      switchMap((formData) => {
+        if (formData === null) {
+          return INITIAL_IDLE_STATE;
+        }
 
-      return EMPTY;
-    }),
-  );
+        const loginRequest$ = this.#http
+          .post<LoginResponse>(
+            "https://auth-provider.example.com/api/login",
+            formData,
+          )
+          .pipe(
+            map<LoginResponse, SuccessLoginResponse>((response) => ({
+              state: "success",
+              data: response,
+            })),
+            catchError((errorResponse) => handleObservableError(errorResponse)),
+          );
+
+        return loginRequest$.pipe(
+          startWith<LoginResponseWithState>({ state: "pending" }),
+          catchError((error: HandledObservableError) =>
+            of<ErrorResponse>({
+              state: "error",
+              message: error.message,
+            }),
+          ),
+        );
+      }),
+    );
 }
