@@ -17,6 +17,7 @@ Angular project with test examples.
 - Mock `Observable`s posing as services: `code/src/app/location/location-test-07.test.ts`
 - Mock Angular services: `code/src/app/location/location-test-08.test.ts`
 - Test with a custom `render` method that includes commonly used providers. `code/src/app/some-button/some-button-test-09.test.ts`
+- Test services: `code/src/app/counter-service/counter-service-test-10.test.ts`
 
 ## Slides
 
