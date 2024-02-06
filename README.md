@@ -9,6 +9,7 @@ Angular project with test examples.
 - Test a simple component: `code/src/app/counter/counter-test-01.test.ts`
 - Test a template-driven form: `code/src/app/login-template-driven/login-template-driven-test-02.test.ts`
 - Test a reactive form: `code/src/app/login-reactive/login-reactive-test-03.test.ts`
+  - Since we don't test implementation details, testing template-driven forms and reactive forms is the same.
 - Test HTTP requests: `code/src/app/login-submission/login-submission-test-04.test.ts`
 
 ## Slides
