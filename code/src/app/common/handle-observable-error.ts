@@ -3,6 +3,18 @@ import { throwError } from "rxjs";
 
 export type HandledObservableError = { message: string; status?: number };
 
+function handleHttpError(errorResponse: HttpErrorResponse) {
+  const isNetworkError =
+    errorResponse.error instanceof ProgressEvent && errorResponse.status === 0;
+
+  const message = isNetworkError
+    ? "A network error occurred"
+    : errorResponse.error?.message ??
+      `Backend returned code ${errorResponse.status}: ${errorResponse.message}`;
+
+  return throwError(() => ({ message, status: errorResponse.status }));
+}
+
 export function handleObservableError(
   observableError: Error | HttpErrorResponse,
 ) {
@@ -11,16 +23,7 @@ export function handleObservableError(
   console.error(observableError);
 
   if (observableError instanceof HttpErrorResponse) {
-    const isNetworkError =
-      observableError.error instanceof ProgressEvent &&
-      observableError.status === 0;
-
-    const message = isNetworkError
-      ? "A network error occurred"
-      : observableError.error?.message ??
-        `Backend returned code ${observableError.status}: ${observableError.message}`;
-
-    return throwError(() => ({ message, status: observableError.status }));
+    return handleHttpError(observableError);
   }
 
   return throwError(() => ({ message: observableError.message }));
