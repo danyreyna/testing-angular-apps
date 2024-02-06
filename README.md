@@ -16,6 +16,7 @@ Angular project with test examples.
   - Not recommended, mock services instead.
 - Mock observables: `code/src/app/location/location-test-07.test.ts`
 - Mock Angular services: `code/src/app/location/location-test-08.test.ts`
+- Test with a custom `render` method that includes commonly used providers. `code/src/app/some-button/some-button-test-09.test.ts`
 
 ## Slides
 
