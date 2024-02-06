@@ -14,7 +14,7 @@ export function handleObservableError(
       observableError.status === 0;
 
     const message = isNetworkError
-      ? "A network error ocurred"
+      ? "A network error occurred"
       : observableError.error?.message ??
         `Backend returned code ${observableError.status}: ${observableError.message}`;
 
