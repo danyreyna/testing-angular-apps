@@ -1,5 +1,5 @@
 import { http, type HttpHandler, HttpResponse } from "msw";
-import { PathParams } from "msw/lib/core/utils/matching/matchRequestUrl";
+import { PathParams } from "msw";
 
 const { json } = HttpResponse;
 
