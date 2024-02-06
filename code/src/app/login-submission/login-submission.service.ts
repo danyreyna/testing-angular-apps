@@ -12,8 +12,7 @@ export type LoginResponse = {
   providedIn: "root",
 })
 export class LoginSubmissionService {
-  #http = inject(HttpClient);
-
+  readonly #http = inject(HttpClient);
   postLogin(formData: LoginFormValues) {
     return this.#http
       .post<LoginResponse>(
