@@ -1,5 +1,11 @@
+import { CommonModule } from "@angular/common";
 import { provideHttpClient } from "@angular/common/http";
-import type { Type } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  type Type,
+} from "@angular/core";
 import { provideRouter } from "@angular/router";
 import {
   render as atlRender,
@@ -67,6 +73,41 @@ export function createMock<T>(type: Type<T>) {
   mockFunctions(type.prototype);
 
   return mock as CreatedMock<T>;
+}
+
+export async function renderService<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TService extends abstract new (...args: any) => any,
+>(
+  service: TService,
+  initialValues: RenderComponentOptions<unknown>["componentProviders"] = [],
+) {
+  type ServiceInstance = InstanceType<TService>;
+  type AssignedResult = { current: ServiceInstance };
+
+  const result: { current: null | ServiceInstance } = { current: null };
+
+  @Component({
+    // eslint-disable-next-line @angular-eslint/component-selector
+    selector: "angular-testing-library-temp-test",
+    standalone: true,
+    imports: [CommonModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: ``,
+  })
+  class TestComponent {
+    readonly #service = inject(service);
+
+    constructor() {
+      result.current = this.#service;
+    }
+  }
+
+  await render(TestComponent, {
+    componentProviders: initialValues,
+  });
+
+  return { result: result as AssignedResult };
 }
 
 export * from "@testing-library/angular";
