@@ -38,11 +38,11 @@ function isResponse<TData>(value: unknown): value is Response<TData> {
 }
 
 export function isErrorResponse(value: unknown): value is ErrorResponse {
-  return isResponse(value) && value.state === "error";
+  return isResponse(value) && value.state === ERROR_STATE;
 }
 
 export function isSuccessResponse<TData>(
   value: unknown,
 ): value is SuccessResponse<TData> {
-  return isResponse(value) && value.state === "success";
+  return isResponse(value) && value.state === SUCCESS_STATE;
 }
