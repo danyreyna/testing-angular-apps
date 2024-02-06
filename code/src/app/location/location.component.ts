@@ -12,9 +12,9 @@ import { type TypeGuard, TypeGuardPipe } from "../common/type-guard.pipe";
 import { SpinnerComponent } from "../spinner/spinner.component";
 import {
   type GeolocationResponseWithState,
-  LocationService,
+  ObservableLocationService,
   type SuccessLocationResponse,
-} from "./location.service";
+} from "./observable-location.service";
 
 @Component({
   selector: "app-location",
@@ -48,7 +48,7 @@ import {
   `,
 })
 export class LocationComponent {
-  readonly #locationService = inject(LocationService);
+  readonly #locationService = inject(ObservableLocationService);
 
   position$: Observable<GeolocationResponseWithState> =
     this.#locationService.location$;

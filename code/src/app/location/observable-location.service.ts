@@ -17,7 +17,7 @@ export type SuccessLocationResponse = SuccessResponse<GeolocationPosition>;
 @Injectable({
   providedIn: "root",
 })
-export class LocationService {
+export class ObservableLocationService {
   readonly #geolocationService = inject(GeolocationService);
 
   #locationRequest$ = this.#geolocationService.pipe(
