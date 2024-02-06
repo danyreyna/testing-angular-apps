@@ -3,15 +3,14 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
-  signal,
+  type OnDestroy,
+  type OnInit,
 } from "@angular/core";
-import { catchError, EMPTY, map, startWith } from "rxjs";
-import { type CommandWithState } from "../common/response-state/command-with-state";
+import { Subscription } from "rxjs";
 import {
   type ErrorResponse,
   isErrorResponse,
   isSuccessResponse,
-  type SuccessResponse,
 } from "../common/response-state/response-states";
 import { type TypeGuard, TypeGuardPipe } from "../common/type-guard.pipe";
 import { SpinnerComponent } from "../spinner/spinner.component";
@@ -20,12 +19,10 @@ import {
   LoginSubmissionFormComponent,
 } from "./login-submission-form.component";
 import {
-  type LoginResponse,
+  type LoginResponseWithState,
   LoginSubmissionService,
+  type SuccessLoginResponse,
 } from "./login-submission.service";
-
-type LoginResponseWithState = CommandWithState<LoginResponse>;
-type SuccessLoginResponse = SuccessResponse<LoginResponse>;
 
 @Component({
   selector: "app-login-submission",
@@ -48,7 +45,8 @@ type SuccessLoginResponse = SuccessResponse<LoginResponse>;
   `,
   template: `
     @if (
-      loginResponse() | typeGuard: isSuccessResponse;
+      loginSubmissionService.loginResponseWithState()
+        | typeGuard: isSuccessResponse;
       as successLoginResponse
     ) {
       <div>
@@ -60,11 +58,17 @@ type SuccessLoginResponse = SuccessResponse<LoginResponse>;
     }
 
     <div class="height-200">
-      @if (loginResponse().state === "pending") {
+      @if (
+        loginSubmissionService.loginResponseWithState().state === "pending"
+      ) {
         <app-spinner />
       }
 
-      @if (loginResponse() | typeGuard: isErrorResponse; as errorResponse) {
+      @if (
+        loginSubmissionService.loginResponseWithState()
+          | typeGuard: isErrorResponse;
+        as errorResponse
+      ) {
         <div role="alert" class="color-red">
           {{ errorResponse.message }}
         </div>
@@ -72,33 +76,21 @@ type SuccessLoginResponse = SuccessResponse<LoginResponse>;
     </div>
   `,
 })
-export class LoginSubmissionComponent {
-  readonly #loginSubmissionService = inject(LoginSubmissionService);
+export class LoginSubmissionComponent implements OnInit, OnDestroy {
+  protected readonly loginSubmissionService = inject(LoginSubmissionService);
+  #postLoginSubscription: null | Subscription = null;
 
-  protected readonly loginResponse = signal<LoginResponseWithState>({
-    state: "idle",
-  });
+  ngOnInit() {
+    this.#postLoginSubscription =
+      this.loginSubmissionService.postLogin$.subscribe();
+  }
+
+  ngOnDestroy() {
+    this.#postLoginSubscription?.unsubscribe();
+  }
 
   protected handleSubmit(formValues: LoginFormValues) {
-    this.#loginSubmissionService
-      .postLogin(formValues)
-      .pipe(
-        map((response) => ({ state: "success" as const, data: response })),
-        catchError((error) => {
-          this.loginResponse.set({
-            state: "error",
-            message: error.message,
-          });
-
-          return EMPTY;
-        }),
-        startWith({ state: "pending" as const }),
-      )
-      .subscribe({
-        next: (response) => {
-          this.loginResponse.set(response);
-        },
-      });
+    this.loginSubmissionService.loginSubject.next(formValues);
   }
 
   protected readonly isSuccessResponse: TypeGuard<
