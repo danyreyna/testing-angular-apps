@@ -1,4 +1,4 @@
-import { type Theme, ThemeService } from "./theme.service";
+import { INITIAL_THEME, type Theme, ThemeService } from "./theme.service";
 
 function themeServiceFactory(initialTheme: Theme) {
   return new ThemeService(initialTheme);
@@ -9,10 +9,10 @@ export function provideTheme(initialTheme: Theme) {
     {
       provide: ThemeService,
       useFactory: themeServiceFactory,
-      deps: ["initialTheme"],
+      deps: [INITIAL_THEME],
     },
     {
-      provide: "initialTheme",
+      provide: INITIAL_THEME,
       useValue: initialTheme,
     },
   ];
