@@ -1,9 +1,9 @@
 import { HttpErrorResponse } from "@angular/common/http";
-import { throwError } from "rxjs";
+import { type Observable, throwError } from "rxjs";
 
 export function handleObservableError(
   observableError: Error | HttpErrorResponse,
-) {
+): Observable<{ message: string; status?: number }> {
   // in a real world app, we may send the error to some remote logging infrastructure
   // instead of just logging it to the console
   console.error(observableError);
