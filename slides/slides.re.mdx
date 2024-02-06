@@ -558,6 +558,7 @@ test("omitting the password results in an error", async () => {
 
 - **Payment** processors.
 - **Network** calls in unit and integration tests.
+- **Browser** APIs that `jsdom` can't simulate. Like the Geolocation API.
 - **Disk** operations. Mock node's `fs` module.
 - **Animation** libraries to avoid waiting for animations before elements are removed from the page.
 - Remember, when mocking, you trade confidence for convenience.
@@ -582,7 +583,7 @@ test("omitting the password results in an error", async () => {
   - window resize
   - geolocation
   - media queries
-- For this, you have to mock `window.resizeTo`, `window.navigator.geolocation.getCurrentPosition`, and polyfill `window.matchMedia`.
+- For this, you have to mock `window.resizeTo`, `window.navigator.geolocation.watchPosition`, and `window.matchMedia` respectively.
 
 ---
 
@@ -597,23 +598,85 @@ test("omitting the password results in an error", async () => {
 
 ---
 
+<Center>
+  `code/src/app/location/location-test-05.test.ts`
+</Center>
+
+---
+
+# When to mock modules?
+
+- Mock modules when a module interacts with things that are too hard to mock.
+  - For example, if a module interacts with a browser API that is difficult to mock, like `canvas`.
+- Mock modules when you want to rely on the module's own tests
+  - I.e. on the tests from the library you're using.
+
+---
+
 # Mocking modules: example
 
-<div style={{fontSize: '0.8em'}}>
-- All functions exported from `math.ts` are converted to mock functions.
-- We can call `.mockImplementation(() => {})` on them.
+- Call `vi.mock` with a module's path and provide a mocked implementation for the values this module exports.
+- Everytime we import from this path, we'll get the mock instead.
 - `vi.mock` will always be executed before all imports.
 
+---
+
+# Mocking modules: example
+
+<div style={{ fontSize: '0.6em' }}>
 ```typescript
-// math.ts
-export const add = (a, b) => a + b;
-export const subtract = (a, b) => a - b;
+// payment.ts
+// pretend we get this from a service that knows how much money we currently have
+let inWallet = Math.random() * 10_000;
 
-// __tests__/some-test.ts
-import {vi} from "vitest";
-import {add, subtract} from '../math';
+async function callPaymentProcessor() {}
 
-vi.mock("../math");
+async function getBalance() {
+  return inWallet;
+}
+
+async function deductPrice(price: number) {
+  inWallet -= price;
+}
+
+export async function pay(price: number) {
+  await callPaymentProcessor();
+
+  await deductPrice(price);
+
+  return await getBalance();
+}
+```
+</div>
+
+---
+
+# Mocking modules: example
+
+<div style={{ fontSize: '0.55em' }}>
+```typescript
+// shop-form.ts
+import { pay } from "./payment";
+
+const BIKE_COST = 1_000;
+
+export async function buyBike() {
+  return await pay(BIKE_COST);
+}
+
+// shop-form.test.ts
+import { expect, test, vi } from "vitest";
+import { buyBike } from "./shop-form";
+
+vi.mock("./payment", () => ({
+  pay: vi.fn(() => 9_000),
+}));
+
+test("after buying a bike we have a 9,000 balance", async () => {
+  const balance = await buyBike();
+
+  expect(balance).toEqual(9_000);
+});
 ```
 </div>
 
@@ -621,28 +684,68 @@ vi.mock("../math");
 
 # Mock only parts of a module
 
-<div style={{ fontSize: '0.8em' }}>
-- Call `vi.importActual('some-path')`, spread the imported members, and override what you need to.
+<div style={{ fontSize: '0.7em' }}>
+- Call `vi.importActual('some-path')`
+- Spread the imported members.
+- Override and mock what you need to.
 
 ```typescript
-import {vi} from "vitest";
+import { vi } from "vitest";
 
-vi.mock('../math', () => {
-  const actualMath = vi.importActual('../math')
+vi.mock("./math", async () => {
+  const actualMath = await vi.importActual<typeof import("./math")>("./math");
   return {
     ...actualMath,
-    subtract: jest.fn(),
-  }
+    subtract: vi.fn(),
+  };
 });
 ```
 </div>
 
 ---
 
+# Mock modules: `vi.hoisted`
+
+- `vi.hoisted` runs **once** before everything else in the file.
+- `vi.mock` runs **once** after `vi.hoisted`, but before everything else.
+
+---
+
+# Angular: mocking services vs mocking modules
+
+<div style={{ fontSize: '0.8em' }}>
+- In TypeScript, where most things are just functions, objects, and primitive variables, to use them, you import them from another ES Module, and that's it.
+- Since Angular makes extensive use of dependency injection, mocking modules isn't really worth it.
+- You end up adding too much code in your test to achieve the same result as if you mocked services directly.
+- You have to:
+  - Mock the injected services when you mock the module.
+  - Pass these mocked services to `componentProviders` when you call `render`.
+  - Hoist these mocks to be able to use them both in `vi.mock("some-path")`, and in your actual `test`s (outside of `vi.mock("some-path")`).
+</div>
+
+---
+
+# Angular: mocking services vs mocking modules
+
+- **In Angular, prefer mocking services directly instead of mocking modules.**
+- **Tip:** If the service is or `extends` an `Observable`, mock it with a `Subject`.
+
+---
+
+<Center>
+  `code/src/app/location/location-test-06.test.ts`
+</Center>
+
+---
+
+<Center>
+  `code/src/app/location/location-test-07.test.ts`
+</Center>
+
+---
+
 # TODO
 
-- mock browser APIs
-- mock modules
 - how to add a custom render method that includes common providers, like http stuff
 - how to test services
 - additional test tips notes
