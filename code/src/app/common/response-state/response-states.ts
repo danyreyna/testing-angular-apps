@@ -37,6 +37,10 @@ function isResponse<TData>(value: unknown): value is Response<TData> {
   );
 }
 
+export function isPending(value: unknown): value is PendingState {
+  return isResponse(value) && value.state === PENDING_STATE;
+}
+
 export function isErrorResponse(value: unknown): value is ErrorResponse {
   return isResponse(value) && value.state === ERROR_STATE;
 }
