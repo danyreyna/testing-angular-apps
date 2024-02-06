@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { catchError } from "rxjs";
-import { handleHttpError } from "../common/handle-http-error";
+import { handleObservableError } from "../common/handle-observable-error";
 import type { LoginFormValues } from "./login-submission-form.component";
 
 export type LoginResponse = {
@@ -19,6 +19,8 @@ export class LoginSubmissionService {
         "https://auth-provider.example.com/api/login",
         formData,
       )
-      .pipe(catchError((errorResponse) => handleHttpError(errorResponse)));
+      .pipe(
+        catchError((errorResponse) => handleObservableError(errorResponse)),
+      );
   }
 }
