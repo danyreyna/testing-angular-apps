@@ -748,6 +748,38 @@ vi.mock("./math", async () => {
 
 ---
 
+# Testing with component providers and adding a custom render method
+
+- Remember, write tests that resemble the way our software is used.
+- We want to render our components with all common providers, like the ones for:
+  - Router
+  - Http client
+  - Language
+  - Theme
+
+---
+
+# Testing with component providers and adding a custom render method
+
+- Passing the providers in every test when calling `render` is annoying.
+- Instead, create a custom `render` method that does this automatically.
+
+---
+
+# Testing with component providers and adding a custom render method: How-to
+
+- Create your custom `render` method in a `tests/utils.ts` module.
+  - It should include your app providers in `providers`.
+- Re-export the rest from Angular Testing Library.
+
+---
+
+<Center>
+  `code/src/app/some-button/some-button-test-08.test.ts`
+</Center>
+
+---
+
 # TODO
 
 - how to add a custom render method that includes common providers, like http stuff
