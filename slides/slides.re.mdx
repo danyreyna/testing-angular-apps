@@ -713,15 +713,19 @@ vi.mock("./math", async () => {
 
 # Angular: mocking services vs mocking modules
 
-<div style={{ fontSize: '0.8em' }}>
 - In TypeScript, where most things are just functions, objects, and primitive variables, to use them, you import them from another ES Module, and that's it.
 - Since Angular makes extensive use of dependency injection, mocking modules isn't really worth it.
 - You end up adding too much code in your test to achieve the same result as if you mocked services directly.
-- You have to:
+
+---
+
+# Angular: mocking services vs mocking modules
+
+- To mock modules in Angular you have to:
   - Mock the injected services when you mock the module.
   - Pass these mocked services to `componentProviders` when you call `render`.
-  - Hoist these mocks to be able to use them both in `vi.mock("some-path")`, and in your actual `test`s (outside of `vi.mock("some-path")`).
-</div>
+  - Hoist these mocks to be able to use them both in `vi.mock`, and in your tests (outside of `vi.mock`).
+  - If your mocks are stateful (like when mocking an `Observable` with a `Subject`), reset your mocks in `afterEach`.
 
 ---
 
