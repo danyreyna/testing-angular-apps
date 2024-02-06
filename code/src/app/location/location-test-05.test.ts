@@ -4,7 +4,7 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/angular";
 import { beforeAll, expect, test, vi } from "vitest";
-import { LocationComponent } from "./location.component";
+import { ObservableLocationComponent } from "./observable-location.component";
 
 const mockedGeolocation = {
   watchPosition: vi.fn(),
@@ -43,7 +43,7 @@ test("displays the users current location", async () => {
     promise.then(() => successCallback(fakePosition));
   });
 
-  await render(LocationComponent);
+  await render(ObservableLocationComponent);
 
   expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
 
@@ -70,7 +70,7 @@ test("displays an error message when geolocation is not supported", async () => 
     promise.catch(() => errorCallback(fakeError));
   });
 
-  await render(LocationComponent);
+  await render(ObservableLocationComponent);
 
   expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
 

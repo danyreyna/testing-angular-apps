@@ -47,7 +47,7 @@ import {
     }
   `,
 })
-export class LocationComponent {
+export class ObservableLocationComponent {
   readonly #locationService = inject(ObservableLocationService);
 
   position$: Observable<GeolocationResponseWithState> =

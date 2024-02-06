@@ -6,7 +6,7 @@ import {
 } from "@testing-library/angular";
 import { Subject } from "rxjs";
 import { expect, test } from "vitest";
-import { LocationComponent } from "./location.component";
+import { ObservableLocationComponent } from "./observable-location.component";
 
 test("displays the users current location", async () => {
   const fakePosition = {
@@ -25,7 +25,7 @@ test("displays the users current location", async () => {
   const locationSubject = new Subject<GeolocationPosition>();
   const mockedGeolocationService = locationSubject.asObservable();
 
-  await render(LocationComponent, {
+  await render(ObservableLocationComponent, {
     componentProviders: [
       {
         provide: GeolocationService,
@@ -56,7 +56,7 @@ test("displays error message when geolocation is not supported", async () => {
   const locationSubject = new Subject<GeolocationPosition>();
   const mockedGeolocationService = locationSubject.asObservable();
 
-  await render(LocationComponent, {
+  await render(ObservableLocationComponent, {
     componentProviders: [
       {
         provide: GeolocationService,

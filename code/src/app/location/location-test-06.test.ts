@@ -5,7 +5,7 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/angular";
 import { afterEach, expect, test, vi } from "vitest";
-import { LocationComponent } from "./location.component";
+import { ObservableLocationComponent } from "./observable-location.component";
 
 const hoistedMock = await vi.hoisted(async () => {
   const { Subject } = await import("rxjs");
@@ -52,7 +52,7 @@ test("displays the users current location", async () => {
     timestamp: Date.now(),
   };
 
-  await render(LocationComponent, {
+  await render(ObservableLocationComponent, {
     componentProviders: [
       {
         provide: GeolocationService,
@@ -80,7 +80,7 @@ test("displays error message when geolocation is not supported", async () => {
     "Geolocation is not supported or permission denied",
   );
 
-  await render(LocationComponent, {
+  await render(ObservableLocationComponent, {
     componentProviders: [
       {
         provide: GeolocationService,
