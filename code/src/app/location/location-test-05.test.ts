@@ -58,3 +58,27 @@ test("displays the users current location", async () => {
     `Longitude: ${fakePosition.coords.longitude}`,
   );
 });
+
+test("displays an error message when geolocation is not supported", async () => {
+  const fakeError = new Error(
+    "Geolocation is not supported or permission denied",
+  );
+
+  const { promise, reject } = deferred();
+
+  mockedGeolocation.watchPosition.mockImplementation((_, errorCallback) => {
+    promise.catch(() => errorCallback(fakeError));
+  });
+
+  await render(LocationComponent);
+
+  expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
+
+  reject();
+
+  await waitForElementToBeRemoved(() => screen.queryByLabelText(/loading/i));
+
+  expect(screen.queryByLabelText(/loading/i)).not.toBeInTheDocument();
+
+  expect(screen.getByRole("alert")).toHaveTextContent(fakeError.message);
+});
