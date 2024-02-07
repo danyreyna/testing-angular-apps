@@ -899,6 +899,36 @@ Call `screen.debug();` in a `test` to visualize the rendered HTML.
 
 ---
 
+# Extra tip 5: Testing Library query methods guide
+
+## `query*` methods
+
+<div style={{fontSize: '0.7em'}}>
+- Use them to **verify that an element is not present**.
+- The difference between this and `get*` is that if no element is found `get*` throws.
+- On the other hand `query*` returns `null`.
+- Examples:
+  - `await waitForElementToBeRemoved(() => screen.queryByLabelText(/loading/i));`
+  - `expect(screen.queryByLabelText(/loading/i)).not.toBeInTheDocument();`
+</div>
+
+---
+
+# Extra tip 5: Testing Library query methods guide
+
+## `find*` methods
+
+<div style={{ fontSize: '0.7em' }}>
+- Use them when you want to get an element that may not be available right away.
+- These methods try to get the specified element a couple of times until a `timeout` is reached.
+- If nothing is found, these methods throw.
+- They accept the `waitFor()` method options as the last argument.
+  - So you can pass a custom `interval` and `timeout`, among other options.
+- Example: `const submitButton = await screen.findByRole('button', {name: /submit/i})`
+</div>
+
+---
+
 # TODO
 
 - bookshelf tests
