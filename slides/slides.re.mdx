@@ -786,9 +786,61 @@ vi.mock("./math", async () => {
 
 ---
 
+# Testing services
+
+- Remember, "the more your tests resemble the way your software is used, the more confidence they can give you".
+- Where is your service used? It's used in a component.
+- That's how we should test most services.
+- Often, the easiest way to test a service is to create a component that uses it, and test that component instead.
+
+---
+
+# Testing services
+
+- Simple services should be covered by your component tests.
+- But a service should have its own tests if:
+  - The service is complex.
+  - The service is highly reusable. Like a library you'd publish to npm.
+  - The example component you'd write to test the service, is non-trivial.
+  - The service has many use cases. So you end up writing a lot of example components to test.
+  - To test the service, you want to "re-render" the component that's using it, with different inputs.
+
+---
+
+# Testing services: Caveats
+
+- Services are NOT pure.
+  - Services commonly perform side-effects.
+  - By changing state or doing I/O operations.
+- This means the return values and state of services may be changed by the service's own methods or by external dependencies.
+- Because services aren't pure, you can't just call them once and assert the output.
+
+---
+
+# Test simple services
+
+- Write an example test component that uses the service
+- Render, interact with, and test that component.
+
+---
+
+# Test complex services: Use the `renderService` utility
+
+- It creates a temporal component that doesn't have any UI associated with it.
+- The service is injected in this component.
+- The temporal component is rendered.
+- It returns the injected service's instance to interact with it directly.
+
+---
+
+<Center>
+  `code/src/app/counter-service/counter-service-test-10.test.ts`
+</Center>
+
+---
+
 # TODO
 
-- how to test services
 - additional test tips notes
 - testing playground extension
 - bookshelf tests
