@@ -839,10 +839,68 @@ vi.mock("./math", async () => {
 
 ---
 
+# Extra tip 1: `screen.debug()`
+
+Call `screen.debug();` in a `test` to visualize the rendered HTML.
+
+---
+
+# Extra tip 2: `screen.getByRole("any string here")`
+
+- Call `screen.getByRole("whatever");` in a `test` to log a warning that lists all available roles.
+- These roles can be used to get elements.
+
+---
+
+# Extra tip 3: Testing Playground extension
+
+- Point and click elements to know which Testing Library queries to use in your tests.
+- [Get the extension](https://chromewebstore.google.com/detail/testing-playground/hejbmebodbijjdhflfknehhcgaklhano)
+
+---
+
+# Extra tip 4: Article "Common Testing Library mistakes"
+
+- The examples are for React but the same tips apply to Angular Testing Library.
+- [Go to the article](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library)
+
+---
+
+# Extra tip 5: Testing Library query methods guide
+
+## `getByRole` with the `name` option
+
+<div style={{fontSize: '0.8em'}}>
+- For example, `getByRole('button', {name: /submit/i})`
+- This method should be your top preference.
+- There's not much you can't get with this.
+  - If you can't, your UI may not be accessible.
+- It uses HTML [roles](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques#roles)
+</div>
+
+---
+
+# Extra tip 5: Testing Library query methods guide
+
+## `getByText`
+
+- Use for non-interactive elements.
+  - For example, `<div>`, `<span>`, and `<p>`
+- Text content is the main way users find elements.
+
+---
+
+# Extra tip 5: Testing Library query methods guide
+
+## `getByLabelText` and `getByDisplayValue`
+
+- Use `getByLabelText` to get form `<input>`s, `<textarea>`s, and `<select>`s.
+- `getByDisplayValue` is an alternative way to get these elements if they have a certain value.
+
+---
+
 # TODO
 
-- additional test tips notes
-- testing playground extension
 - bookshelf tests
 - get rid of @analogjs deps
 - https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated
