@@ -5,6 +5,18 @@ import {
   platformBrowserDynamicTesting,
 } from "@angular/platform-browser-dynamic/testing";
 import "@testing-library/jest-dom/vitest";
+import { afterAll, afterEach, beforeAll } from "vitest";
+import { server } from "../mocks/index";
+
+beforeAll(() => {
+  server.listen();
+});
+afterAll(() => {
+  server.close();
+});
+afterEach(() => {
+  server.resetHandlers();
+});
 
 getTestBed().initTestEnvironment(
   BrowserDynamicTestingModule,

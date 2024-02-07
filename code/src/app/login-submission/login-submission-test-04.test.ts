@@ -8,9 +8,8 @@ import {
 } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
-import { setupServer } from "msw/node";
-import { afterEach, afterAll, beforeAll, expect, test } from "vitest";
-import { handlers as someApiHandlers } from "../../../tests/mocks/some-api";
+import { expect, test } from "vitest";
+import { server } from "../../../tests/mocks";
 import { type LoginFormValues } from "./login-submission-form.component";
 import { LoginSubmissionComponent } from "./login-submission.component";
 
@@ -22,11 +21,6 @@ const buildLoginForm = build<LoginFormValues>({
 });
 
 const { json } = HttpResponse;
-const server = setupServer(...someApiHandlers);
-
-beforeAll(() => server.listen());
-afterAll(() => server.close());
-afterEach(() => server.resetHandlers());
 
 test(`logging in displays the user's username`, async () => {
   await render(LoginSubmissionComponent, {
