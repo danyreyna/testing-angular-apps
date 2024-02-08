@@ -928,9 +928,122 @@ Call `screen.debug();` in a `test` to visualize the rendered HTML.
 
 ---
 
+# Use Case coverage > Code coverage
+
+- Test use cases instead of code.
+- Use cases resemble the way users use the app.
+- The **code coverage** report can help us identify **use cases** that we're **not covering**.
+- But again, don't think in terms of testing code.
+
+---
+
+# Don't bother targeting a 100% code coverage report
+
+- It's not worth the time for apps.
+- **But for shared modules** it might be appropriate because:
+  - They're generally easier to keep at 100%.
+  - Because they're smaller and more isolated.
+  - They're important due to the fact that they're shared in multiple projects.
+
+---
+
+# Why so much disdain for code coverage targets?
+
+<div style={{fontSize:'0.8rem'}}>
+## What code coverage is telling you:
+
+"This code ran when your tests ran."
+
+## What code coverage is NOT telling you
+
+- "This code will work according to the business requirements."
+- "This code works with all the other code in the application."
+- "The application cannot get into a bad state."
+</div>
+
+---
+
+# Why so much disdain for code coverage targets? An example
+
+- You can increase your code coverage just as much by adding tests to your "About us" page
+- As you can by adding tests to your "Checkout" page
+- One of those things is more important than the other
+- And code coverage can't give you any insight into that for your codebase
+
+---
+
+# Types of tests
+
+- When painting, there are different brushes for different use cases.
+- The same thing applies to tests.
+- Spoiler: You should **mostly** write **integration** tests.
+
+---
+
+# Types of tests: E2E
+
+- These will run the entire application.
+- **Both frontend and backend.**
+- Your test will interact with the app just like a typical user would.
+- These tests are written with Playwright or Cypress.
+- Confidence level: 4.
+- Convenience level: 1.
+
+---
+
+# Types of tests: Integration
+
+- Verify that **several units work well together**.
+- These render with all the providers used in the app.
+- The **idea** behind integration tests is to **mock as little as possible**.
+- Mostly just mock:
+  - Network requests with `MSW`.
+  - Animation components. Not need to wait for them in automated tests.
+- Confidence level: 3.
+- Convenience level: 2.
+
+---
+
+# Types of tests: Unit
+
+- These verify that individual, isolated parts work.
+- Utility functions are suitable for unit testing.
+- But any code that's heavily relied upon is a good candidate for unit testing.
+- **Not everything** needs a unit test.
+- Most of your code can be covered by good component/**integration** tests.
+- Confidence level: 2.
+- Convenience level: 3.
+
+---
+
+# Types of tests: Static analyzers
+
+- Linter.
+- Type checker.
+- Confidence level: 1.
+- Convenience level: 4.
+
+---
+
+# How to start testing? Start with E2E
+
+- Write a **single end-to-end test** to cover the **happy path** most users go through.
+- You can cover the most important features with this.
+- E2E tests aren't going to give you 100% use case coverage, and that's ok.
+- Nor will they give you 100% code coverage, and you should not even record that for E2E tests anyway.
+
+---
+
+# Once you have a few E2E tests in place, start writing...
+
+- **Integration** tests, for the **edge cases** that you are **missing** in your E2E tests.
+- **Unit** tests, for the **more complex business logic** that those features are using.
+- From there it becomes a matter of adding tests over time.
+
+---
+
 # TODO
 
-- bookshelf tests 11
 - bookshelf tests 12
 - bookshelf tests 13
 - bookshelf tests 14
