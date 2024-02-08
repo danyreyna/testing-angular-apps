@@ -30,4 +30,7 @@ npm run dev
 
 ## Acknowledgements
 
-Material in this repo was adapted from [testing-react-apps](https://github.com/kentcdodds/testing-react-apps/tree/next)
+Content in this repo was adapted from:
+
+- [Testing React Applications](https://github.com/kentcdodds/testing-react-apps/tree/next)
+- [Build an Epic React App: Exercise 11](https://github.com/kentcdodds/bookshelf/tree/exercises/11-unit-testing)
