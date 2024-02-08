@@ -145,7 +145,7 @@ Thank you very much. (Please don't take my job yet).
 
 # Please don't.
 
-<div style={{ fontSize: '0.4em' }}>
+<div style={{ fontSize: '0.4rem' }}>
 ```typescript
 describe("CounterComponent",  () => {
   let fixture: ComponentFixture<CounterComponent>;
@@ -185,7 +185,7 @@ describe("CounterComponent",  () => {
 
 > The more your tests resemble the way your software is used, the more confidence they can give you.
 
-<div style={{ fontSize: '0.8em' }}>
+<div style={{ fontSize: '0.8rem' }}>
 ```typescript
 test("should increment the counter on click", async () => {
   await render(CounterComponent);
@@ -203,7 +203,7 @@ test("should increment the counter on click", async () => {
 
 The counter was just a simple example.
 
-<div style={{fontSize: "0.25em", display: 'flex', justifyContent: 'space-between'}}>
+<div style={{fontSize: "0.25rem", display: 'flex', justifyContent: 'space-between'}}>
   <div>
 ```typescript
 describe("HeroesComponent", () => {
@@ -339,7 +339,7 @@ describe("HeroesComponent", () => {
 
 # Avoid implementation details: TL;DR
 
-<div style={{fontSize: '0.8em'}}>
+<div style={{fontSize: '0.8rem'}}>
 - For example, clicking a button also fires
   - `mouse move` and `mouse leave` if another element was focused
   - `mouse over`
@@ -422,7 +422,7 @@ describe("HeroesComponent", () => {
 
 # Using overrides in `@jackfranklin/test-data-bot`
 
-<div style={{fontSize: '0.8em'}}>
+<div style={{fontSize: '0.8rem'}}>
 ```typescript
 const buildSignupForm = build<SignupFormValues>({
   fields: {
@@ -500,7 +500,7 @@ Since we're not testing implementation details, the same test works for template
 
 Look at this test, before running it for the first time.
 
-<div style={{fontSize: '0.75em'}}>
+<div style={{fontSize: '0.75rem'}}>
 ```typescript
 test("omitting the password results in an error", async () => {
   /* ... */
@@ -515,7 +515,7 @@ test("omitting the password results in an error", async () => {
 
 After running the test, a text snapshot is added inline:
 
-<div style={{ fontSize: '0.75em' }}>
+<div style={{ fontSize: '0.75rem' }}>
 ```typescript
 test("omitting the password results in an error", async () => {
   /* ... */
@@ -623,7 +623,7 @@ test("omitting the password results in an error", async () => {
 
 # Mocking modules: example
 
-<div style={{ fontSize: '0.6em' }}>
+<div style={{ fontSize: '0.6rem' }}>
 ```typescript
 // payment.ts
 // pretend we get this from a service that knows how much money we currently have
@@ -653,7 +653,7 @@ export async function pay(price: number) {
 
 # Mocking modules: example
 
-<div style={{ fontSize: '0.55em' }}>
+<div style={{ fontSize: '0.55rem' }}>
 ```typescript
 // shop-form.ts
 import { pay } from "./payment";
@@ -684,7 +684,7 @@ test("after buying a bike we have a 9,000 balance", async () => {
 
 # Mock only parts of a module
 
-<div style={{ fontSize: '0.7em' }}>
+<div style={{ fontSize: '0.7rem' }}>
 - Call `vi.importActual('some-path')`
 - Spread the imported members.
 - Override and mock what you need to.
@@ -870,7 +870,7 @@ Call `screen.debug();` in a `test` to visualize the rendered HTML.
 
 ## `getByRole` with the `name` option
 
-<div style={{fontSize: '0.8em'}}>
+<div style={{fontSize: '0.8rem'}}>
 - For example, `getByRole('button', {name: /submit/i})`
 - This method should be your top preference.
 - There's not much you can't get with this.
@@ -903,7 +903,7 @@ Call `screen.debug();` in a `test` to visualize the rendered HTML.
 
 ## `query*` methods
 
-<div style={{fontSize: '0.7em'}}>
+<div style={{fontSize: '0.7rem'}}>
 - Use them to **verify that an element is not present**.
 - The difference between this and `get*` is that if no element is found `get*` throws.
 - On the other hand `query*` returns `null`.
@@ -918,7 +918,7 @@ Call `screen.debug();` in a `test` to visualize the rendered HTML.
 
 ## `find*` methods
 
-<div style={{ fontSize: '0.7em' }}>
+<div style={{ fontSize: '0.7rem' }}>
 - Use them when you want to get an element that may not be available right away.
 - These methods try to get the specified element a couple of times until a `timeout` is reached.
 - If nothing is found, these methods throw.
