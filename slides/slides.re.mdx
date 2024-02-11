@@ -1042,9 +1042,457 @@ Call `screen.debug();` in a `test` to visualize the rendered HTML.
 
 ---
 
+# AHA programming
+
+- AHA means [Avoid Hasty Abstractions](https://kentcdodds.com/blog/aha-programming)
+- TL;DR: You're not a fortune teller. Be pragmatic.
+- We could spend weeks:
+  - Coming up with the best API for our new abstraction
+  - Or optimizing code for performance
+- Only to find out the next day that **we made incorrect assumptions** and the API needs a complete rework or the feature the code was written for is no longer needed.
+
+---
+
+# AHA programming
+
+- Prefer duplication until you feel pretty confident that you know the use cases for that duplicated code.
+- After you've got a few places where that code is running, **the commonalities will scream at you for abstraction** and you'll be in the right frame of mind to provide that abstraction.
+- On the other hand, if you abstract early, you'll think the function or component is perfect for your use case.
+  - But then you just bend the code to fit your new upcoming use cases.
+  - And you repeat this until your abstraction is **huge** and has a **lot of conditional** `if`/`switch` statements.
+
+---
+
+# AHA testing
+
+- The point is to **improve readability**.
+- It takes less work to write and maintain tests that have mindful abstractions applied to them.
+- You want to make the tests easy for developers to understand.
+- So they can work out what's happening when a test fails.
+
+---
+
+# Testing without abstractions
+
+- Absolutely No Abstraction (ANA) testing makes reading and understanding tests difficult.
+- Look at this [example](https://github.com/kentcdodds/kentcdodds.com/blob/main/content/blog/aha-testing/index.mdx#L54)
+- In both we create mocked `req` and `res` objects, and a mocked `next` function.
+- Then we do the specific assertions for each test case.
+- How easy is it to quickly determine:
+  - the difference between these two similar tests
+  - and what causes that difference?
+- Not so much.
+
+---
+
+# Testing without abstractions: how does this happen?
+
+- John Doe needs to add a test.
+- John copies a previous test similar to what he needs.
+- John modifies this test a little bit.
+
+---
+
+# DRY testing
+
+- "Don't repeat yourself" testing makes tests difficult to maintain.
+
+## How does this happen?
+
+- John Doe needs to add a test.
+- John goes to the testing abstraction.
+- John adds another if statement with the case he wants to test.
+
+---
+
+# DRY testing
+
+- DRY testing also leads to:
+  - The overuse of `describe` and `it` nesting.
+  - And the overuse of `beforeEach`.
+- The more you nest and use shared variables between tests, the harder it is to follow the logic.
+
+---
+
+# AHA testing
+
+- Guideline: add abstractions when duplication becomes obvious.
+- By adding mindful abstractions we make it clear what's relevant in the arrangements and assertions of tests.
+- This leads to more readable tests which are easier to maintain.
+
+---
+
+# AHA testing: How to
+
+- Create a "Test Object Factory" function.
+  - It's a function that returns some object you need to create in multiple tests, and it allows to pass overrides.
+  - They reduce duplication **and** help communicate what's important in tests.
+  - In our previous test example, it's easier to say: "Give me a normal `req` object, but I want it to have these specific properties, because these are **important to the current test**".
+- Or create any other helper function.
+- Or create state object constants.
+
+---
+
+# AHA testing example: Create a "Test Object Factory" function
+
+<div style={{fontSize:'0.38rem', display: 'flex'}}>
+  <div>
+```typescript
+import * as blogPostController from "../blog-post";
+
+// load the application-wide mock for the database.
+jest.mock("../../lib/db");
+
+function setup(overrides = {}) {
+  const req = {
+    locale: {
+      source: "default",
+      language: "en",
+      region: "GB",
+    },
+    user: {
+      guid: "0336397b-e29d-4b63-b94d-7e68a6fa3747",
+      isActive: false,
+      picture: "http://placehold.it/32x32",
+      age: 30,
+      name: {
+        first: "Francine",
+        last: "Oconnor",
+      },
+      company: "ACME",
+      email: "francine.oconnor@ac.me",
+      latitude: 51.507351,
+      longitude: -0.127758,
+      favoriteFruit: "banana",
+    },
+    body: {},
+    cookies: {},
+```
+  </div>
+  <div>
+```typescript
+    query: {},
+    params: {
+      bucket: "photography",
+    },
+    header(name) {
+      return {
+        Authorization: "Bearer TEST_TOKEN",
+      }[name];
+    },
+    ...overrides,
+  };
+
+  const res = {
+    clearCookie: jest.fn(),
+    cookie: jest.fn(),
+    end: jest.fn(),
+    locals: {
+      content: {},
+    },
+    json: jest.fn(),
+    send: jest.fn(),
+    sendStatus: jest.fn(),
+    set: jest.fn(),
+  };
+  const next = jest.fn();
+
+  return { req, res, next };
+}
+```
+  </div>
+</div>
+
+---
+
+# AHA testing example: Create a "Test Object Factory" function
+
+<div style={{fontSize:'0.38rem'}}>
+```typescript
+test("lists blog posts for the logged in user", async () => {
+  const { req, res, next } = setup();
+
+  await blogPostController.loadBlogPosts(req, res, next);
+
+  expect(res.json).toHaveBeenCalledTimes(1);
+  expect(res.json).toHaveBeenCalledWith({
+    posts: expect.arrayContaining([
+      expect.objectContaining({
+        title: "Test Post 1",
+        subtitle: "This is the subtitle of Test Post 1",
+        body: "The is the body of Test Post 1",
+      }),
+    ]),
+  });
+});
+
+test("returns an empty list when there are no blog posts", async () => {
+  const { req, res, next } = setup();
+  req.user.latitude = 31.230416;
+  req.user.longitude = 121.473701;
+
+  await blogPostController.loadBlogPosts(req, res, next);
+
+  expect(res.json).toHaveBeenCalledTimes(1);
+  expect(res.json).toHaveBeenCalledWith({
+    posts: [],
+  });
+});
+```
+</div>
+
+---
+
+# AHA testing example: Create a helper function
+
+<div style={{fontSize:'0.37rem', display: 'flex'}}>
+  <div>
+```typescript
+import { render, screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
+import {vi} from "vitest";
+import { LoginFormComponent } from "../login-form";
+
+async function renderLoginForm(props) {
+  await render(LoginFormComponent);
+  const usernameInput = screen.getByLabelText(/username/i);
+  const passwordInput = screen.getByLabelText(/password/i);
+  const submitButton = screen.getByText(/submit/i);
+  return {
+    usernameInput,
+    passwordInput,
+    submitButton,
+    changeUsername: (value) => userEvent.type(usernameInput, value),
+    changePassword: (value) => userEvent.type(passwordInput, value),
+    submitForm: () => userEvent.click(submitButton),
+  };
+}
+```
+  </div>
+  <div>
+```typescript
+test("submit calls the submit handler", async () => {
+  const handleSubmit = vi.fn();
+  const { changeUsername, changePassword, submitForm } = await renderLoginForm({
+    onSubmit: handleSubmit,
+  });
+  const username = "chucknorris";
+  const password = "ineednopassword";
+  await changeUsername(username);
+  await changePassword(password);
+  await submitForm();
+  expect(handleSubmit).toHaveBeenCalledTimes(1);
+  expect(handleSubmit).toHaveBeenCalledWith({ username, password });
+});
+```
+  </div>
+</div>
+
+---
+
+# AHA testing example: Create state object constants
+
+<div style={{fontSize: '0.32rem', display: 'flex'}}>
+  <div>
+```typescript
+import { beforeEach, expect, test, vi } from "vitest";
+import { AsyncService } from "../services";
+import { renderService } from "./tests/utils";
+
+beforeEach(() => {
+  vi.spyOn(console, "error");
+});
+
+/*
+ * Restore mocks in `afterEach` (or `beforeEach`) instead of inside tests.
+ * This guarantees test isolation.
+ * If a test throws before restoring mocks, this ensures mocks are restored anyway.
+ * Vitest automatically does this with the `restoreMocks: true` config.
+ */
+// afterEach(() => {
+//   vi.restoreAllMocks();
+// });
+
+function getDeferredPromise() {
+  let resolve: (value?: unknown) => void = () => {};
+  let reject: (reason?: unknown) => void = () => {};
+
+  const promise = new Promise((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+
+  return { promise, resolve, reject };
+}
+```
+  </div>
+  <div>
+```typescript
+const defaultState = {
+  status: "idle",
+  data: null,
+  error: null,
+
+  isIdle: true,
+  isLoading: false,
+  isError: false,
+  isSuccess: false,
+
+  run: expect.any(Function),
+  reset: expect.any(Function),
+  setData: expect.any(Function),
+  setError: expect.any(Function),
+};
+
+const pendingState = {
+  ...defaultState,
+  status: "pending",
+  isIdle: false,
+  isLoading: true,
+};
+
+const resolvedState = {
+  ...defaultState,
+  status: "resolved",
+  isIdle: false,
+  isSuccess: true,
+};
+
+const rejectedState = {
+  ...defaultState,
+  status: "rejected",
+  isIdle: false,
+  isError: true,
+};
+```
+  </div>
+</div>
+
+---
+
+# AHA testing example: Create state object constants
+
+<div style={{fontSize: '0.235rem', display: 'flex'}}>
+  <div>
+```typescript
+test("calling run with a promise which resolves", async () => {
+  const { promise, resolve } = getDeferredPromise();
+  const { result } = await renderService(AsyncService);
+
+  expect(result.current).toMatchObject(defaultState);
+
+  const runPromise = result.current.run(promise);
+
+  expect(result.current).toMatchObject(pendingState);
+
+  const resolvedValue = Symbol("resolved value");
+  resolve(resolvedValue);
+  await runPromise;
+
+  expect(result.current).toMatchObject({
+    ...resolvedState,
+    data: resolvedValue,
+  });
+
+  result.current.reset();
+  expect(result.current).toMatchObject(defaultState);
+});
+
+test("calling run with a promise which rejects", async () => {
+  const { promise, reject } = getDeferredPromise();
+
+  const { result } = await renderService(AsyncService);
+
+  expect(result.current).toMatchObject(defaultState);
+
+  const runPromise = result.current.run(promise);
+
+  expect(result.current).toMatchObject(pendingState);
+
+  const rejectedValue = Symbol("rejected value");
+  reject(rejectedValue);
+  await runPromise.catch(() => {
+    /* prevent the rejected promise from failing the test */
+  });
+
+  expect(result.current).toMatchObject({
+    ...rejectedState,
+    error: rejectedValue,
+  });
+});
+```
+  </div>
+  <div>
+```typescript
+test("can specify an initial state", async () => {
+  const mockData = Symbol("resolved value");
+  const customInitialState = { status: "resolved", data: mockData };
+
+  const { result } = await renderService(AsyncService);
+
+  expect(result.current).toMatchObject({
+    ...resolvedState,
+    ...customInitialState,
+  });
+});
+
+test("can set the data", async () => {
+  const mockData = Symbol("resolved value");
+  const { result } = await renderService(AsyncService);
+
+  result.current.setData(mockData);
+
+  expect(result.current).toMatchObject({
+    ...resolvedState,
+    data: mockData,
+  });
+});
+
+test("can set the error", async () => {
+  const mockError = Symbol("rejected value");
+  const { result } = await renderService(AsyncService);
+
+  result.current.setError(mockError);
+
+  expect(result.current).toMatchObject({
+    ...rejectedState,
+    error: mockError,
+  });
+});
+```
+  </div>
+  <div>
+```typescript
+test("No state updates happen if the component is unmounted while pending", async () => {
+  const { promise, resolve } = getDeferredPromise();
+  const { result, unmount } = await renderService(AsyncService);
+
+  const runPromise = result.current.run(promise);
+
+  unmount();
+
+  resolve();
+  await runPromise;
+
+  expect(console.error).not.toHaveBeenCalled();
+});
+
+test('calling "run" without a promise results in an early error', async () => {
+  const { result } = await renderService(AsyncService);
+
+  expect(() => result.current.run()).toThrowErrorMatchingInlineSnapshot(
+    `"The argument passed to AsyncService.run must be a promise.
+    Maybe a function that's passed isn't returning anything?"`,
+  );
+});
+```
+  </div>
+</div>
+
+---
+
 # TODO
 
-- bookshelf tests 12
 - bookshelf tests 13
 - bookshelf tests 14
 - get rid of @analogjs deps
