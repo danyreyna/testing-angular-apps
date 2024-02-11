@@ -109,11 +109,11 @@ export async function renderService<
     }
   }
 
-  await render(TestComponent, {
+  const { fixture } = await render(TestComponent, {
     componentProviders: initialValues,
   });
 
-  return { result: result as AssignedResult };
+  return { result: result as AssignedResult, unmount: fixture.destroy };
 }
 
 export * from "@testing-library/angular";
