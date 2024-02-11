@@ -17,7 +17,7 @@ beforeAll(() => {
   });
 });
 
-function deferred() {
+function getDeferredPromise() {
   let resolve: (value?: unknown) => void = () => {};
   let reject: (reason?: unknown) => void = () => {};
 
@@ -37,7 +37,7 @@ test("displays the users current location", async () => {
     },
   };
 
-  const { promise, resolve } = deferred();
+  const { promise, resolve } = getDeferredPromise();
 
   mockedGeolocation.watchPosition.mockImplementation((successCallback) => {
     promise.then(() => successCallback(fakePosition));
@@ -64,7 +64,7 @@ test("displays an error message when geolocation is not supported", async () => 
     "Geolocation is not supported or permission denied",
   );
 
-  const { promise, reject } = deferred();
+  const { promise, reject } = getDeferredPromise();
 
   mockedGeolocation.watchPosition.mockImplementation((_, errorCallback) => {
     promise.catch(() => errorCallback(fakeError));
