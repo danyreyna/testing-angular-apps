@@ -10,11 +10,20 @@ import { provideRouter } from "@angular/router";
 import {
   render as atlRender,
   type RenderComponentOptions,
+  screen,
+  waitForElementToBeRemoved,
 } from "@testing-library/angular";
 import { type Mock as VitestFunctionMock, vi } from "vitest";
 import { routes } from "../src/app/app.routes";
 import { type Theme } from "../src/app/common/theme.service";
 import { provideTheme } from "../src/app/common/theme.service.provider";
+
+export function waitForLoadingToFinish() {
+  return waitForElementToBeRemoved(() => [
+    ...screen.queryAllByLabelText(/loading/i),
+    ...screen.queryAllByText(/loading/i),
+  ]);
+}
 
 function render<ComponentType>(
   ui: Type<ComponentType>,
