@@ -26,7 +26,7 @@ test(`logging in displays the user's username`, async () => {
   await render(LoginSubmissionComponent, {
     providers: [provideHttpClient()],
   });
-  const { username, password } = buildLoginForm();
+  const { username, password } = buildLoginForm.one();
 
   await userEvent.type(screen.getByLabelText(/username/i), username);
   await userEvent.type(screen.getByLabelText(/password/i), password);
@@ -41,7 +41,7 @@ test("omitting the password results in an error", async () => {
   await render(LoginSubmissionComponent, {
     providers: [provideHttpClient()],
   });
-  const { username } = buildLoginForm();
+  const { username } = buildLoginForm.one();
 
   await userEvent.type(screen.getByLabelText(/username/i), username);
   // don't type in the password
