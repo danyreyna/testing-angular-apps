@@ -6,7 +6,6 @@ import {
   inject,
   type Type,
 } from "@angular/core";
-import { provideRouter } from "@angular/router";
 import {
   render as atlRender,
   type RenderComponentOptions,
@@ -34,11 +33,11 @@ function render<ComponentType>(
 ) {
   return atlRender(ui, {
     providers: [
-      provideRouter(routes),
       provideHttpClient(),
       provideTheme(theme),
       ...(options.providers ?? []),
     ],
+    routes,
     ...options,
   });
 }
