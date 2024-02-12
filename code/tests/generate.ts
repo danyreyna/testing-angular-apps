@@ -1,11 +1,8 @@
 import { faker } from "@faker-js/faker";
 import { build, perBuild } from "@jackfranklin/test-data-bot";
+import type { User } from "../src/app/common/user";
 
-export const buildUser = build<{
-  id: string;
-  username: string;
-  password: string;
-}>({
+export const buildUser = build<User>({
   fields: {
     id: perBuild(() => faker.datatype.uuid()),
     username: perBuild(() => faker.internet.userName()),
