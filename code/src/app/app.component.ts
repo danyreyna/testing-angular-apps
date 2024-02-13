@@ -8,7 +8,6 @@ import { RouterOutlet } from "@angular/router";
   imports: [CommonModule, RouterOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <main>hi</main>
     <router-outlet />
   `,
 })
