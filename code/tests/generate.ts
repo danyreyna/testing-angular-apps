@@ -7,5 +7,11 @@ export const buildUser = build<User>({
     id: perBuild(() => faker.string.uuid()),
     username: perBuild(() => faker.internet.userName()),
     password: perBuild(() => faker.internet.password()),
+    source: "registration",
+  },
+  traits: {
+    generatedAtTest: {
+      overrides: { source: "test" },
+    },
   },
 });
