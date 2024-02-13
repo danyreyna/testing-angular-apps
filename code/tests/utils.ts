@@ -16,12 +16,46 @@ import { type Mock as VitestFunctionMock, vi } from "vitest";
 import { routes } from "../src/app/app.routes";
 import { type Theme } from "../src/app/common/theme.service";
 import { provideTheme } from "../src/app/common/theme.service.provider";
+import type { User } from "../src/app/common/user";
+import { buildUser } from "./generate";
+import type { LoginResponse } from "./mocks/fake-backend";
 
 export function waitForLoadingToFinish() {
   return waitForElementToBeRemoved(() => [
     ...screen.queryAllByLabelText(/loading/i),
     ...screen.queryAllByText(/loading/i),
   ]);
+}
+
+export async function loginAsUser(userProperties: User) {
+  const user = buildUser.one({
+    overrides: userProperties,
+    traits: "generatedInTest",
+  });
+
+  const { id, ...rest } = user;
+
+  await fetch(`https://api.example.com/user/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(rest),
+  });
+
+  const authUserResponse = await fetch("https://api.example.com/login", {
+    method: "POST",
+    credentials: "omit",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      username: user.username,
+      password: user.password,
+    }),
+  });
+
+  return (await authUserResponse.json()) as LoginResponse;
 }
 
 function render<ComponentType>(
