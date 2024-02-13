@@ -48,35 +48,41 @@ export const handlers = [
 
       if (!username) {
         const status = 400;
-        const problemDetail: Rfc9457ProblemDetail = {
-          status,
-          title: "A username is required",
-          detail:
-            "To create or update a user a full representation including the username must be provided",
-        };
-        return HttpResponse.json(problemDetail, { status });
+        return HttpResponse.json<Rfc9457ProblemDetail>(
+          {
+            status,
+            title: "A username is required",
+            detail:
+              "To create or update a user a full representation including the username must be provided",
+          },
+          { status },
+        );
       }
 
       if (!password) {
         const status = 400;
-        const problemDetail: Rfc9457ProblemDetail = {
-          status,
-          title: "A password is required",
-          detail:
-            "To create or update a user a full representation including the password must be provided",
-        };
-        return HttpResponse.json(problemDetail, { status });
+        return HttpResponse.json<Rfc9457ProblemDetail>(
+          {
+            status,
+            title: "A password is required",
+            detail:
+              "To create or update a user a full representation including the password must be provided",
+          },
+          { status },
+        );
       }
 
       if (!source) {
         const status = 400;
-        const problemDetail: Rfc9457ProblemDetail = {
-          status,
-          title: "A source is required",
-          detail:
-            "To create or update a user a full representation including the source must be provided",
-        };
-        return HttpResponse.json(problemDetail, { status });
+        return HttpResponse.json<Rfc9457ProblemDetail>(
+          {
+            status,
+            title: "A source is required",
+            detail:
+              "To create or update a user a full representation including the source must be provided",
+          },
+          { status },
+        );
       }
 
       const passwordHash = getStringHash(password);
@@ -106,13 +112,15 @@ export const handlers = [
 
     if (source !== "test") {
       const status = 400;
-      const problemDetail: Rfc9457ProblemDetail = {
-        status,
-        title: `The source must be "test"`,
-        detail:
-          "At the moment we can only delete multiple users if they were generated in tests",
-      };
-      return HttpResponse.json(problemDetail, { status });
+      return HttpResponse.json<Rfc9457ProblemDetail>(
+        {
+          status,
+          title: `The source must be "test"`,
+          detail:
+            "At the moment we can only delete multiple users if they were generated in tests",
+        },
+        { status },
+      );
     }
 
     const userIdsToDelete = Array.from(mockUserDbTable.entries())
@@ -133,20 +141,24 @@ export const handlers = [
 
       if (!username) {
         const status = 400;
-        const problemDetail: Rfc9457ProblemDetail = {
-          status,
-          title: "Username is required",
-        };
-        return HttpResponse.json(problemDetail, { status });
+        return HttpResponse.json<Rfc9457ProblemDetail>(
+          {
+            status,
+            title: "Username is required",
+          },
+          { status },
+        );
       }
 
       if (!password) {
         const status = 400;
-        const problemDetail: Rfc9457ProblemDetail = {
-          status,
-          title: "Password is required",
-        };
-        return HttpResponse.json(problemDetail, { status });
+        return HttpResponse.json<Rfc9457ProblemDetail>(
+          {
+            status,
+            title: "Password is required",
+          },
+          { status },
+        );
       }
 
       const userEntry = Array.from(mockUserDbTable.entries()).find(
@@ -157,11 +169,13 @@ export const handlers = [
         userEntry[1].passwordHash !== getStringHash(password)
       ) {
         const status = 400;
-        const problemDetail: Rfc9457ProblemDetail = {
-          status,
-          title: "Invalid username or password",
-        };
-        return HttpResponse.json(problemDetail, { status });
+        return HttpResponse.json<Rfc9457ProblemDetail>(
+          {
+            status,
+            title: "Invalid username or password",
+          },
+          { status },
+        );
       }
 
       const [id, user] = userEntry;
@@ -190,7 +204,7 @@ export const handlers = [
         userId: id,
       });
 
-      return HttpResponse.json(
+      return HttpResponse.json<Pick<User, "id" | "username" | "source">>(
         {
           id,
           username: user.username,
