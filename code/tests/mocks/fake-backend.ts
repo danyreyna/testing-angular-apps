@@ -10,7 +10,7 @@ type Rfc9457ProblemDetail = {
   instance?: string;
 };
 
-const fakeUsersDb = new Map<
+const mockUserDbTable = new Map<
   string,
   Pick<User, "username" | "source"> & { passwordHash: string }
 >();
@@ -69,9 +69,9 @@ export const handlers = [
 
       const passwordHash = getStringHash(password);
 
-      const existingUser = fakeUsersDb.get(id);
+      const existingUser = mockUserDbTable.get(id);
       if (existingUser === undefined) {
-        fakeUsersDb.set(id, { username, passwordHash, source });
+        mockUserDbTable.set(id, { username, passwordHash, source });
 
         return new HttpResponse(null, { status: 201 });
       }
@@ -84,7 +84,7 @@ export const handlers = [
         return new HttpResponse(null, { status: 200 });
       }
 
-      fakeUsersDb.set(id, { username, passwordHash, source });
+      mockUserDbTable.set(id, { username, passwordHash, source });
       return new HttpResponse(null, { status: 200 });
     },
   ),
@@ -103,12 +103,12 @@ export const handlers = [
       return HttpResponse.json(problemDetail, { status });
     }
 
-    const userIdsToDelete = Array.from(fakeUsersDb.entries())
+    const userIdsToDelete = Array.from(mockUserDbTable.entries())
       .filter(([, { source: currentSource }]) => currentSource === source)
       .map(([id]) => id);
 
     for (const id of userIdsToDelete) {
-      fakeUsersDb.delete(id);
+      mockUserDbTable.delete(id);
     }
 
     return new HttpResponse(null, { status: 204 });
@@ -137,7 +137,7 @@ export const handlers = [
         return HttpResponse.json(problemDetail, { status });
       }
 
-      const userEntry = Array.from(fakeUsersDb.entries()).find(
+      const userEntry = Array.from(mockUserDbTable.entries()).find(
         ([, { username: currentUsername }]) => currentUsername === username,
       );
       if (
