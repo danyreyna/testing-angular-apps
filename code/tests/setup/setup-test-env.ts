@@ -51,5 +51,8 @@ afterEach(() => {
 
 // general cleanup
 afterEach(async () => {
-  await auth.logout();
+  await Promise.all([
+    auth.logout(),
+    fetch(`https://api.example.com/user?source=test`, { method: "DELETE" }),
+  ]);
 });
