@@ -87,4 +87,29 @@ export const handlers = [
       return new HttpResponse(null, { status: 200 });
     },
   ),
+  http.delete<{ id: string }>("https://api.example.com/user", ({ request }) => {
+    const url = new URL(request.url);
+    const source = url.searchParams.get("source");
+
+    if (source !== "test") {
+      const status = 400;
+      const problemDetail: Rfc9457ProblemDetail = {
+        status,
+        title: `The source must be "test"`,
+        detail:
+          "At the moment we can only delete multiple users if they were generated in tests",
+      };
+      return HttpResponse.json(problemDetail, { status });
+    }
+
+    const userIdsToDelete = Array.from(fakeUsersDb.entries())
+      .filter(([, { source: currentSource }]) => currentSource === source)
+      .map(([id]) => id);
+
+    for (const id of userIdsToDelete) {
+      fakeUsersDb.delete(id);
+    }
+
+    return new HttpResponse(null, { status: 204 });
+  }),
 ];
