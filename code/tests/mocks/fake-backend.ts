@@ -1,4 +1,5 @@
-import { http, HttpResponse } from "msw";
+import { faker } from "@faker-js/faker";
+import { http, HttpResponse, type PathParams } from "msw";
 import type { User } from "../../src/app/common/user";
 
 type Rfc9457ProblemDetail = {
@@ -112,4 +113,68 @@ export const handlers = [
 
     return new HttpResponse(null, { status: 204 });
   }),
+  http.post<PathParams, Pick<User, "username" | "password">>(
+    "https://api.example.com/login",
+    async ({ request }) => {
+      const body = await request.json();
+      const { username, password } = body;
+
+      if (!username) {
+        const status = 400;
+        const problemDetail: Rfc9457ProblemDetail = {
+          status,
+          title: "Username is required",
+        };
+        return HttpResponse.json(problemDetail, { status });
+      }
+
+      if (!password) {
+        const status = 400;
+        const problemDetail: Rfc9457ProblemDetail = {
+          status,
+          title: "Password is required",
+        };
+        return HttpResponse.json(problemDetail, { status });
+      }
+
+      const userEntry = Array.from(fakeUsersDb.entries()).find(
+        ([, { username: currentUsername }]) => currentUsername === username,
+      );
+      if (
+        userEntry === undefined ||
+        userEntry[1].passwordHash !== getStringHash(password)
+      ) {
+        const status = 400;
+        const problemDetail: Rfc9457ProblemDetail = {
+          status,
+          title: "Invalid username or password",
+        };
+        return HttpResponse.json(problemDetail, { status });
+      }
+
+      const [id, user] = userEntry;
+
+      /*
+       * In a real backend, use a cryptographically secure random number generator.
+       * This token would be an ID pointing to the client's information stored in the database.
+       * The client's information is an identifier, meaningless to prevent information disclosure attacks.
+       * It must never include sensitive information or Personally Identifiable Information.
+       */
+      const token = faker.string.uuid();
+
+      return HttpResponse.json(
+        {
+          id,
+          username: user.username,
+          source: user.source,
+        },
+        {
+          status: 200,
+          headers: {
+            "Set-Cookie": `__Host-id=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=600`,
+          },
+        },
+      );
+    },
+  ),
 ];
