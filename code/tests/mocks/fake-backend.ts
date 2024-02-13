@@ -18,12 +18,14 @@ const mockUserDbTable = new Map<
 const mockSessionDbTable = new Map<
   string,
   {
-    createdAt: Date;
-    rollingDuration: number;
-    absoluteDuration: number;
+    rollingExpiration: Date;
+    absoluteExpiration: Date;
     userId: User["id"];
   }
 >();
+
+const SESSION_ROLLING_DURATION = 600;
+const SESSION_ABSOLUTE_DURATION = 604_800;
 
 function getStringHash(str: string) {
   let hashNumber = 5381;
@@ -172,12 +174,19 @@ export const handlers = [
        */
       const token = faker.string.uuid();
 
-      const rollingDuration = 600;
-      const absoluteDuration = 604_800;
+      const rollingExpiration = new Date();
+      rollingExpiration.setSeconds(
+        rollingExpiration.getSeconds() + SESSION_ROLLING_DURATION,
+      );
+
+      const absoluteExpiration = new Date();
+      absoluteExpiration.setSeconds(
+        absoluteExpiration.getSeconds() + SESSION_ABSOLUTE_DURATION,
+      );
+
       mockSessionDbTable.set(token, {
-        createdAt: new Date(),
-        rollingDuration,
-        absoluteDuration,
+        rollingExpiration,
+        absoluteExpiration,
         userId: id,
       });
 
@@ -190,7 +199,7 @@ export const handlers = [
         {
           status: 200,
           headers: {
-            "Set-Cookie": `__Host-id=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${rollingDuration}`,
+            "Set-Cookie": `__Host-id=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${SESSION_ROLLING_DURATION}`,
           },
         },
       );
