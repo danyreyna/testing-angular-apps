@@ -15,6 +15,16 @@ const mockUserDbTable = new Map<
   Pick<User, "username" | "source"> & { passwordHash: string }
 >();
 
+const mockSessionDbTable = new Map<
+  string,
+  {
+    createdAt: Date;
+    rollingDuration: number;
+    absoluteDuration: number;
+    userId: User["id"];
+  }
+>();
+
 function getStringHash(str: string) {
   let hashNumber = 5381;
   let i = str.length;
@@ -162,6 +172,15 @@ export const handlers = [
        */
       const token = faker.string.uuid();
 
+      const rollingDuration = 600;
+      const absoluteDuration = 604_800;
+      mockSessionDbTable.set(token, {
+        createdAt: new Date(),
+        rollingDuration,
+        absoluteDuration,
+        userId: id,
+      });
+
       return HttpResponse.json(
         {
           id,
@@ -171,7 +190,7 @@ export const handlers = [
         {
           status: 200,
           headers: {
-            "Set-Cookie": `__Host-id=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=600`,
+            "Set-Cookie": `__Host-id=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${rollingDuration}`,
           },
         },
       );
