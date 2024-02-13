@@ -58,14 +58,24 @@ export async function loginAsUser(userProperties?: User) {
   return (await authUserResponse.json()) as UserWithoutPassword;
 }
 
-function render<ComponentType>(
+async function render<ComponentType>(
   ui: Type<ComponentType>,
   {
     theme = "light",
+    // `/list` is the main route in our example app
+    route = "/list",
+    user,
     ...options
-  }: RenderComponentOptions<ComponentType> & { theme?: Theme } = {},
+  }: RenderComponentOptions<ComponentType> & {
+    theme?: Theme;
+    route?: string;
+    // Pass `null` to render the app without authenticating.
+    user?: null | UserWithoutPassword;
+  } = {},
 ) {
-  return atlRender(ui, {
+  const loggedInUser = user === undefined ? await loginAsUser() : user;
+
+  const result = await atlRender(ui, {
     providers: [
       provideHttpClient(),
       provideTheme(theme),
@@ -74,6 +84,17 @@ function render<ComponentType>(
     routes,
     ...options,
   });
+
+  await result.navigate(route);
+
+  const returnValue = {
+    ...result,
+    user: loggedInUser,
+  };
+
+  await waitForLoadingToFinish();
+
+  return returnValue;
 }
 
 /*
