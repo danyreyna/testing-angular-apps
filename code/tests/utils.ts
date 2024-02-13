@@ -18,7 +18,7 @@ import { type Theme } from "../src/app/common/theme.service";
 import { provideTheme } from "../src/app/common/theme.service.provider";
 import type { User } from "../src/app/common/user";
 import { buildUser } from "./generate";
-import type { LoginResponse } from "./mocks/fake-backend";
+import type { UserWithoutPassword } from "./mocks/fake-backend";
 
 export function waitForLoadingToFinish() {
   return waitForElementToBeRemoved(() => [
@@ -55,7 +55,7 @@ export async function loginAsUser(userProperties: User) {
     }),
   });
 
-  return (await authUserResponse.json()) as LoginResponse;
+  return (await authUserResponse.json()) as UserWithoutPassword;
 }
 
 function render<ComponentType>(

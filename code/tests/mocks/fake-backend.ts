@@ -37,7 +37,7 @@ function getStringHash(str: string) {
   return String(hashNumber >>> 0);
 }
 
-export type LoginResponse = Pick<User, "id" | "username" | "source">;
+export type UserWithoutPassword = Pick<User, "id" | "username" | "source">;
 
 export const handlers = [
   http.put<{ id: string }, Pick<User, "username" | "password" | "source">>(
@@ -206,7 +206,7 @@ export const handlers = [
         userId: id,
       });
 
-      return HttpResponse.json<LoginResponse>(
+      return HttpResponse.json<UserWithoutPassword>(
         {
           id,
           username: user.username,
