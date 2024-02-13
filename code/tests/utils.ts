@@ -20,11 +20,16 @@ import type { User } from "../src/app/common/user";
 import { buildUser } from "./generate";
 import type { UserWithoutPassword } from "./mocks/fake-backend";
 
-export function waitForLoadingToFinish() {
-  return waitForElementToBeRemoved(() => [
+export async function waitForLoadingToFinish() {
+  const loadingElements = [
     ...screen.queryAllByLabelText(/loading/i),
     ...screen.queryAllByText(/loading/i),
-  ]);
+  ];
+  if (loadingElements.length === 0) {
+    return;
+  }
+
+  await waitForElementToBeRemoved(() => loadingElements);
 }
 
 export async function loginAsUser(userProperties?: User) {
@@ -62,8 +67,7 @@ async function render<ComponentType>(
   ui: Type<ComponentType>,
   {
     theme = "light",
-    // `/list` is the main route in our example app
-    route = "/list",
+    route,
     user,
     ...options
   }: RenderComponentOptions<ComponentType> & {
@@ -85,7 +89,9 @@ async function render<ComponentType>(
     ...options,
   });
 
-  await result.navigate(route);
+  if (route !== undefined) {
+    await result.navigate(route);
+  }
 
   const returnValue = {
     ...result,
