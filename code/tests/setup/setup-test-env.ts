@@ -6,7 +6,6 @@ import {
 } from "@angular/platform-browser-dynamic/testing";
 import "@testing-library/jest-dom/vitest";
 import { afterAll, afterEach, beforeAll, vi } from "vitest";
-import * as auth from "../../some-auth-provider";
 import { server } from "../mocks/index";
 
 getTestBed().initTestEnvironment(
@@ -52,7 +51,7 @@ afterEach(() => {
 // general cleanup
 afterEach(async () => {
   await Promise.all([
-    auth.logout(),
+    fetch("https://api.example.com/logout", { method: "POST" }),
     fetch(`https://api.example.com/user?source=test`, { method: "DELETE" }),
   ]);
 });

@@ -219,4 +219,24 @@ export const handlers = [
       );
     },
   ),
+  http.post("https://api.example.com/logout", ({ cookies }) => {
+    const sessionId = cookies["__Host-id"];
+    if (sessionId === undefined) {
+      const status = 401;
+      return HttpResponse.json<Rfc9457ProblemDetail>(
+        {
+          status,
+          title: "Can't log out a session that doesn't exist",
+        },
+        { status },
+      );
+    }
+
+    mockSessionDbTable.delete(sessionId);
+
+    return new HttpResponse(null, {
+      status: 204,
+      headers: { "Set-Cookie": `__Host-id=` },
+    });
+  }),
 ];
