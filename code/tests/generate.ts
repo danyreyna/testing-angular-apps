@@ -10,7 +10,7 @@ export const buildUser = build<User>({
     source: "registration",
   },
   traits: {
-    generatedAtTest: {
+    generatedInTest: {
       overrides: { source: "test" },
     },
   },
