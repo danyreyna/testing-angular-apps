@@ -8,7 +8,7 @@ import type { UserWithoutPassword } from "./user";
 
 export type BootstrapData = {
   user: UserWithoutPassword;
-  listItems: (ListItem & Book)[];
+  listItems: (ListItem & { book: null | Book })[];
 };
 
 @Injectable({

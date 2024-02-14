@@ -61,7 +61,7 @@ export const handlers = [
     const listItems = getListItemsByOwner(userWithoutPassword.id);
     const listItemsAndBooks = listItems.map((listItem) => ({
       ...listItem,
-      book: mockBookDbTable.get(listItem.bookId),
+      book: mockBookDbTable.get(listItem.bookId) ?? null,
     }));
 
     return HttpResponse.json<BootstrapData>({
