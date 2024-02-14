@@ -1,9 +1,6 @@
-import type { User } from "../../src/app/common/user";
+import type { ListItem } from "../../src/app/common/list-item.service";
 
-export const mockListItemDbTable = new Map<
-  string,
-  { id: string; ownerId: User["id"]; bookId: string }
->();
+export const mockListItemDbTable = new Map<string, ListItem>();
 
 export function getListItemsByOwner(userId: string) {
   return Array.from(mockListItemDbTable.values()).filter(
