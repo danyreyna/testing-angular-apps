@@ -17,9 +17,9 @@ export type BootstrapData = {
 export class BootstrapService {
   readonly #http = inject(HttpClient);
 
-  readonly clearCacheSubject = new BehaviorSubject<null>(null);
+  readonly resetCacheSubject = new BehaviorSubject<null>(null);
 
-  #bootstrapResponse$ = this.clearCacheSubject.pipe(
+  #bootstrapResponse$ = this.resetCacheSubject.pipe(
     mergeMap(() =>
       this.#http.get<BootstrapData>("https://api.example.com/bootstrap"),
     ),
