@@ -13,6 +13,7 @@ export type UserWithoutPassword = Pick<User, "id" | "username" | "source">;
 export const mockSessionDbTable = new Map<
   string,
   {
+    id: string;
     rollingExpiration: Date;
     absoluteExpiration: Date;
     userId: User["id"];
@@ -86,6 +87,7 @@ export const handlers = [
       );
 
       mockSessionDbTable.set(token, {
+        id: token,
         rollingExpiration,
         absoluteExpiration,
         userId: id,
