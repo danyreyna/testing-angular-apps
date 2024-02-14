@@ -2,14 +2,7 @@ import { faker } from "@faker-js/faker";
 import { http, HttpResponse, type PathParams } from "msw";
 import type { User } from "../../src/app/common/user";
 import { getStringHash } from "./get-string-hash";
-
-type Rfc9457ProblemDetail = {
-  type?: string;
-  status?: number;
-  title?: string;
-  detail?: string;
-  instance?: string;
-};
+import type { Rfc9457ProblemDetail } from "./rfc-9457-problem-detail";
 
 const mockUserDbTable = new Map<
   string,
