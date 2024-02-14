@@ -5,7 +5,7 @@ import type { Rfc9457ProblemDetail } from "./rfc-9457-problem-detail";
 
 export const mockUserDbTable = new Map<
   string,
-  Pick<User, "username" | "source"> & { passwordHash: string }
+  Pick<User, "id" | "username" | "source"> & { passwordHash: string }
 >();
 
 export const handlers = [
@@ -60,7 +60,7 @@ export const handlers = [
 
       const existingUser = mockUserDbTable.get(id);
       if (existingUser === undefined) {
-        mockUserDbTable.set(id, { username, passwordHash, source });
+        mockUserDbTable.set(id, { id, username, passwordHash, source });
 
         return new HttpResponse(null, { status: 201 });
       }
@@ -73,7 +73,7 @@ export const handlers = [
         return new HttpResponse(null, { status: 200 });
       }
 
-      mockUserDbTable.set(id, { username, passwordHash, source });
+      mockUserDbTable.set(id, { id, username, passwordHash, source });
       return new HttpResponse(null, { status: 200 });
     },
   ),
