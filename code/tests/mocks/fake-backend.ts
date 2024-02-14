@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { http, HttpResponse, type PathParams } from "msw";
 import type { User } from "../../src/app/common/user";
+import { getStringHash } from "./get-string-hash";
 
 type Rfc9457ProblemDetail = {
   type?: string;
@@ -26,16 +27,6 @@ const mockSessionDbTable = new Map<
 
 const SESSION_ROLLING_DURATION = 600;
 const SESSION_ABSOLUTE_DURATION = 604_800;
-
-function getStringHash(str: string) {
-  let hashNumber = 5381;
-  let i = str.length;
-
-  while (i) {
-    hashNumber = (hashNumber * 33) ^ str.charCodeAt((i -= 1));
-  }
-  return String(hashNumber >>> 0);
-}
 
 export type UserWithoutPassword = Pick<User, "id" | "username" | "source">;
 
