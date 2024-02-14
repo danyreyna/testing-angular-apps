@@ -1,6 +1,7 @@
 import type { PathParams } from "msw";
 import { http, HttpResponse } from "msw";
-import { mockSessionDbTable, type UserWithoutPassword } from "./auth-handlers";
+import type { UserWithoutPassword } from "../../src/app/common/user";
+import { mockSessionDbTable } from "./auth-handlers";
 import { mockBookDbTable } from "./book-handlers";
 import { getListItemsByOwner } from "./list-item-handlers";
 import type { Rfc9457ProblemDetail } from "./rfc-9457-problem-detail";

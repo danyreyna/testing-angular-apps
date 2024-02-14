@@ -1,14 +1,12 @@
 import { faker } from "@faker-js/faker";
 import { http, HttpResponse, type PathParams } from "msw";
-import type { User } from "../../src/app/common/user";
+import type { User, UserWithoutPassword } from "../../src/app/common/user";
 import { getStringHash } from "./get-string-hash";
 import type { Rfc9457ProblemDetail } from "./rfc-9457-problem-detail";
 import { mockUserDbTable } from "./user-handlers";
 
 const SESSION_ROLLING_DURATION = 600;
 const SESSION_ABSOLUTE_DURATION = 604_800;
-
-export type UserWithoutPassword = Pick<User, "id" | "username" | "source">;
 
 export const mockSessionDbTable = new Map<
   string,

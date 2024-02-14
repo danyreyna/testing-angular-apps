@@ -16,9 +16,8 @@ import { type Mock as VitestFunctionMock, vi } from "vitest";
 import { routes } from "../src/app/app.routes";
 import { type Theme } from "../src/app/common/theme.service";
 import { provideTheme } from "../src/app/common/theme.service.provider";
-import type { User } from "../src/app/common/user";
+import type { User, UserWithoutPassword } from "../src/app/common/user";
 import { buildUser } from "./generate";
-import type { UserWithoutPassword } from "./mocks/fake-backend";
 
 export async function waitForLoadingToFinish() {
   const loadingElements = [

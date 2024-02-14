@@ -4,3 +4,5 @@ export type User = {
   password: string;
   source: "registration" | "test";
 };
+
+export type UserWithoutPassword = Pick<User, "id" | "username" | "source">;
