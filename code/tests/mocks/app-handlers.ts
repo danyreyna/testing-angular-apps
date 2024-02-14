@@ -1,5 +1,6 @@
 import type { PathParams } from "msw";
 import { http, HttpResponse } from "msw";
+import type { BootstrapData } from "../../src/app/common/bootstrap.service";
 import type { UserWithoutPassword } from "../../src/app/common/user";
 import { mockSessionDbTable } from "./auth-handlers";
 import { mockBookDbTable } from "./book-handlers";
@@ -63,7 +64,7 @@ export const handlers = [
       book: mockBookDbTable.get(listItem.bookId),
     }));
 
-    return HttpResponse.json({
+    return HttpResponse.json<BootstrapData>({
       user: userWithoutPassword,
       listItems: listItemsAndBooks,
     });
