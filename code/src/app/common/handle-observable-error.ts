@@ -5,14 +5,32 @@ export type HandledObservableError =
   | { message: string; status: number }
   | { message: string };
 
+function getHttpErrorMessage(errorResponse: HttpErrorResponse) {
+  if (
+    errorResponse.error?.title !== undefined ||
+    errorResponse.error?.detail !== undefined
+  ) {
+    return `${errorResponse.error.title ?? ""}${
+      errorResponse.error.detail === undefined
+        ? ""
+        : `: ${errorResponse.error.detail}`
+    }`;
+  }
+
+  if (errorResponse.error?.message !== undefined) {
+    return errorResponse.error.message;
+  }
+
+  return `Backend returned code ${errorResponse.status}: ${errorResponse.message}`;
+}
+
 function handleHttpError(errorResponse: HttpErrorResponse) {
   const isNetworkError =
     errorResponse.error instanceof ProgressEvent && errorResponse.status === 0;
 
   const message = isNetworkError
     ? "A network error occurred"
-    : errorResponse.error?.message ??
-      `Backend returned code ${errorResponse.status}: ${errorResponse.message}`;
+    : getHttpErrorMessage(errorResponse);
 
   return throwError(() => ({ message, status: errorResponse.status }));
 }
