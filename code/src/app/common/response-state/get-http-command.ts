@@ -140,7 +140,7 @@ export type HttpCommandParams =
   | PostParams
   | PutParams;
 
-function getRequestObservable<TResponse, TSubjectValue>(
+function getRequestObservable<TSubjectValue, TResponse>(
   url: string,
   httpParams: HttpCommandParams,
   subjectValue: TSubjectValue,
@@ -186,7 +186,7 @@ export function getHttpCommand<TResponse = null, TSubjectValue = null>(
         return INITIAL_IDLE_STATE;
       }
 
-      const request$ = getRequestObservable<TResponse, TSubjectValue>(
+      const request$ = getRequestObservable<TSubjectValue, TResponse>(
         getUrl(),
         httpCommandParams,
         subjectValue,
