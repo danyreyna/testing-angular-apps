@@ -53,8 +53,8 @@ import { INDIGO_DARKEN_10_COLOR } from "../styles/colors";
     }
 
     .book div {
-      -webkit-animation: whirl-book 2s infinite;
-      animation: whirl-book 2s infinite;
+      -webkit-animation: whirl-book 1s infinite;
+      animation: whirl-book 1s infinite;
       background: ${INDIGO_DARKEN_10_COLOR};
       height: 100%;
       position: absolute;
@@ -65,28 +65,28 @@ import { INDIGO_DARKEN_10_COLOR } from "../styles/colors";
     }
 
     .book div:nth-child(1) {
+      -webkit-animation-delay: 0.075s;
+      animation-delay: 0.075s;
+    }
+
+    .book div:nth-child(2) {
       -webkit-animation-delay: 0.15s;
       animation-delay: 0.15s;
     }
 
-    .book div:nth-child(2) {
+    .book div:nth-child(3) {
+      -webkit-animation-delay: 0.225s;
+      animation-delay: 0.225s;
+    }
+
+    .book div:nth-child(4) {
       -webkit-animation-delay: 0.3s;
       animation-delay: 0.3s;
     }
 
-    .book div:nth-child(3) {
-      -webkit-animation-delay: 0.45s;
-      animation-delay: 0.45s;
-    }
-
-    .book div:nth-child(4) {
-      -webkit-animation-delay: 0.6s;
-      animation-delay: 0.6s;
-    }
-
     .book div:nth-child(5) {
-      -webkit-animation-delay: 0.75s;
-      animation-delay: 0.75s;
+      -webkit-animation-delay: 0.375s;
+      animation-delay: 0.375s;
     }
     `,
   template: `
