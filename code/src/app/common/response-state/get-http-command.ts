@@ -153,12 +153,28 @@ function getRequestObservable<TSubjectValue, TResponse>(
   switch (method) {
     case "delete":
       return http.delete<TResponse>(url, options);
-    case "patch":
-    case "post":
-    case "put": {
+    case "patch": {
       const { shouldSendBodyFromSubject = true } = httpParams;
 
       return http.patch<TResponse>(
+        url,
+        shouldSendBodyFromSubject ? subjectValue : null,
+        options,
+      );
+    }
+    case "post": {
+      const { shouldSendBodyFromSubject = true } = httpParams;
+
+      return http.post<TResponse>(
+        url,
+        shouldSendBodyFromSubject ? subjectValue : null,
+        options,
+      );
+    }
+    case "put": {
+      const { shouldSendBodyFromSubject = true } = httpParams;
+
+      return http.put<TResponse>(
         url,
         shouldSendBodyFromSubject ? subjectValue : null,
         options,
