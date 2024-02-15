@@ -36,7 +36,7 @@ function handleHttpError(errorResponse: HttpErrorResponse) {
 }
 
 export function handleObservableError(
-  observableError: Error | HttpErrorResponse,
+  observableError: HttpErrorResponse | Error | HandledObservableError,
 ) {
   // in a real world app, we may send the error to some remote logging infrastructure
   // instead of just logging it to the console
@@ -46,5 +46,9 @@ export function handleObservableError(
     return handleHttpError(observableError);
   }
 
-  return throwError(() => ({ message: observableError.message }));
+  if (observableError instanceof Error) {
+    return throwError(() => ({ message: observableError.message }));
+  }
+
+  return throwError(() => observableError);
 }
