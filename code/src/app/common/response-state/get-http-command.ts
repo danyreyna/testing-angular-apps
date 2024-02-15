@@ -4,11 +4,12 @@ import {
   HttpHeaders,
   HttpParams,
 } from "@angular/common/http";
-import { computed, inject, signal } from "@angular/core";
+import { computed, inject, type Signal, signal } from "@angular/core";
 import {
   BehaviorSubject,
   catchError,
   map,
+  type Observable,
   of,
   startWith,
   switchMap,
@@ -141,11 +142,10 @@ export type HttpCommandParams =
   | PostParams
   | PutParams;
 
-function getRequestObservable<TResponse, TSubjectValue>(
-  url: string,
-  httpParams: HttpCommandParams,
-  subjectValue: TSubjectValue,
-) {
+function getRequestObservable<
+  TResponse extends JSONTypes,
+  TSubjectValue extends JSONTypes,
+>(url: string, httpParams: HttpCommandParams, subjectValue: TSubjectValue) {
   const http = inject(HttpClient);
 
   const { method, options } = httpParams;
@@ -187,34 +187,74 @@ function getRequestObservable<TResponse, TSubjectValue>(
   }
 }
 
-type InputHttpUrl<TPathParams> = {
+type InputHttpUrl<
+  TPathParams extends HttpPathParams,
+  TQueryParams extends HttpQueryParams,
+> = {
   href: URL["href"];
   pathParams?: TPathParams;
+  queryParams?: TQueryParams;
 };
 
 export type HttpPathParams = Record<string, string>;
+export type HttpQueryParams = Record<string, string | string[]>;
 
-export type HttpUrl<TPathParams extends HttpPathParams = HttpPathParams> =
-  Required<InputHttpUrl<TPathParams>>;
+type OutputHttpUrl<
+  TPathParams extends HttpPathParams,
+  TQueryParams extends HttpQueryParams,
+> = Required<InputHttpUrl<TPathParams, TQueryParams>>;
+
+type HttpUrlParams = {
+  pathParams?: HttpPathParams;
+  queryParams?: HttpQueryParams;
+};
+
+export type HttpUrl<TUrlParams extends HttpUrlParams = HttpUrlParams> =
+  OutputHttpUrl<
+    NonNullable<TUrlParams["pathParams"]>,
+    NonNullable<TUrlParams["queryParams"]>
+  >;
+
+export type GetHttpCommandResult<
+  TResponse extends JSONTypes = null,
+  TSubjectValue extends JSONTypes = null,
+  TUrlParams extends HttpUrlParams = HttpUrlParams,
+> = {
+  url: Signal<HttpUrl<TUrlParams>>;
+  subject: BehaviorSubject<null | TSubjectValue>;
+  response: Observable<CommandWithState<TResponse>>;
+};
 
 export function getHttpCommand<
   TResponse extends JSONTypes = null,
   TSubjectValue extends JSONTypes = null,
-  TPathParams extends HttpPathParams = HttpPathParams,
+  TUrlParams extends HttpUrlParams = HttpUrlParams,
 >(
-  getHttpCommandUrl: () => InputHttpUrl<TPathParams>,
+  getHttpCommandUrl: () => InputHttpUrl<
+    NonNullable<TUrlParams["pathParams"]>,
+    NonNullable<TUrlParams["queryParams"]>
+  >,
   httpCommandParams: HttpCommandParams,
-) {
+): GetHttpCommandResult<TResponse, TSubjectValue, TUrlParams> {
   type TResponseWithState = CommandWithState<TResponse>;
   type TSuccessResponse = SuccessResponse<TResponse>;
 
-  const urlState = signal<InputHttpUrl<TPathParams>>({
+  const urlState = signal<
+    InputHttpUrl<
+      NonNullable<TUrlParams["pathParams"]>,
+      NonNullable<TUrlParams["queryParams"]>
+    >
+  >({
     href: "",
   });
-  const url = computed<HttpUrl<TPathParams>>(() => {
-    const { href, pathParams } = urlState();
+  const url = computed(() => {
+    const { href, pathParams, queryParams } = urlState();
 
-    return { href, pathParams: pathParams ?? ({} as TPathParams) };
+    return {
+      href,
+      pathParams: pathParams ?? ({} as TUrlParams["pathParams"]),
+      queryParams: queryParams ?? ({} as TUrlParams["queryParams"]),
+    } as HttpUrl<TUrlParams>;
   });
 
   const subject = new BehaviorSubject<null | TSubjectValue>(null);
