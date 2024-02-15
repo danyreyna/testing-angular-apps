@@ -17,6 +17,7 @@ import {
   type HandledObservableError,
   handleObservableError,
 } from "../handle-observable-error";
+import type { JSONTypes } from "../json-types";
 import type { CommandWithState } from "./command-with-state";
 import type {
   ErrorResponse,
@@ -170,12 +171,35 @@ function getRequestObservable<TSubjectValue, TResponse>(
   }
 }
 
-export function getHttpCommand<TResponse = null, TSubjectValue = null>(
-  getUrl: () => string,
+export type HttpCommandUrlParams = {
+  pathParams?: Record<string, string>;
+  queryParams?: Record<string, string | string[]>;
+};
+
+export type HttpCommandUrl<
+  TUrlParams extends HttpCommandUrlParams = HttpCommandUrlParams,
+> = {
+  href: URL["href"];
+  pathParams?: TUrlParams["pathParams"];
+  queryParams?: TUrlParams["queryParams"];
+};
+
+export type GetHttpCommandUrl<
+  TUrlParams extends HttpCommandUrlParams = HttpCommandUrlParams,
+> = () => HttpCommandUrl<TUrlParams>;
+
+export function getHttpCommand<
+  TUrlParams extends HttpCommandUrlParams = HttpCommandUrlParams,
+  TSubjectValue extends JSONTypes = null,
+  TResponse extends JSONTypes = null,
+>(
+  getHttpCommandUrl: GetHttpCommandUrl<TUrlParams>,
   httpCommandParams: HttpCommandParams,
 ) {
   type TResponseWithState = CommandWithState<TResponse>;
   type TSuccessResponse = SuccessResponse<TResponse>;
+
+  const url = getHttpCommandUrl();
 
   const subject = new BehaviorSubject<null | TSubjectValue>(null);
   const action$ = subject.asObservable();
@@ -187,7 +211,7 @@ export function getHttpCommand<TResponse = null, TSubjectValue = null>(
       }
 
       const request$ = getRequestObservable<TSubjectValue, TResponse>(
-        getUrl(),
+        url.href,
         httpCommandParams,
         subjectValue,
       ).pipe(
@@ -211,6 +235,7 @@ export function getHttpCommand<TResponse = null, TSubjectValue = null>(
   );
 
   return {
+    url,
     subject,
     response,
   };
