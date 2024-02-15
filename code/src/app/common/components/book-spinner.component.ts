@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { INDIGO_DARKEN_10_COLOR } from "../styles/colors";
 
 @Component({
   selector: "app-book-spinner",
@@ -44,17 +45,17 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
     }
 
     .book {
-      height: 30px;
+      height: 60px;
       position: relative;
-      width: 30px;
-      -webkit-perspective: 60px;
-      perspective: 60px;
+      width: 60px;
+      -webkit-perspective: 120px;
+      perspective: 120px;
     }
 
     .book div {
       -webkit-animation: whirl-book 2s infinite;
       animation: whirl-book 2s infinite;
-      background: #bad;
+      background: ${INDIGO_DARKEN_10_COLOR};
       height: 100%;
       position: absolute;
       left: 50%;
