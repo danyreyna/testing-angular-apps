@@ -4,7 +4,7 @@ import {
   HttpHeaders,
   HttpParams,
 } from "@angular/common/http";
-import { inject } from "@angular/core";
+import { computed, inject, signal } from "@angular/core";
 import {
   BehaviorSubject,
   catchError,
@@ -141,7 +141,7 @@ export type HttpCommandParams =
   | PostParams
   | PutParams;
 
-function getRequestObservable<TSubjectValue, TResponse>(
+function getRequestObservable<TResponse, TSubjectValue>(
   url: string,
   httpParams: HttpCommandParams,
   subjectValue: TSubjectValue,
@@ -187,35 +187,35 @@ function getRequestObservable<TSubjectValue, TResponse>(
   }
 }
 
-export type HttpCommandUrlParams = {
-  pathParams?: Record<string, string>;
-  queryParams?: Record<string, string | string[]>;
-};
-
-export type HttpCommandUrl<
-  TUrlParams extends HttpCommandUrlParams = HttpCommandUrlParams,
-> = {
+type InputHttpUrl<TPathParams> = {
   href: URL["href"];
-  pathParams?: TUrlParams["pathParams"];
-  queryParams?: TUrlParams["queryParams"];
+  pathParams?: TPathParams;
 };
 
-export type GetHttpCommandUrl<
-  TUrlParams extends HttpCommandUrlParams = HttpCommandUrlParams,
-> = () => HttpCommandUrl<TUrlParams>;
+export type HttpPathParams = Record<string, string>;
+
+export type HttpUrl<TPathParams extends HttpPathParams = HttpPathParams> =
+  Required<InputHttpUrl<TPathParams>>;
 
 export function getHttpCommand<
-  TUrlParams extends HttpCommandUrlParams = HttpCommandUrlParams,
-  TSubjectValue extends JSONTypes = null,
   TResponse extends JSONTypes = null,
+  TSubjectValue extends JSONTypes = null,
+  TPathParams extends HttpPathParams = HttpPathParams,
 >(
-  getHttpCommandUrl: GetHttpCommandUrl<TUrlParams>,
+  getHttpCommandUrl: () => InputHttpUrl<TPathParams>,
   httpCommandParams: HttpCommandParams,
 ) {
   type TResponseWithState = CommandWithState<TResponse>;
   type TSuccessResponse = SuccessResponse<TResponse>;
 
-  const url = getHttpCommandUrl();
+  const urlState = signal<InputHttpUrl<TPathParams>>({
+    href: "",
+  });
+  const url = computed<HttpUrl<TPathParams>>(() => {
+    const { href, pathParams } = urlState();
+
+    return { href, pathParams: pathParams ?? ({} as TPathParams) };
+  });
 
   const subject = new BehaviorSubject<null | TSubjectValue>(null);
   const action$ = subject.asObservable();
@@ -226,8 +226,10 @@ export function getHttpCommand<
         return INITIAL_IDLE_STATE;
       }
 
-      const request$ = getRequestObservable<TSubjectValue, TResponse>(
-        url.href,
+      urlState.set(getHttpCommandUrl());
+
+      const request$ = getRequestObservable<TResponse, TSubjectValue>(
+        url().href,
         httpCommandParams,
         subjectValue,
       ).pipe(
