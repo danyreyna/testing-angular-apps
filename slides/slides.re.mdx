@@ -1491,6 +1491,109 @@ test('calling "run" without a promise results in an early error', async () => {
 
 ---
 
+# Integration testing
+
+- Integration tests strike a great balance on the trade-offs between confidence and speed/expense.
+- We should get most of our use case coverage from integration tests (most, not all).
+- They give us the most in regards to the level of confidence we can achieve relative to the amount of work they take.
+
+---
+
+# Unit tests vs integration tests
+
+- If you tried to get the same confidence using unit tests, you'd have to write a lot more of them.
+- Also, you'll find that you're ultimately doing less work with a handful of integration tests.
+
+---
+
+# Unit tests vs integration tests: mocking
+
+- With unit tests you often mock dependencies.
+- With integration tests, you're typically only going to need to mock:
+  - HTTP requests.
+  - Sometimes third party modules.
+
+---
+
+# Unit tests vs integration tests: coverage
+
+- Often you get the bulk of your coverage from integration tests, and reserve unit tests for:
+  - Pure functions of complex logic.
+  - Highly reusable code/components.
+---
+
+# Integration tests reminder: 100% code coverage is a bad idea
+
+- You get **diminishing returns** on your tests as the coverage increases.
+- When you strive for 100% all the time, you find yourself spending time testing things that really don't need to be tested.
+- Maintaining tests with this goal slow you and your team down.
+
+---
+
+# Integration tests reminder: avoid testing implementation details
+
+- It doesn't give you very much confidence that your application is working.
+- It slows you down when refactoring.
+- **You should very rarely have to change tests when you refactor code**.
+
+---
+
+# Integration tests are important
+
+- While having unit tests to verify things work in isolation isn't a bad thing...
+- It doesn't do you any good if you don't **also verify that they work together** properly.
+- Also, you'll find that by testing that they work together properly, you often don't need to bother testing them in isolation.
+
+---
+
+# Integration tests: Stop mocking
+
+<div style={{fontSize: '0.9rem'}}>
+- The biggest thing you can do to write more integration tests is to **stop mocking so much stuff**.
+- When you mock something you're removing all confidence in the integration between:
+  - What you're testing.
+  - And the thing you're mocking.
+- Each time you test, you don't actually want to
+  - Send emails.
+  - Or charge credit cards.
+- But most of the time you can avoid mocking and you'll be better off for it.
+</div>
+
+---
+
+# Authentication
+
+<div style={{ fontSize: '0.9rem' }}>
+- You can set your app into an authenticated state by setting the auth cookie before running tests.
+- It works out really nice for integration tests.
+- And also allows e2e tests to not have to go through the entire authentication flow each time.
+
+## Authentication providers (e.g. Auth0, AWS Cognito, Azure AD)
+
+- If you use an authentication provider, simulating a logged-in state will be different depending on which one you're using.
+- But you'll probably need to mock the JS module you're using to interact with the provider.
+</div>
+
+---
+
+# Integration tests: imports
+
+- Normally you shouldn't import anything but:
+  - What you're explicitly testing.
+  - Test utils.
+  - Anything you need for cleanup.
+- But there are exceptions:
+  - For example, importing some utility function when the alternative approaches are more complicated.
+
+---
+
+# Integration tests: screen-specific utilities
+
+- When testing a screen, if as part of your tests' setup you're doing some things repeatedly that are specific to that screen and not applicable to others.
+- It makes sense to create screens-specific testing helpers for it.
+
+---
+
 # TODO
 
 - bookshelf tests 13
