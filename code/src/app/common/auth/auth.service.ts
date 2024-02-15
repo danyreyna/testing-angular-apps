@@ -26,8 +26,8 @@ import type { User, UserWithoutPassword } from "../user";
 export type LoginFormValues = Pick<User, "username" | "password">;
 export type RegisterFormValues = Pick<User, "username" | "password">;
 
-export type BootstrapResponseWithState = QueryWithState<BootstrapData>;
-export type SuccessBootstrapResponse = SuccessResponse<BootstrapData>;
+export type BootstrapResponseWithState = QueryWithState<null | BootstrapData>;
+export type SuccessBootstrapResponse = SuccessResponse<null | BootstrapData>;
 
 export type LoginResponseWithState = CommandWithState<UserWithoutPassword>;
 export type SuccessLoginResponse = SuccessResponse<UserWithoutPassword>;
@@ -61,11 +61,18 @@ export class AuthService {
   bootstrapResponse$ = this.#bootstrapRequest$.pipe(
     startWith<BootstrapResponseWithState>({ state: "pending" }),
     tap((response) => {
-      if (response.state === "success") {
+      if (response.state === "success" && response.data !== null) {
         this.#userState.set(response.data.user);
       }
     }),
     catchError((error: HandledObservableError) => {
+      if ("status" in error && error.status === 401) {
+        return of<SuccessBootstrapResponse>({
+          state: "success",
+          data: null,
+        });
+      }
+
       return of<ErrorResponse>({
         state: "error",
         message: error.message,
