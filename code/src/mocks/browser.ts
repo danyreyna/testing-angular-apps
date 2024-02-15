@@ -1,4 +1,4 @@
 import { setupWorker } from "msw/browser";
-import { handlers as someApiHandlers } from "../../tests/mocks/some-api";
+import { handlers as fakeBackendHandlers } from "../../tests/mocks/fake-backend";
 
-export const worker = setupWorker(...someApiHandlers);
+export const worker = setupWorker(...fakeBackendHandlers);
