@@ -43,7 +43,7 @@ export const handlers = [
       return HttpResponse.json<Rfc9457ProblemDetail>(
         {
           status,
-          title: "User not found.",
+          title: "User not found",
           detail: "Can't find an user with the provided token",
         },
         { status },
