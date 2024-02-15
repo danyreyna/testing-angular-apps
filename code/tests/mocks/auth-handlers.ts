@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { http, HttpResponse, type PathParams } from "msw";
+import type { LoginFormValues } from "../../src/app/common/auth/auth.service";
 import type { User, UserWithoutPassword } from "../../src/app/common/user";
 import { getStringHash } from "./get-string-hash";
 import type { Rfc9457ProblemDetail } from "./rfc-9457-problem-detail";
@@ -19,7 +20,7 @@ export const mockSessionDbTable = new Map<
 >();
 
 export const handlers = [
-  http.post<PathParams, Pick<User, "username" | "password">>(
+  http.post<PathParams, LoginFormValues>(
     "https://api.example.com/login",
     async ({ request }) => {
       const body = await request.json();

@@ -14,6 +14,7 @@ import {
 } from "@testing-library/angular";
 import { type Mock as VitestFunctionMock, vi } from "vitest";
 import { routes } from "../src/app/app.routes";
+import { provideAuth } from "../src/app/common/auth/auth.service.provider";
 import { type Theme } from "../src/app/common/theme.service";
 import { provideTheme } from "../src/app/common/theme.service.provider";
 import type { User, UserWithoutPassword } from "../src/app/common/user";
@@ -82,6 +83,7 @@ async function render<ComponentType>(
   const result = await atlRender(ui, {
     providers: [
       provideHttpClient(),
+      provideAuth(),
       provideTheme(theme),
       ...(options.providers ?? []),
     ],
