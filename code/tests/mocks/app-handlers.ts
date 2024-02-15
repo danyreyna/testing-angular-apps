@@ -1,5 +1,4 @@
-import type { PathParams } from "msw";
-import { http, HttpResponse } from "msw";
+import { delay, http, HttpResponse, type PathParams } from "msw";
 import type { BootstrapData } from "../../src/app/common/bootstrap.service";
 import type { UserWithoutPassword } from "../../src/app/common/user";
 import { mockSessionDbTable } from "./auth-handlers";
@@ -13,11 +12,7 @@ export const handlers = [
   http.get<PathParams>(
     "https://api.example.com/bootstrap",
     async ({ cookies }) => {
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(null);
-        }, Math.random() * 3_000);
-      });
+      await delay();
 
       const sessionId = cookies["__Host-id"];
       if (sessionId === undefined) {
