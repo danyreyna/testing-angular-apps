@@ -21,7 +21,9 @@ export class BootstrapService {
 
   #bootstrapResponse$ = this.resetCacheSubject.pipe(
     mergeMap(() =>
-      this.#http.get<BootstrapData>("https://api.example.com/bootstrap"),
+      this.#http.get<BootstrapData>("https://api.example.com/bootstrap", {
+        withCredentials: true,
+      }),
     ),
   );
 

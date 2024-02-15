@@ -51,7 +51,13 @@ afterEach(() => {
 // general cleanup
 afterEach(async () => {
   await Promise.all([
-    fetch("https://api.example.com/logout", { method: "POST" }),
-    fetch(`https://api.example.com/user?source=test`, { method: "DELETE" }),
+    fetch("https://api.example.com/logout", {
+      method: "POST",
+      credentials: "include",
+    }),
+    fetch(`https://api.example.com/user?source=test`, {
+      method: "DELETE",
+      credentials: "include",
+    }),
   ]);
 });

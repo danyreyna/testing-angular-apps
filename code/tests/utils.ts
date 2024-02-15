@@ -41,6 +41,7 @@ export async function loginAsUser(userProperties?: User) {
 
   await fetch(`https://api.example.com/user/${id}`, {
     method: "PUT",
+    credentials: "omit",
     headers: {
       "Content-Type": "application/json",
     },
