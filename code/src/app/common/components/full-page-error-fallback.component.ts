@@ -11,8 +11,10 @@ import { DANGER_COLOR } from "../styles/colors";
       .full-page-error {
         color: ${DANGER_COLOR};
         height: 100vh;
-        display: grid;
-        place-items: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
       }
     `,
   template: `
