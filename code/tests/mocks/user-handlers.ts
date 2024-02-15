@@ -77,31 +77,47 @@ export const handlers = [
       return new HttpResponse(null, { status: 200 });
     },
   ),
-  http.delete<{ id: string }>("https://api.example.com/user", ({ request }) => {
-    const url = new URL(request.url);
-    const source = url.searchParams.get("source");
+  http.delete<{ id: string }>(
+    "https://api.example.com/user",
+    ({ cookies, request }) => {
+      const sessionId = cookies["__Host-id"];
+      if (sessionId === undefined) {
+        const status = 401;
+        return HttpResponse.json<Rfc9457ProblemDetail>(
+          {
+            status,
+            title: "A token must be provided",
+            detail: "Can't delete users without a token",
+          },
+          { status },
+        );
+      }
 
-    if (source !== "test") {
-      const status = 400;
-      return HttpResponse.json<Rfc9457ProblemDetail>(
-        {
-          status,
-          title: `The source must be "test"`,
-          detail:
-            "At the moment we can only delete multiple users if they were generated in tests",
-        },
-        { status },
-      );
-    }
+      const url = new URL(request.url);
+      const source = url.searchParams.get("source");
 
-    const userIdsToDelete = Array.from(mockUserDbTable.entries())
-      .filter(([, { source: currentSource }]) => currentSource === source)
-      .map(([id]) => id);
+      if (source !== "test") {
+        const status = 400;
+        return HttpResponse.json<Rfc9457ProblemDetail>(
+          {
+            status,
+            title: `The source must be "test"`,
+            detail:
+              "At the moment we can only delete multiple users if they were generated in tests",
+          },
+          { status },
+        );
+      }
 
-    for (const id of userIdsToDelete) {
-      mockUserDbTable.delete(id);
-    }
+      const userIdsToDelete = Array.from(mockUserDbTable.entries())
+        .filter(([, { source: currentSource }]) => currentSource === source)
+        .map(([id]) => id);
 
-    return new HttpResponse(null, { status: 204 });
-  }),
+      for (const id of userIdsToDelete) {
+        mockUserDbTable.delete(id);
+      }
+
+      return new HttpResponse(null, { status: 204 });
+    },
+  ),
 ];
