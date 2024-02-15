@@ -26,7 +26,7 @@ import type {
 
 const INITIAL_IDLE_STATE = of<IdleState>({ state: "idle" });
 
-type DeleteParams = {
+export type DeleteParams = {
   method: "delete";
   options?: {
     headers?:
@@ -51,7 +51,7 @@ type DeleteParams = {
   };
 };
 
-type PatchParams = {
+export type PatchParams = {
   method: "patch";
   shouldSendBodyFromSubject?: boolean;
   options?: {
@@ -77,7 +77,7 @@ type PatchParams = {
   };
 };
 
-type PostParams = {
+export type PostParams = {
   method: "post";
   shouldSendBodyFromSubject?: boolean;
   options?: {
@@ -108,7 +108,7 @@ type PostParams = {
   };
 };
 
-type PutParams = {
+export type PutParams = {
   method: "put";
   shouldSendBodyFromSubject?: boolean;
   options?: {
@@ -134,7 +134,11 @@ type PutParams = {
   };
 };
 
-type HttpCommandParams = DeleteParams | PatchParams | PostParams | PutParams;
+export type HttpCommandParams =
+  | DeleteParams
+  | PatchParams
+  | PostParams
+  | PutParams;
 
 function getRequestObservable<TResponse, TSubjectValue>(
   url: string,
