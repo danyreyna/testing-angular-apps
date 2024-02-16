@@ -5,7 +5,16 @@ import {
   HttpParams,
 } from "@angular/common/http";
 import { computed, inject, type Signal, signal } from "@angular/core";
-import { catchError, map, type Observable, of, startWith } from "rxjs";
+import {
+  BehaviorSubject,
+  catchError,
+  map,
+  mergeMap,
+  type Observable,
+  of,
+  shareReplay,
+  startWith,
+} from "rxjs";
 import {
   type HandledHttpError,
   handleObservableError,
@@ -78,6 +87,7 @@ export type GetHttpQueryResult<
   TUrlParams extends HttpUrlParams = HttpUrlParams,
 > = {
   url: Signal<HttpUrl<TUrlParams>>;
+  resetCacheSubject: BehaviorSubject<null>;
   request: Observable<QueryWithState<TResponse>>;
 };
 
@@ -95,6 +105,8 @@ export function getHttpQuery<
 ): GetHttpQueryResult<TResponse, TUrlParams> {
   type TResponseWithState = QueryWithState<TResponse>;
   type TSuccessResponse = SuccessResponse<TResponse>;
+
+  const resetCacheSubject = new BehaviorSubject<null>(null);
 
   const urlState = signal<
     InputHttpUrl<
@@ -120,15 +132,17 @@ export function getHttpQuery<
     urlState.set(url());
   }
 
-  const httpRequest$ = getRequestObservable<TResponse>(
-    urlSignal().href,
-    httpQueryParams,
-  ).pipe(
-    map<TResponse, TSuccessResponse>((response) => ({
-      state: "success",
-      data: response,
-    })),
-    catchError((errorResponse) => handleObservableError(errorResponse)),
+  const httpRequest$ = resetCacheSubject.pipe(
+    mergeMap(() =>
+      getRequestObservable<TResponse>(urlSignal().href, httpQueryParams).pipe(
+        map<TResponse, TSuccessResponse>((response) => ({
+          state: "success",
+          data: response,
+        })),
+        shareReplay(1),
+        catchError((errorResponse) => handleObservableError(errorResponse)),
+      ),
+    ),
   );
 
   const request = httpRequest$.pipe(
@@ -144,6 +158,7 @@ export function getHttpQuery<
 
   return {
     url: urlSignal,
+    resetCacheSubject,
     request,
   };
 }
