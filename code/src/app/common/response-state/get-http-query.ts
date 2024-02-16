@@ -52,11 +52,13 @@ type HttpClientOptions = {
 };
 export type GetParams = {
   method: "get";
+  shouldUseCache?: boolean;
   options?: HttpClientOptions;
 };
 
 export type HeadParams = {
   method: "head";
+  shouldUseCache?: boolean;
   options?: HttpClientOptions;
 };
 
@@ -106,6 +108,7 @@ export function getHttpQuery<
   type TResponseWithState = QueryWithState<TResponse>;
   type TSuccessResponse = SuccessResponse<TResponse>;
 
+  const { shouldUseCache = false } = httpQueryParams;
   const resetCacheSubject = new BehaviorSubject<null>(null);
 
   const urlState = signal<
@@ -132,18 +135,34 @@ export function getHttpQuery<
     urlState.set(url());
   }
 
-  const httpRequest$ = resetCacheSubject.pipe(
-    mergeMap(() =>
-      getRequestObservable<TResponse>(urlSignal().href, httpQueryParams).pipe(
-        map<TResponse, TSuccessResponse>((response) => ({
-          state: "success",
-          data: response,
-        })),
-        shareReplay(1),
-        catchError((errorResponse) => handleObservableError(errorResponse)),
-      ),
-    ),
+  const requestObservable = getRequestObservable<TResponse>(
+    urlSignal().href,
+    httpQueryParams,
   );
+
+  const successMapOperation = map<TResponse, TSuccessResponse>((response) => ({
+    state: "success",
+    data: response,
+  }));
+  const handleObservableErrorOperation = catchError<
+    TSuccessResponse,
+    ReturnType<typeof handleObservableError>
+  >((errorResponse) => handleObservableError(errorResponse));
+
+  const httpRequest$ = shouldUseCache
+    ? resetCacheSubject.pipe(
+        mergeMap(() =>
+          requestObservable.pipe(
+            successMapOperation,
+            shareReplay(1),
+            handleObservableErrorOperation,
+          ),
+        ),
+      )
+    : requestObservable.pipe(
+        successMapOperation,
+        handleObservableErrorOperation,
+      );
 
   const request = httpRequest$.pipe(
     startWith<TResponseWithState>({ state: "pending" }),
