@@ -40,6 +40,17 @@ export class BootstrapService {
 
   readonly bootstrapData$ = this.#bootstrapQuery.request.pipe(
     map<QueryWithState<BootstrapResponse>, BootstrapData>((response) => {
+      if (
+        response.state === "error" &&
+        "status" in response &&
+        response.status === 401
+      ) {
+        return {
+          state: "success",
+          data: null,
+        };
+      }
+
       if (response.state === "success") {
         const { user, listItems } = response.data;
 

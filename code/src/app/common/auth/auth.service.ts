@@ -1,16 +1,9 @@
 import { inject, Injectable, signal } from "@angular/core";
-import { catchError, of, tap } from "rxjs";
-import {
-  BootstrapService,
-  type SuccessBootstrapData,
-} from "../bootstrap.service";
-import { type HandledHttpError } from "../handle-observable-error";
+import { tap } from "rxjs";
+import { BootstrapService } from "../bootstrap.service";
 import type { CommandWithState } from "../response-state/command-with-state";
 import { getHttpCommand } from "../response-state/get-http-command";
-import type {
-  HttpErrorResponse,
-  SuccessResponse,
-} from "../response-state/response-states";
+import type { SuccessResponse } from "../response-state/response-states";
 import type { User, UserWithoutPassword } from "../user";
 
 export type LoginFormValues = Pick<User, "username" | "password">;
@@ -37,20 +30,6 @@ export class AuthService {
   readonly resetBootstrapDataCache =
     this.#bootstrapService.resetBootstrapDataCache;
   readonly bootstrapResponse$ = this.#bootstrapService.bootstrapData$.pipe(
-    catchError((error: HandledHttpError) => {
-      if (error.status === 401) {
-        return of<SuccessBootstrapData>({
-          state: "success",
-          data: null,
-        });
-      }
-
-      return of<HttpErrorResponse>({
-        state: "error",
-        message: error.message,
-        status: error.status,
-      });
-    }),
     tap((response) => {
       if (response.state === "success" && response.data !== null) {
         this.#userState.set(response.data.user);
