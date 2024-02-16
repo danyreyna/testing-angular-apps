@@ -23,7 +23,9 @@
               "src/assets",
               "src/mockServiceWorker.js"
             ],
-            "styles": [],
+            "styles": [
+              "src/custom-theme.scss"
+            ],
             "scripts": []
           },
           "configurations": {
