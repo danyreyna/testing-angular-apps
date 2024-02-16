@@ -69,9 +69,7 @@ export class AuthService {
   );
 
   readonly #loginCommand = getHttpCommand<UserWithoutPassword, LoginFormValues>(
-    () => ({
-      href: "https://api.example.com/login",
-    }),
+    "https://api.example.com/login",
     {
       method: "post",
       options: {
@@ -130,7 +128,7 @@ export class AuthService {
   );
 
   readonly #logoutCommand = getHttpCommand<null, null | "logout">(
-    () => ({ href: "https://api.example.com/logout" }),
+    "https://api.example.com/logout",
     {
       method: "post",
       shouldSendBodyFromSubject: false,
