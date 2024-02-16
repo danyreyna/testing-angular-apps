@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import type { BootstrapData, SuccessBootstrapData } from "../bootstrap.service";
 import { FullPageErrorFallbackComponent } from "../components/full-page-error-fallback.component";
 import { FullPageSpinnerComponent } from "../components/full-page-spinner.component";
 import {
@@ -10,11 +11,7 @@ import {
   type PendingState,
 } from "../response-state/response-states";
 import { type TypeGuard, TypeGuardPipe } from "../type-guard.pipe";
-import {
-  AuthService,
-  type BootstrapResponseWithState,
-  type SuccessBootstrapResponse,
-} from "./auth.service";
+import { AuthService } from "./auth.service";
 
 @Component({
   selector: "app-auth",
@@ -48,18 +45,14 @@ import {
 export class AuthComponent {
   protected readonly authService = inject(AuthService);
 
-  protected readonly isPending: TypeGuard<
-    BootstrapResponseWithState,
-    PendingState
-  > = isPending;
+  protected readonly isPending: TypeGuard<BootstrapData, PendingState> =
+    isPending;
 
-  protected readonly isErrorResponse: TypeGuard<
-    BootstrapResponseWithState,
-    ErrorResponse
-  > = isErrorResponse;
+  protected readonly isErrorResponse: TypeGuard<BootstrapData, ErrorResponse> =
+    isErrorResponse;
 
   protected readonly isSuccessResponse: TypeGuard<
-    BootstrapResponseWithState,
-    SuccessBootstrapResponse
+    BootstrapData,
+    SuccessBootstrapData
   > = isSuccessResponse;
 }
