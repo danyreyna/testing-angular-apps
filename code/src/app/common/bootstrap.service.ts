@@ -1,9 +1,9 @@
-import { HttpClient } from "@angular/common/http";
-import { inject, Injectable } from "@angular/core";
-import { BehaviorSubject, catchError, map, mergeMap, shareReplay } from "rxjs";
+import { Injectable } from "@angular/core";
+import { map } from "rxjs";
 import type { Book } from "./book.service";
-import { handleObservableError } from "./handle-observable-error";
 import type { ListItem } from "./list-item.service";
+import { getHttpQuery } from "./response-state/get-http-query";
+import type { QueryWithState } from "./response-state/query-with-state";
 import type { UserWithoutPassword } from "./user";
 
 export type BootstrapResponse = {
@@ -11,36 +11,48 @@ export type BootstrapResponse = {
   listItems: (ListItem & { book: null | Book })[];
 };
 
+type NoAuthData = null;
+export type BootstrapData = QueryWithState<
+  | NoAuthData
+  | (BootstrapResponse & {
+      books: Map<string, Book>;
+    })
+>;
+
 @Injectable({
   providedIn: "root",
 })
 export class BootstrapService {
-  readonly #http = inject(HttpClient);
-
-  readonly resetCacheSubject = new BehaviorSubject<null>(null);
-
-  #bootstrapRequest$ = this.resetCacheSubject.pipe(
-    mergeMap(() =>
-      this.#http.get<BootstrapData>("https://api.example.com/bootstrap", {
+  readonly #bootstrapQuery = getHttpQuery<BootstrapResponse>(
+    "https://api.example.com/bootstrap",
+    {
+      method: "get",
+      options: {
         withCredentials: true,
-      }),
-    ),
+      },
+    },
   );
 
-  bootstrapData$ = this.#bootstrapRequest$.pipe(
-    map(({ user, listItems }) => {
-      const books = listItems.reduce((accumulator, { book }) => {
-        if (book === null) {
+  resetBootstrapDataCache = this.#bootstrapQuery.resetCacheSubject;
+
+  bootstrapData$ = this.#bootstrapQuery.request.pipe(
+    map<QueryWithState<BootstrapResponse>, BootstrapData>((response) => {
+      if (response.state === "success") {
+        const { user, listItems } = response.data;
+
+        const books = listItems.reduce((accumulator, { book }) => {
+          if (book === null) {
+            return accumulator;
+          }
+
+          accumulator.set(book.id, book);
           return accumulator;
-        }
+        }, new Map<string, Book>());
 
-        accumulator.set(book.id, book);
-        return accumulator;
-      }, new Map<string, Book>());
+        return { state: "success", data: { user, listItems, books } };
+      }
 
-      return { user, listItems, books };
+      return response;
     }),
-    shareReplay(1),
-    catchError((errorResponse) => handleObservableError(errorResponse)),
   );
 }
