@@ -1,24 +1,20 @@
 import { inject, Injectable, signal } from "@angular/core";
-import { catchError, map, of, startWith, tap } from "rxjs";
-import { type BootstrapData, BootstrapService } from "../bootstrap.service";
+import { catchError, of, tap } from "rxjs";
 import {
-  type HandledObservableError,
-  handleObservableError,
-} from "../handle-observable-error";
+  BootstrapService,
+  type SuccessBootstrapData,
+} from "../bootstrap.service";
+import { type HandledHttpError } from "../handle-observable-error";
 import type { CommandWithState } from "../response-state/command-with-state";
 import { getHttpCommand } from "../response-state/get-http-command";
-import type { QueryWithState } from "../response-state/query-with-state";
 import type {
-  ErrorResponse,
+  HttpErrorResponse,
   SuccessResponse,
 } from "../response-state/response-states";
 import type { User, UserWithoutPassword } from "../user";
 
 export type LoginFormValues = Pick<User, "username" | "password">;
 export type RegisterFormValues = Pick<User, "username" | "password">;
-
-export type BootstrapResponseWithState = QueryWithState<null | BootstrapData>;
-export type SuccessBootstrapResponse = SuccessResponse<null | BootstrapData>;
 
 export type LoginResponseWithState = CommandWithState<UserWithoutPassword>;
 export type SuccessLoginResponse = SuccessResponse<UserWithoutPassword>;
@@ -38,33 +34,27 @@ export class AuthService {
   readonly #userState = signal<null | UserWithoutPassword>(null);
   readonly user = this.#userState.asReadonly();
 
-  #bootstrapRequest$ = this.#bootstrapService.bootstrapData$.pipe(
-    map<BootstrapData, SuccessBootstrapResponse>((bootstrapData) => ({
-      state: "success",
-      data: bootstrapData,
-    })),
-    catchError((errorResponse) => handleObservableError(errorResponse)),
-  );
-
-  bootstrapResponse$ = this.#bootstrapRequest$.pipe(
-    startWith<BootstrapResponseWithState>({ state: "pending" }),
-    tap((response) => {
-      if (response.state === "success" && response.data !== null) {
-        this.#userState.set(response.data.user);
-      }
-    }),
-    catchError((error: HandledObservableError) => {
-      if ("status" in error && error.status === 401) {
-        return of<SuccessBootstrapResponse>({
+  readonly resetBootstrapDataCache =
+    this.#bootstrapService.resetBootstrapDataCache;
+  readonly bootstrapResponse$ = this.#bootstrapService.bootstrapData$.pipe(
+    catchError((error: HandledHttpError) => {
+      if (error.status === 401) {
+        return of<SuccessBootstrapData>({
           state: "success",
           data: null,
         });
       }
 
-      return of<ErrorResponse>({
+      return of<HttpErrorResponse>({
         state: "error",
         message: error.message,
+        status: error.status,
       });
+    }),
+    tap((response) => {
+      if (response.state === "success" && response.data !== null) {
+        this.#userState.set(response.data.user);
+      }
     }),
   );
 
