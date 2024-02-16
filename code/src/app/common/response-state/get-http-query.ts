@@ -78,7 +78,7 @@ export type GetHttpQueryResult<
   TUrlParams extends HttpUrlParams = HttpUrlParams,
 > = {
   url: Signal<HttpUrl<TUrlParams>>;
-  query: Observable<QueryWithState<TResponse>>;
+  request: Observable<QueryWithState<TResponse>>;
 };
 
 export function getHttpQuery<
@@ -120,7 +120,7 @@ export function getHttpQuery<
     urlState.set(url());
   }
 
-  const request$ = getRequestObservable<TResponse>(
+  const httpRequest$ = getRequestObservable<TResponse>(
     urlSignal().href,
     httpQueryParams,
   ).pipe(
@@ -131,7 +131,7 @@ export function getHttpQuery<
     catchError((errorResponse) => handleObservableError(errorResponse)),
   );
 
-  const query = request$.pipe(
+  const request = httpRequest$.pipe(
     startWith<TResponseWithState>({ state: "pending" }),
     catchError((error: HandledHttpError) =>
       of<HttpErrorResponse>({
@@ -144,6 +144,6 @@ export function getHttpQuery<
 
   return {
     url: urlSignal,
-    query,
+    request,
   };
 }
