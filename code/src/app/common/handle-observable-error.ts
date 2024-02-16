@@ -1,9 +1,8 @@
 import { HttpErrorResponse } from "@angular/common/http";
 import { throwError } from "rxjs";
 
-export type HandledObservableError =
-  | { message: string; status: number }
-  | { message: string };
+export type HandledHttpError = { message: string; status: number };
+export type HandledObservableError = HandledHttpError | { message: string };
 
 function getHttpErrorMessage(errorResponse: HttpErrorResponse) {
   if (
