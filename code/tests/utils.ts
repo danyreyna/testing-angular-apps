@@ -15,8 +15,8 @@ import {
 import { type Mock as VitestFunctionMock, vi } from "vitest";
 import { routes } from "../src/app/app.routes";
 import { provideAuth } from "../src/app/common/auth/auth.service.provider";
-import { type Theme } from "../src/app/common/theme.service";
-import { provideTheme } from "../src/app/common/theme.service.provider";
+import { type Theme } from "../src/app/common/theme/theme.service";
+import { provideTheme } from "../src/app/common/theme/theme.service.provider";
 import type { User, UserWithoutPassword } from "../src/app/common/user";
 import { buildUser } from "./generate";
 

@@ -3,7 +3,7 @@ import { ApplicationConfig } from "@angular/core";
 import { provideRouter } from "@angular/router";
 import { routes } from "./app.routes";
 import { provideAuth } from "./common/auth/auth.service.provider";
-import { provideTheme } from "./common/theme.service.provider";
+import { provideTheme } from "./common/theme/theme.service.provider";
 
 export const appConfig: ApplicationConfig = {
   providers: [
