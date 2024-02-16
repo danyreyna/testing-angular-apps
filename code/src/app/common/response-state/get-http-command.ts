@@ -15,13 +15,13 @@ import {
   switchMap,
 } from "rxjs";
 import {
-  type HandledObservableError,
+  type HandledHttpError,
   handleObservableError,
 } from "../handle-observable-error";
 import type { JSONTypes } from "../json-types";
 import type { CommandWithState } from "./command-with-state";
 import type {
-  ErrorResponse,
+  HttpErrorResponse,
   IdleState,
   SuccessResponse,
 } from "./response-states";
@@ -290,10 +290,11 @@ export function getHttpCommand<
 
       return request$.pipe(
         startWith<TResponseWithState>({ state: "pending" }),
-        catchError((error: HandledObservableError) =>
-          of<ErrorResponse>({
+        catchError((error: HandledHttpError) =>
+          of<HttpErrorResponse>({
             state: "error",
             message: error.message,
+            status: error.status,
           }),
         ),
       );
