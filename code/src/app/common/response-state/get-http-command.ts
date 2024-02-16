@@ -189,6 +189,9 @@ function getRequestObservable<
   }
 }
 
+export type HttpPathParams = Record<string, string>;
+export type HttpQueryParams = Record<string, string | string[]>;
+
 type InputHttpUrl<
   TPathParams extends HttpPathParams,
   TQueryParams extends HttpQueryParams,
@@ -197,9 +200,6 @@ type InputHttpUrl<
   pathParams?: TPathParams;
   queryParams?: TQueryParams;
 };
-
-export type HttpPathParams = Record<string, string>;
-export type HttpQueryParams = Record<string, string | string[]>;
 
 type OutputHttpUrl<
   TPathParams extends HttpPathParams,
