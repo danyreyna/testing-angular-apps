@@ -148,13 +148,15 @@ function getRequestObservable<
 >(url: string, httpParams: HttpCommandParams, subjectValue: TSubjectValue) {
   const http = inject(HttpClient);
 
-  const { method, options } = httpParams;
+  const { method } = httpParams;
 
   switch (method) {
-    case "delete":
+    case "delete": {
+      const { options } = httpParams;
       return http.delete<TResponse>(url, options);
+    }
     case "patch": {
-      const { shouldSendBodyFromSubject = true } = httpParams;
+      const { shouldSendBodyFromSubject = true, options } = httpParams;
 
       return http.patch<TResponse>(
         url,
@@ -163,7 +165,7 @@ function getRequestObservable<
       );
     }
     case "post": {
-      const { shouldSendBodyFromSubject = true } = httpParams;
+      const { shouldSendBodyFromSubject = true, options } = httpParams;
 
       return http.post<TResponse>(
         url,
@@ -172,7 +174,7 @@ function getRequestObservable<
       );
     }
     case "put": {
-      const { shouldSendBodyFromSubject = true } = httpParams;
+      const { shouldSendBodyFromSubject = true, options } = httpParams;
 
       return http.put<TResponse>(
         url,
