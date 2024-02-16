@@ -4,6 +4,7 @@ import type { Book } from "./book.service";
 import type { ListItem } from "./list-item.service";
 import { getHttpQuery } from "./response-state/get-http-query";
 import type { QueryWithState } from "./response-state/query-with-state";
+import type { SuccessResponse } from "./response-state/response-states";
 import type { UserWithoutPassword } from "./user";
 
 export type BootstrapResponse = {
@@ -12,11 +13,12 @@ export type BootstrapResponse = {
 };
 
 type NoAuthData = null;
-export type BootstrapData = QueryWithState<
-  | NoAuthData
-  | (BootstrapResponse & {
-      books: Map<string, Book>;
-    })
+type MappedBoostrapResponse = BootstrapResponse & {
+  books: Map<string, Book>;
+};
+export type BootstrapData = QueryWithState<NoAuthData | MappedBoostrapResponse>;
+export type SuccessBootstrapData = SuccessResponse<
+  NoAuthData | MappedBoostrapResponse
 >;
 
 @Injectable({
