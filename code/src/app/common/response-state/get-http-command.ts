@@ -230,10 +230,12 @@ export function getHttpCommand<
   TSubjectValue extends JSONTypes = null,
   TUrlParams extends HttpUrlParams = HttpUrlParams,
 >(
-  getHttpCommandUrl: () => InputHttpUrl<
-    NonNullable<TUrlParams["pathParams"]>,
-    NonNullable<TUrlParams["queryParams"]>
-  >,
+  url:
+    | URL["href"]
+    | (() => InputHttpUrl<
+        NonNullable<TUrlParams["pathParams"]>,
+        NonNullable<TUrlParams["queryParams"]>
+      >),
   httpCommandParams: HttpCommandParams,
 ): GetHttpCommandResult<TResponse, TSubjectValue, TUrlParams> {
   type TResponseWithState = CommandWithState<TResponse>;
@@ -247,7 +249,7 @@ export function getHttpCommand<
   >({
     href: "",
   });
-  const url = computed(() => {
+  const urlSignal = computed(() => {
     const { href, pathParams, queryParams } = urlState();
 
     return {
@@ -266,10 +268,14 @@ export function getHttpCommand<
         return INITIAL_IDLE_STATE;
       }
 
-      urlState.set(getHttpCommandUrl());
+      if (typeof url === "string") {
+        urlState.set({ href: url });
+      } else {
+        urlState.set(url());
+      }
 
       const request$ = getRequestObservable<TResponse, TSubjectValue>(
-        url().href,
+        urlSignal().href,
         httpCommandParams,
         subjectValue,
       ).pipe(
@@ -293,7 +299,7 @@ export function getHttpCommand<
   );
 
   return {
-    url,
+    url: urlSignal,
     subject,
     response,
   };
