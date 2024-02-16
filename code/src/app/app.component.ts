@@ -15,6 +15,11 @@ import { AuthService } from "./common/auth/auth.service";
   standalone: true,
   imports: [CommonModule, RouterOutlet, AuthComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: `
+      :host {
+        font-family: system-ui;
+      }
+    `,
   template: `
     <app-auth>
       <ng-container *ngComponentOutlet="componentClass"></ng-container>
