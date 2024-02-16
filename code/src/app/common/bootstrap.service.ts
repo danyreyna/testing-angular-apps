@@ -29,6 +29,7 @@ export class BootstrapService {
     "https://api.example.com/bootstrap",
     {
       method: "get",
+      shouldUseCache: true,
       options: {
         withCredentials: true,
       },
