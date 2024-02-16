@@ -20,6 +20,7 @@ import {
 } from "../handle-observable-error";
 import type { JSONTypes } from "../json-types";
 import type { CommandWithState } from "./command-with-state";
+import type { HttpUrl, HttpUrlParams, InputHttpUrl } from "./http-url-params";
 import type {
   HttpErrorResponse,
   IdleState,
@@ -188,34 +189,6 @@ function getRequestObservable<
     }
   }
 }
-
-export type HttpPathParams = Record<string, string>;
-export type HttpQueryParams = Record<string, string | string[]>;
-
-type InputHttpUrl<
-  TPathParams extends HttpPathParams,
-  TQueryParams extends HttpQueryParams,
-> = {
-  href: URL["href"];
-  pathParams?: TPathParams;
-  queryParams?: TQueryParams;
-};
-
-type OutputHttpUrl<
-  TPathParams extends HttpPathParams,
-  TQueryParams extends HttpQueryParams,
-> = Required<InputHttpUrl<TPathParams, TQueryParams>>;
-
-type HttpUrlParams = {
-  pathParams?: HttpPathParams;
-  queryParams?: HttpQueryParams;
-};
-
-export type HttpUrl<TUrlParams extends HttpUrlParams = HttpUrlParams> =
-  OutputHttpUrl<
-    NonNullable<TUrlParams["pathParams"]>,
-    NonNullable<TUrlParams["queryParams"]>
-  >;
 
 export type GetHttpCommandResult<
   TResponse extends JSONTypes = null,
