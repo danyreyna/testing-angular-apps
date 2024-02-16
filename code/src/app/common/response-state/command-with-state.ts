@@ -1,4 +1,3 @@
-import type { JSONTypes } from "../json-types";
 import type {
   ErrorResponse,
   IdleState,
@@ -6,7 +5,7 @@ import type {
   SuccessResponse,
 } from "./response-states";
 
-export type CommandWithState<TData extends JSONTypes> =
+export type CommandWithState<TData> =
   | IdleState
   | PendingState
   | ErrorResponse

@@ -1,11 +1,10 @@
-import type { JSONTypes } from "../json-types";
 import type {
   ErrorResponse,
   PendingState,
   SuccessResponse,
 } from "./response-states";
 
-export type QueryWithState<TData extends JSONTypes> =
+export type QueryWithState<TData> =
   | PendingState
   | ErrorResponse
   | SuccessResponse<TData>;
