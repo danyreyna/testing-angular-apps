@@ -6,7 +6,7 @@ import { handleObservableError } from "./handle-observable-error";
 import type { ListItem } from "./list-item.service";
 import type { UserWithoutPassword } from "./user";
 
-export type BootstrapData = {
+export type BootstrapResponse = {
   user: UserWithoutPassword;
   listItems: (ListItem & { book: null | Book })[];
 };

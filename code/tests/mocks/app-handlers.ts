@@ -1,5 +1,5 @@
 import { delay, http, HttpResponse, type PathParams } from "msw";
-import type { BootstrapData } from "../../src/app/common/bootstrap.service";
+import type { BootstrapResponse } from "../../src/app/common/bootstrap.service";
 import type { UserWithoutPassword } from "../../src/app/common/user";
 import { mockSessionDbTable } from "./auth-handlers";
 import { mockBookDbTable } from "./book-handlers";
@@ -67,7 +67,7 @@ export const handlers = [
         book: mockBookDbTable.get(listItem.bookId) ?? null,
       }));
 
-      return HttpResponse.json<BootstrapData>({
+      return HttpResponse.json<BootstrapResponse>({
         user: userWithoutPassword,
         listItems: listItemsAndBooks,
       });
