@@ -19,7 +19,7 @@ export class BootstrapService {
 
   readonly resetCacheSubject = new BehaviorSubject<null>(null);
 
-  #bootstrapResponse$ = this.resetCacheSubject.pipe(
+  #bootstrapRequest$ = this.resetCacheSubject.pipe(
     mergeMap(() =>
       this.#http.get<BootstrapData>("https://api.example.com/bootstrap", {
         withCredentials: true,
@@ -27,7 +27,7 @@ export class BootstrapService {
     ),
   );
 
-  bootstrapData$ = this.#bootstrapResponse$.pipe(
+  bootstrapData$ = this.#bootstrapRequest$.pipe(
     map(({ user, listItems }) => {
       const books = listItems.reduce((accumulator, { book }) => {
         if (book === null) {
