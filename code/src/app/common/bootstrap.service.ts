@@ -35,9 +35,9 @@ export class BootstrapService {
     },
   );
 
-  resetBootstrapDataCache = this.#bootstrapQuery.resetCacheSubject;
+  readonly resetBootstrapDataCache = this.#bootstrapQuery.resetCacheSubject;
 
-  bootstrapData$ = this.#bootstrapQuery.request.pipe(
+  readonly bootstrapData$ = this.#bootstrapQuery.request.pipe(
     map<QueryWithState<BootstrapResponse>, BootstrapData>((response) => {
       if (response.state === "success") {
         const { user, listItems } = response.data;
