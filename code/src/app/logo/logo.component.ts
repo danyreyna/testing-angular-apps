@@ -6,7 +6,6 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
   standalone: true,
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: [``],
   template: `
     <svg
       width="80px"
