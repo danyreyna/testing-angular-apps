@@ -13,6 +13,8 @@ import {
   TEXT_COLOR,
 } from "../styles/colors";
 
+export type ButtonVariant = "primary" | "secondary";
+
 @Component({
   selector: "app-button",
   standalone: true,
@@ -50,7 +52,7 @@ import {
 })
 export class ButtonComponent {
   @Input()
-  variant: "primary" | "secondary" = "primary";
+  variant: ButtonVariant = "primary";
 
   @Output()
   buttonClicked = new EventEmitter<MouseEvent>();
