@@ -1,9 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
-
-function toPx(value: string | undefined) {
-  return `${value}px`;
-}
+import { toPxInputTransformer } from "../to-px-input-transformer";
 
 @Component({
   selector: "app-logo",
@@ -60,9 +57,9 @@ function toPx(value: string | undefined) {
   `,
 })
 export class LogoComponent {
-  @Input({ transform: toPx })
+  @Input({ transform: toPxInputTransformer })
   width = 48;
 
-  @Input({ transform: toPx })
+  @Input({ transform: toPxInputTransformer })
   height = 48;
 }
