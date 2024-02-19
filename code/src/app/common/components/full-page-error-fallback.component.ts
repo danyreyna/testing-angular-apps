@@ -7,8 +7,16 @@ import { DANGER_COLOR } from "../styles/colors";
   standalone: true,
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  /*
+   * Go and complain to the Angular team.
+   * https://github.com/angular/angular/issues/53809
+   */
+  // eslint-disable-next-line @angular-eslint/no-host-metadata-property
+  host: {
+    role: "alert",
+  },
   styles: `
-      .full-page-error {
+      :host {
         color: ${DANGER_COLOR};
         height: 100vh;
         display: flex;
@@ -18,10 +26,8 @@ import { DANGER_COLOR } from "../styles/colors";
       }
     `,
   template: `
-    <div role="alert" class="full-page-error">
-      <p>Uh oh... There's a problem. Try refreshing the app.</p>
-      <pre>{{ errorMessage }}</pre>
-    </div>
+    <p>Uh oh... There's a problem. Try refreshing the app.</p>
+    <pre>{{ errorMessage }}</pre>
   `,
 })
 export class FullPageErrorFallbackComponent {
