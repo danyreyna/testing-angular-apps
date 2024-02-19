@@ -1,5 +1,9 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+
+function toPx(value: string | undefined) {
+  return `${value}px`;
+}
 
 @Component({
   selector: "app-logo",
@@ -8,8 +12,8 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <svg
-      width="80px"
-      height="80px"
+      [attr.width]="width"
+      [attr.height]="height"
       viewBox="0 0 48 48"
       xmlns="http://www.w3.org/2000/svg"
     >
@@ -55,4 +59,10 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
     </svg>
   `,
 })
-export class LogoComponent {}
+export class LogoComponent {
+  @Input({ transform: toPx })
+  width = 48;
+
+  @Input({ transform: toPx })
+  height = 48;
+}
