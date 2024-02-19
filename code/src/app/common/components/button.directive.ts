@@ -1,4 +1,10 @@
-import { Directive, ElementRef, inject, Input } from "@angular/core";
+import {
+  Directive,
+  ElementRef,
+  inject,
+  Input,
+  type OnInit,
+} from "@angular/core";
 
 export type ButtonVariant = "primary" | "secondary";
 
@@ -6,13 +12,13 @@ export type ButtonVariant = "primary" | "secondary";
   selector: "[appButton]",
   standalone: true,
 })
-export class ButtonDirective {
+export class ButtonDirective implements OnInit {
   readonly #element = inject<ElementRef<HTMLButtonElement>>(ElementRef);
 
   @Input()
   variant: ButtonVariant = "primary";
 
-  constructor() {
+  ngOnInit() {
     /*
      * This is ugly, but with an `app-button` component we'd end up with HTML rendered like:
      * ```html
