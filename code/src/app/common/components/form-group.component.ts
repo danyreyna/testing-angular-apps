@@ -7,15 +7,13 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
-      .form-group {
+      :host {
         display: flex;
         flex-direction: column;
       }
     `,
   template: `
-    <div class="form-group">
-      <ng-content />
-    </div>
+    <ng-content />
   `,
 })
 export class FormGroupComponent {}
