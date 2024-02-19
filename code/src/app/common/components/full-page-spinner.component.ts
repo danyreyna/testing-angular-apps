@@ -8,7 +8,7 @@ import { BookSpinnerComponent } from "./book-spinner.component";
   imports: [CommonModule, BookSpinnerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
-    .full-page-spinner {
+    :host {
       font-size: 4rem;
       height: 100vh;
       display: grid;
@@ -16,9 +16,7 @@ import { BookSpinnerComponent } from "./book-spinner.component";
     }
     `,
   template: `
-    <div class="full-page-spinner">
-      <app-book-spinner />
-    </div>
+    <app-book-spinner />
   `,
 })
 export class FullPageSpinnerComponent {}
