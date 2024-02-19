@@ -44,7 +44,8 @@ import { INDIGO_DARKEN_10_COLOR } from "../styles/colors";
       }
     }
 
-    .book {
+    :host {
+      display: block;
       height: 60px;
       position: relative;
       width: 60px;
@@ -52,7 +53,7 @@ import { INDIGO_DARKEN_10_COLOR } from "../styles/colors";
       perspective: 120px;
     }
 
-    .book div {
+    :host div {
       -webkit-animation: whirl-book 1s infinite;
       animation: whirl-book 1s infinite;
       background: ${INDIGO_DARKEN_10_COLOR};
@@ -64,39 +65,37 @@ import { INDIGO_DARKEN_10_COLOR } from "../styles/colors";
       width: 100%;
     }
 
-    .book div:nth-child(1) {
+    :host div:nth-child(1) {
       -webkit-animation-delay: 0.075s;
       animation-delay: 0.075s;
     }
 
-    .book div:nth-child(2) {
+    :host div:nth-child(2) {
       -webkit-animation-delay: 0.15s;
       animation-delay: 0.15s;
     }
 
-    .book div:nth-child(3) {
+    :host div:nth-child(3) {
       -webkit-animation-delay: 0.225s;
       animation-delay: 0.225s;
     }
 
-    .book div:nth-child(4) {
+    :host div:nth-child(4) {
       -webkit-animation-delay: 0.3s;
       animation-delay: 0.3s;
     }
 
-    .book div:nth-child(5) {
+    :host div:nth-child(5) {
       -webkit-animation-delay: 0.375s;
       animation-delay: 0.375s;
     }
     `,
   template: `
-    <div class="book">
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-    </div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
   `,
 })
 export class BookSpinnerComponent {}
