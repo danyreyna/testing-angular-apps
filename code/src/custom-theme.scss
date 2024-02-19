@@ -56,6 +56,7 @@ body {
   --app-indigo-color: #3f51b5;
   --app-base-color: white;
   --app-gray-color: #f1f2f7;
+  --app-gray-10-color: #f1f1f4;
   --app-text-color: #434449;
 }
 
@@ -75,4 +76,19 @@ body {
 .app-button--secondary {
   background: var(--app-gray-color);
   color: var(--app-text-color);
+}
+
+.app-circle-button {
+  cursor: pointer;
+  border-radius: 30px;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--app-base-color);
+  color: var(--app-text-color);
+  border: 1px solid var(--app-gray-10-color);
 }
