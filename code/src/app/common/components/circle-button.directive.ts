@@ -16,6 +16,12 @@ export class CircleButtonDirective implements OnInit {
   @Input({ required: true })
   textLabel = "";
 
+  @Input()
+  width = 40;
+
+  @Input()
+  height = 40;
+
   ngOnInit() {
     /*
      * This is ugly, but with an `app-circle-button` component we'd end up with HTML like this:
@@ -31,6 +37,8 @@ export class CircleButtonDirective implements OnInit {
      */
 
     this.#element.nativeElement.classList.add("app-circle-button");
+    this.#element.nativeElement.style.width = `${this.width}px`;
+    this.#element.nativeElement.style.height = `${this.height}px`;
 
     const textLabelNode = document.createTextNode(this.textLabel);
     const textLabelDiv = document.createElement("div");
