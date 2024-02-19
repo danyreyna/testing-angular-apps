@@ -2,8 +2,8 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  effect,
   inject,
-  type OnInit,
   type Type,
 } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
@@ -21,19 +21,21 @@ import { AuthService } from "./common/auth/auth.service";
     </app-auth>
   `,
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   readonly #authService = inject(AuthService);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected componentClass: null | Type<any> = null;
 
-  async ngOnInit() {
-    if (this.#authService.user() === null) {
-      const module = await import("./unauthenticated-app.component");
-      this.componentClass = module.UnauthenticatedAppComponent;
-    } else {
-      const module = await import("./authenticated-app.component");
-      this.componentClass = module.AuthenticatedAppComponent;
-    }
+  constructor() {
+    effect(async () => {
+      if (this.#authService.user() === null) {
+        const module = await import("./unauthenticated-app.component");
+        this.componentClass = module.UnauthenticatedAppComponent;
+      } else {
+        const module = await import("./authenticated-app.component");
+        this.componentClass = module.AuthenticatedAppComponent;
+      }
+    });
   }
 }
