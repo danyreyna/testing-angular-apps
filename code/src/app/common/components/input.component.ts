@@ -8,6 +8,7 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
       :host {
+        line-height: inherit;
         border-radius: 3px;
         border: 1px solid #f1f1f4;
         background: #f1f2f7;
