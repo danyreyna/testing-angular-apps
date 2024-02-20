@@ -48,25 +48,8 @@ body {
   font-family: "Helvetica Neue", sans-serif;
 }
 
-* {
-  box-sizing: border-box;
-}
-
 :root {
-  --app-gray-10-color: #f1f1f4;
-}
-
-.app-circle-button {
-  cursor: pointer;
-  border-radius: 30px;
-  padding: 0;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--app-base-color);
-  color: var(--app-text-color);
-  border: 1px solid var(--app-gray-10-color);
+  box-sizing: border-box;
 }
 
 .screen-reader-only {
