@@ -1,5 +1,10 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  numberAttribute,
+} from "@angular/core";
 import { BASE_COLOR, GRAY_10_COLOR, TEXT_COLOR } from "../styles/colors";
 
 @Component({
@@ -27,7 +32,8 @@ import { BASE_COLOR, GRAY_10_COLOR, TEXT_COLOR } from "../styles/colors";
    */
   // eslint-disable-next-line @angular-eslint/no-host-metadata-property
   host: {
-    "[ngStyle]": "{width, height}",
+    "[style.width.px]": "size",
+    "[style.height.px]": "size",
   },
   template: `
     <div class="screen-reader-only">
@@ -42,9 +48,6 @@ export class CircleButtonComponent {
   @Input({ required: true })
   textLabel = "";
 
-  @Input()
-  width = 40;
-
-  @Input()
-  height = 40;
+  @Input({ transform: numberAttribute })
+  size = 40;
 }
