@@ -63,3 +63,11 @@ body {
   white-space: nowrap;
   border-width: 0;
 }
+
+.modal-overlay {
+  position: fixed !important;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+}
