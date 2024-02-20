@@ -14,14 +14,6 @@ export type ButtonVariant = "primary" | "secondary";
   standalone: true,
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  /*
-   * Go and complain to the Angular team.
-   * https://github.com/angular/angular/issues/53809
-   */
-  // eslint-disable-next-line @angular-eslint/no-host-metadata-property
-  host: {
-    "[ngClass]": "variant",
-  },
   styles: `
       :host {
         cursor: pointer;
@@ -31,12 +23,12 @@ export type ButtonVariant = "primary" | "secondary";
         border-radius: 3px;
       }
 
-      .primary {
+      :host[variant=primary] {
         background: ${INDIGO_COLOR};
         color: ${BASE_COLOR};
       }
 
-      .secondary {
+      :host[variant=secondary] {
         background: ${GRAY_COLOR};
         color: ${TEXT_COLOR};
       }
