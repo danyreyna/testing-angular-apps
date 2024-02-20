@@ -36,7 +36,6 @@ import { CircleButtonComponent } from "../circle-button.component";
     .modal-title {
       text-align: center;
       font-size: 2em;
-      margin: 0 0 0.5rem;
     }
 
     @media (min-width: ${MEDIUM_BREAKPOINT}) {
