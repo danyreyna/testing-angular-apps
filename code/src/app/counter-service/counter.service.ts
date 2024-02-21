@@ -1,10 +1,4 @@
-import {
-  computed,
-  Inject,
-  Injectable,
-  InjectionToken,
-  signal,
-} from "@angular/core";
+import { inject, Injectable, InjectionToken, signal } from "@angular/core";
 
 export type InitialCounterValues = {
   initialCount?: number;
@@ -19,20 +13,14 @@ export const INITIAL_COUNTER_VALUES = new InjectionToken<InitialCounterValues>(
   providedIn: "root",
 })
 export class CounterService {
-  readonly #countState = signal(0);
-  readonly count = computed(() => this.#countState());
+  readonly #initialCounterValues = inject<null | InitialCounterValues>(
+    INITIAL_COUNTER_VALUES,
+  );
 
-  readonly #step = signal(1);
+  readonly #countState = signal(this.#initialCounterValues?.initialCount ?? 0);
+  readonly count = this.#countState.asReadonly();
 
-  constructor(
-    @Inject(INITIAL_COUNTER_VALUES)
-    private readonly initialCounterValues: InitialCounterValues = {},
-  ) {
-    const { initialCount = 0, step = 1 } = initialCounterValues;
-
-    this.#countState.set(initialCount);
-    this.#step.set(step);
-  }
+  readonly #step = signal(this.#initialCounterValues?.step ?? 1);
 
   increment() {
     this.#countState.update((currentCount) => currentCount + this.#step());

@@ -1,9 +1,27 @@
 import { HttpErrorResponse } from "@angular/common/http";
 import { throwError } from "rxjs";
 
-export type HandledObservableError =
-  | { message: string; status: number }
-  | { message: string };
+export type HandledHttpError = { message: string; status: number };
+export type HandledObservableError = HandledHttpError | { message: string };
+
+function getHttpErrorMessage(errorResponse: HttpErrorResponse) {
+  if (
+    errorResponse.error?.title !== undefined ||
+    errorResponse.error?.detail !== undefined
+  ) {
+    return `${errorResponse.error.title ?? ""}${
+      errorResponse.error.detail === undefined
+        ? ""
+        : `: ${errorResponse.error.detail}`
+    }`;
+  }
+
+  if (errorResponse.error?.message !== undefined) {
+    return errorResponse.error.message;
+  }
+
+  return `Backend returned code ${errorResponse.status}: ${errorResponse.message}`;
+}
 
 function handleHttpError(errorResponse: HttpErrorResponse) {
   const isNetworkError =
@@ -11,14 +29,13 @@ function handleHttpError(errorResponse: HttpErrorResponse) {
 
   const message = isNetworkError
     ? "A network error occurred"
-    : errorResponse.error?.message ??
-      `Backend returned code ${errorResponse.status}: ${errorResponse.message}`;
+    : getHttpErrorMessage(errorResponse);
 
   return throwError(() => ({ message, status: errorResponse.status }));
 }
 
 export function handleObservableError(
-  observableError: Error | HttpErrorResponse,
+  observableError: HttpErrorResponse | Error | HandledObservableError,
 ) {
   // in a real world app, we may send the error to some remote logging infrastructure
   // instead of just logging it to the console
@@ -28,5 +45,9 @@ export function handleObservableError(
     return handleHttpError(observableError);
   }
 
-  return throwError(() => ({ message: observableError.message }));
+  if (observableError instanceof Error) {
+    return throwError(() => ({ message: observableError.message }));
+  }
+
+  return throwError(() => observableError);
 }

@@ -6,32 +6,103 @@ import {
   inject,
   type Type,
 } from "@angular/core";
-import { provideRouter } from "@angular/router";
 import {
   render as atlRender,
   type RenderComponentOptions,
+  screen,
+  waitForElementToBeRemoved,
 } from "@testing-library/angular";
 import { type Mock as VitestFunctionMock, vi } from "vitest";
 import { routes } from "../src/app/app.routes";
-import { type Theme } from "../src/app/common/theme.service";
-import { provideTheme } from "../src/app/common/theme.service.provider";
+import { provideAuth } from "../src/app/common/auth/auth.service.provider";
+import { type Theme } from "../src/app/common/theme/theme.service";
+import { provideTheme } from "../src/app/common/theme/theme.service.provider";
+import type { User, UserWithoutPassword } from "../src/app/common/user";
+import { buildUser } from "./generate";
 
-function render<ComponentType>(
+export async function waitForLoadingToFinish() {
+  const loadingElements = [
+    ...screen.queryAllByLabelText(/loading/i),
+    ...screen.queryAllByText(/loading/i),
+  ];
+  if (loadingElements.length === 0) {
+    return;
+  }
+
+  await waitForElementToBeRemoved(() => loadingElements);
+}
+
+export async function loginAsUser(userProperties?: User) {
+  const user = buildUser.one({
+    overrides: userProperties,
+    traits: "generatedInTest",
+  });
+
+  const { id, ...rest } = user;
+
+  await fetch(`https://api.example.com/user/${id}`, {
+    method: "PUT",
+    credentials: "omit",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(rest),
+  });
+
+  const authUserResponse = await fetch("https://api.example.com/login", {
+    method: "POST",
+    credentials: "omit",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      username: user.username,
+      password: user.password,
+    }),
+  });
+
+  return (await authUserResponse.json()) as UserWithoutPassword;
+}
+
+async function render<ComponentType>(
   ui: Type<ComponentType>,
   {
     theme = "light",
+    route,
+    user,
     ...options
-  }: RenderComponentOptions<ComponentType> & { theme?: Theme } = {},
+  }: RenderComponentOptions<ComponentType> & {
+    theme?: Theme;
+    route?: string;
+    // Pass `null` to render the app without authenticating.
+    user?: null | UserWithoutPassword;
+  } = {},
 ) {
-  return atlRender(ui, {
+  const loggedInUser = user === undefined ? await loginAsUser() : user;
+
+  const result = await atlRender(ui, {
     providers: [
-      provideRouter(routes),
       provideHttpClient(),
+      provideAuth(),
       provideTheme(theme),
       ...(options.providers ?? []),
     ],
+    routes,
     ...options,
   });
+
+  if (route !== undefined) {
+    await result.navigate(route);
+  }
+
+  const returnValue = {
+    ...result,
+    user: loggedInUser,
+  };
+
+  await waitForLoadingToFinish();
+
+  return returnValue;
 }
 
 /*
@@ -109,11 +180,11 @@ export async function renderService<
     }
   }
 
-  await render(TestComponent, {
+  const { fixture } = await render(TestComponent, {
     componentProviders: initialValues,
   });
 
-  return { result: result as AssignedResult };
+  return { result: result as AssignedResult, unmount: fixture.destroy };
 }
 
 export * from "@testing-library/angular";

@@ -6,7 +6,7 @@ import {
   inject,
   Input,
 } from "@angular/core";
-import { ThemeService } from "../common/theme.service";
+import { ThemeService } from "../common/theme/theme.service";
 
 const styles = {
   dark: {

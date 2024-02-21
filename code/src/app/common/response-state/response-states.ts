@@ -5,7 +5,17 @@ const PENDING_STATE = "pending";
 export type PendingState = { state: typeof PENDING_STATE };
 
 const ERROR_STATE = "error";
-export type ErrorResponse = { state: typeof ERROR_STATE; message: string };
+export type HttpErrorResponse = {
+  state: typeof ERROR_STATE;
+  message: string;
+  status: number;
+};
+export type ErrorResponse =
+  | {
+      state: typeof ERROR_STATE;
+      message: string;
+    }
+  | HttpErrorResponse;
 
 const SUCCESS_STATE = "success";
 export type SuccessResponse<TData> = {
