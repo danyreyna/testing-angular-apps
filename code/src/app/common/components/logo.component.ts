@@ -1,18 +1,31 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
-import { toPxInputTransformer } from "../to-px-input-transformer";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  numberAttribute,
+} from "@angular/core";
 
 @Component({
   selector: "app-logo",
   standalone: true,
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  /*
+   * Go and complain to the Angular team.
+   * https://github.com/angular/angular/issues/53809
+   */
+  // eslint-disable-next-line @angular-eslint/no-host-metadata-property
+  host: {
+    "[style.width]": "getSizeInPx()",
+    "[style.height]": "getSizeInPx()",
+  },
   template: `
     <svg
-      [attr.width]="width"
-      [attr.height]="height"
       viewBox="0 0 48 48"
       xmlns="http://www.w3.org/2000/svg"
+      [attr.width]="getSizeInPx()"
+      [attr.height]="getSizeInPx()"
     >
       <title>Bookshelf</title>
       <g>
@@ -57,9 +70,10 @@ import { toPxInputTransformer } from "../to-px-input-transformer";
   `,
 })
 export class LogoComponent {
-  @Input({ transform: toPxInputTransformer })
-  width = 48;
+  @Input({ transform: numberAttribute })
+  size = 48;
 
-  @Input({ transform: toPxInputTransformer })
-  height = 48;
+  protected getSizeInPx() {
+    return `${this.size}px`;
+  }
 }
