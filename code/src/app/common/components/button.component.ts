@@ -16,7 +16,6 @@ export type ButtonVariant = "primary" | "secondary";
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
       :host {
-        cursor: pointer;
         padding: 10px 15px;
         border: 0;
         line-height: 1;
