@@ -1,13 +1,11 @@
 import { inject, Injectable, signal } from "@angular/core";
 import { tap } from "rxjs";
+import type { LoginFormValues } from "../../unauthenticated-app.component";
 import { BootstrapService } from "../bootstrap.service";
 import type { CommandWithState } from "../response-state/command-with-state";
 import { getHttpCommand } from "../response-state/get-http-command";
 import type { SuccessResponse } from "../response-state/response-states";
-import type { User, UserWithoutPassword } from "../user";
-
-export type LoginFormValues = Pick<User, "username" | "password">;
-export type RegisterFormValues = Pick<User, "username" | "password">;
+import type { UserWithoutPassword } from "../user";
 
 export type LoginResponseWithState = CommandWithState<UserWithoutPassword>;
 export type SuccessLoginResponse = SuccessResponse<UserWithoutPassword>;
@@ -57,7 +55,7 @@ export class AuthService {
 
   readonly #registerCommand = getHttpCommand<
     null,
-    RegisterFormValues,
+    LoginFormValues,
     {
       pathParams: { id: string };
     }
