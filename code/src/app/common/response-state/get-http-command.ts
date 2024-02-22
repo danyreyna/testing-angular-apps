@@ -146,48 +146,50 @@ export type HttpCommandParams =
 function getRequestObservable<
   TResponse extends JSONTypes,
   TSubjectValue extends JSONTypes,
->(url: string, httpParams: HttpCommandParams, subjectValue: TSubjectValue) {
+>(url: string, httpParams: HttpCommandParams) {
   const http = inject(HttpClient);
 
   const { method } = httpParams;
 
-  switch (method) {
-    case "delete": {
-      const { options } = httpParams;
-      return http.delete<TResponse>(url, options);
-    }
-    case "patch": {
-      const { shouldSendBodyFromSubject = true, options } = httpParams;
+  return (subjectValue: TSubjectValue) => {
+    switch (method) {
+      case "delete": {
+        const { options } = httpParams;
+        return http.delete<TResponse>(url, options);
+      }
+      case "patch": {
+        const { shouldSendBodyFromSubject = true, options } = httpParams;
 
-      return http.patch<TResponse>(
-        url,
-        shouldSendBodyFromSubject ? subjectValue : null,
-        options,
-      );
-    }
-    case "post": {
-      const { shouldSendBodyFromSubject = true, options } = httpParams;
+        return http.patch<TResponse>(
+          url,
+          shouldSendBodyFromSubject ? subjectValue : null,
+          options,
+        );
+      }
+      case "post": {
+        const { shouldSendBodyFromSubject = true, options } = httpParams;
 
-      return http.post<TResponse>(
-        url,
-        shouldSendBodyFromSubject ? subjectValue : null,
-        options,
-      );
-    }
-    case "put": {
-      const { shouldSendBodyFromSubject = true, options } = httpParams;
+        return http.post<TResponse>(
+          url,
+          shouldSendBodyFromSubject ? subjectValue : null,
+          options,
+        );
+      }
+      case "put": {
+        const { shouldSendBodyFromSubject = true, options } = httpParams;
 
-      return http.put<TResponse>(
-        url,
-        shouldSendBodyFromSubject ? subjectValue : null,
-        options,
-      );
+        return http.put<TResponse>(
+          url,
+          shouldSendBodyFromSubject ? subjectValue : null,
+          options,
+        );
+      }
+      default: {
+        const exhaustiveCheck: never = method;
+        return exhaustiveCheck;
+      }
     }
-    default: {
-      const exhaustiveCheck: never = method;
-      return exhaustiveCheck;
-    }
-  }
+  };
 }
 
 export type GetHttpCommandResult<
@@ -221,9 +223,7 @@ export function getHttpCommand<
       NonNullable<TUrlParams["pathParams"]>,
       NonNullable<TUrlParams["queryParams"]>
     >
-  >({
-    href: "",
-  });
+  >(typeof url === "string" ? { href: url } : url());
   const urlSignal = computed(() => {
     const { href, pathParams, queryParams } = urlState();
 
@@ -237,23 +237,18 @@ export function getHttpCommand<
   const subject = new BehaviorSubject<null | TSubjectValue>(null);
   const action$ = subject.asObservable();
 
+  const getRequestObservablePartial = getRequestObservable<
+    TResponse,
+    TSubjectValue
+  >(urlSignal().href, httpCommandParams);
+
   const response = action$.pipe(
     switchMap((subjectValue) => {
       if (subjectValue === null) {
         return INITIAL_IDLE_STATE;
       }
 
-      if (typeof url === "string") {
-        urlState.set({ href: url });
-      } else {
-        urlState.set(url());
-      }
-
-      const request$ = getRequestObservable<TResponse, TSubjectValue>(
-        urlSignal().href,
-        httpCommandParams,
-        subjectValue,
-      ).pipe(
+      const request$ = getRequestObservablePartial(subjectValue).pipe(
         map<TResponse, TSuccessResponse>((response) => ({
           state: "success",
           data: response,
