@@ -1,6 +1,11 @@
 import { delay, http, HttpResponse } from "msw";
 import type { RegisterRequestValues } from "../../src/app/common/auth/auth.service";
 import type { User } from "../../src/app/common/user";
+import {
+  createSession,
+  generateSessionId,
+  SESSION_ROLLING_DURATION,
+} from "./auth-handlers";
 import { getStringHash } from "./get-string-hash";
 import type { Rfc9457ProblemDetail } from "./rfc-9457-problem-detail";
 
@@ -65,7 +70,18 @@ export const handlers = [
       if (existingUser === undefined) {
         mockUserDbTable.set(id, { id, username, passwordHash, source });
 
-        return new HttpResponse(null, { status: 201 });
+        const token = generateSessionId();
+        createSession(token, id);
+
+        return new HttpResponse(null, {
+          status: 201,
+          headers: {
+            /*
+             * In a real backend, also set HttpOnly.
+             */
+            "Set-Cookie": `__Host-id=${token}; Secure; SameSite=Strict; Path=/; Max-Age=${SESSION_ROLLING_DURATION}`,
+          },
+        });
       }
 
       const doesUserAlreadyHaveRequestedUpdates =

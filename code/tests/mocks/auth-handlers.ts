@@ -6,7 +6,7 @@ import { getStringHash } from "./get-string-hash";
 import type { Rfc9457ProblemDetail } from "./rfc-9457-problem-detail";
 import { mockUserDbTable } from "./user-handlers";
 
-const SESSION_ROLLING_DURATION = 600;
+export const SESSION_ROLLING_DURATION = 600;
 const SESSION_ABSOLUTE_DURATION = 604_800;
 
 export const mockSessionDbTable = new Map<
@@ -18,6 +18,35 @@ export const mockSessionDbTable = new Map<
     userId: User["id"];
   }
 >();
+
+export function generateSessionId() {
+  /*
+   * In a real backend, use a cryptographically secure random number generator.
+   * This token would be an ID pointing to the client's information stored in the database.
+   * The client's information is an identifier, meaningless to prevent information disclosure attacks.
+   * It must never include sensitive information or Personally Identifiable Information.
+   */
+  return faker.string.uuid();
+}
+
+export function createSession(sessionId: string, userId: string) {
+  const rollingExpiration = new Date();
+  rollingExpiration.setSeconds(
+    rollingExpiration.getSeconds() + SESSION_ROLLING_DURATION,
+  );
+
+  const absoluteExpiration = new Date();
+  absoluteExpiration.setSeconds(
+    absoluteExpiration.getSeconds() + SESSION_ABSOLUTE_DURATION,
+  );
+
+  mockSessionDbTable.set(sessionId, {
+    id: sessionId,
+    rollingExpiration,
+    absoluteExpiration,
+    userId,
+  });
+}
 
 export const handlers = [
   http.post<PathParams, UserFormValues>(
@@ -69,30 +98,8 @@ export const handlers = [
 
       const [id, user] = userEntry;
 
-      /*
-       * In a real backend, use a cryptographically secure random number generator.
-       * This token would be an ID pointing to the client's information stored in the database.
-       * The client's information is an identifier, meaningless to prevent information disclosure attacks.
-       * It must never include sensitive information or Personally Identifiable Information.
-       */
-      const token = faker.string.uuid();
-
-      const rollingExpiration = new Date();
-      rollingExpiration.setSeconds(
-        rollingExpiration.getSeconds() + SESSION_ROLLING_DURATION,
-      );
-
-      const absoluteExpiration = new Date();
-      absoluteExpiration.setSeconds(
-        absoluteExpiration.getSeconds() + SESSION_ABSOLUTE_DURATION,
-      );
-
-      mockSessionDbTable.set(token, {
-        id: token,
-        rollingExpiration,
-        absoluteExpiration,
-        userId: id,
-      });
+      const token = generateSessionId();
+      createSession(token, id);
 
       return HttpResponse.json<UserWithoutPassword>(
         {
@@ -103,7 +110,10 @@ export const handlers = [
         {
           status: 200,
           headers: {
-            "Set-Cookie": `__Host-id=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${SESSION_ROLLING_DURATION}`,
+            /*
+             * In a real backend, also set HttpOnly.
+             */
+            "Set-Cookie": `__Host-id=${token}; Secure; SameSite=Strict; Path=/; Max-Age=${SESSION_ROLLING_DURATION}`,
           },
         },
       );
