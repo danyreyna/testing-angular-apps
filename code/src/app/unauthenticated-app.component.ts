@@ -11,7 +11,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { FormsModule, NgForm } from "@angular/forms";
-import { combineLatest, map, type Observable } from "rxjs";
+import { combineLatest, map, type Observable, tap } from "rxjs";
 import {
   AuthService,
   type LoginResponseWithState,
@@ -236,13 +236,26 @@ export class UnauthenticatedAppComponent {
   readonly #auth = inject(AuthService);
   readonly #modal = inject(ModalService);
 
+  readonly #loginResponse$ = this.#auth.loginResponse$.pipe(
+    tap((response) => {
+      if (response.state === "success") {
+        this.#modal.closeAll();
+      }
+    }),
+  );
+
+  readonly #registerResponse$ = this.#auth.registerResponse$.pipe(
+    tap((response) => {
+      if (response.state === "success") {
+        this.#modal.closeAll();
+      }
+    }),
+  );
+
   protected readonly viewModel$: Observable<{
     loginResponse: LoginResponseWithState;
     registerResponse: RegisterResponseWithState;
-  }> = combineLatest([
-    this.#auth.loginResponse$,
-    this.#auth.registerResponse$,
-  ]).pipe(
+  }> = combineLatest([this.#loginResponse$, this.#registerResponse$]).pipe(
     map(([loginResponse, registerResponse]) => ({
       loginResponse,
       registerResponse,
