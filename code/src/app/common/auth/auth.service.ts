@@ -29,7 +29,7 @@ export class AuthService {
 
   readonly resetBootstrapDataCache =
     this.#bootstrapService.resetBootstrapDataCache;
-  readonly bootstrapResponse$ = this.#bootstrapService.bootstrapData$.pipe(
+  readonly bootstrapResponse$ = this.#bootstrapService.bootstrapRequest$.pipe(
     tap((response) => {
       if (response.state === "success" && response.data !== null) {
         this.#userState.set(response.data.user);

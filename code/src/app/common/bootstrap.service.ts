@@ -38,7 +38,7 @@ export class BootstrapService {
 
   readonly resetBootstrapDataCache = this.#bootstrapQuery.resetCacheSubject;
 
-  readonly bootstrapData$ = this.#bootstrapQuery.request.pipe(
+  readonly bootstrapRequest$ = this.#bootstrapQuery.request.pipe(
     map<QueryWithState<BootstrapResponse>, BootstrapData>((response) => {
       if (
         response.state === "error" &&
