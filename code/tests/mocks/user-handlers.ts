@@ -1,4 +1,4 @@
-import { http, HttpResponse } from "msw";
+import { delay, http, HttpResponse } from "msw";
 import type { RegisterRequestValues } from "../../src/app/common/auth/auth.service";
 import type { User } from "../../src/app/common/user";
 import { getStringHash } from "./get-string-hash";
@@ -13,6 +13,8 @@ export const handlers = [
   http.put<{ id: string }, RegisterRequestValues>(
     "https://api.example.com/user/:id",
     async ({ params, request }) => {
+      await delay();
+
       const body = await request.json();
 
       const { username, password, source } = body;
