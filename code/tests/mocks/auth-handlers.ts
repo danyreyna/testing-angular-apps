@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { delay, http, HttpResponse, type PathParams } from "msw";
 import type { User, UserWithoutPassword } from "../../src/app/common/user";
-import type { LoginFormValues } from "../../src/app/unauthenticated-app.component";
+import type { UserFormValues } from "../../src/app/unauthenticated-app.component";
 import { getStringHash } from "./get-string-hash";
 import type { Rfc9457ProblemDetail } from "./rfc-9457-problem-detail";
 import { mockUserDbTable } from "./user-handlers";
@@ -20,7 +20,7 @@ export const mockSessionDbTable = new Map<
 >();
 
 export const handlers = [
-  http.post<PathParams, LoginFormValues>(
+  http.post<PathParams, UserFormValues>(
     "https://api.example.com/login",
     async ({ request }) => {
       await delay();

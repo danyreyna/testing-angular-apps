@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from "@angular/core";
 import { tap } from "rxjs";
-import type { LoginFormValues } from "../../unauthenticated-app.component";
+import type { UserFormValues } from "../../unauthenticated-app.component";
 import { BootstrapService } from "../bootstrap.service";
 import type { CommandWithState } from "../response-state/command-with-state";
 import { getHttpCommand } from "../response-state/get-http-command";
@@ -35,7 +35,7 @@ export class AuthService {
     }),
   );
 
-  readonly #loginCommand = getHttpCommand<UserWithoutPassword, LoginFormValues>(
+  readonly #loginCommand = getHttpCommand<UserWithoutPassword, UserFormValues>(
     "https://api.example.com/login",
     {
       method: "post",
@@ -55,7 +55,7 @@ export class AuthService {
 
   readonly #registerCommand = getHttpCommand<
     null,
-    LoginFormValues,
+    UserFormValues,
     {
       pathParams: { id: string };
     }

@@ -11,9 +11,11 @@ import {
   ViewChild,
 } from "@angular/core";
 import { FormsModule, NgForm } from "@angular/forms";
+import { combineLatest, map, type Observable } from "rxjs";
 import {
   AuthService,
   type LoginResponseWithState,
+  type RegisterResponseWithState,
 } from "./common/auth/auth.service";
 import {
   ButtonComponent,
@@ -35,7 +37,7 @@ import { type TypeGuard, TypeGuardPipe } from "./common/type-guard.pipe";
 import type { User } from "./common/user";
 
 @Component({
-  selector: "button[app-login-form-submit-button]",
+  selector: "button[app-user-form-submit-button]",
   standalone: true,
   imports: [CommonModule, SpinnerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -61,7 +63,7 @@ import type { User } from "./common/user";
     }
   `,
 })
-export class LoginFormSubmitButtonComponent {
+export class UserFormSubmitButtonComponent {
   @Input()
   variant: ButtonVariant = "primary";
 
@@ -69,10 +71,10 @@ export class LoginFormSubmitButtonComponent {
   isLoading = false;
 }
 
-export type LoginFormValues = Pick<User, "username" | "password">;
+export type UserFormValues = Pick<User, "username" | "password">;
 
 @Component({
-  selector: "form[app-login-form]",
+  selector: "form[app-user-form]",
   standalone: true,
   imports: [
     CommonModule,
@@ -120,28 +122,28 @@ export type LoginFormValues = Pick<User, "username" | "password">;
     <div>
       <ng-content select="[content-submit-button]" />
     </div>
-    @if (loginResponse | typeGuard: isErrorResponse; as errorResponse) {
+    @if (commandResponse | typeGuard: isErrorResponse; as errorResponse) {
       <app-error-message [errorMessage]="errorResponse.message" />
     }
   `,
 })
-export class LoginFormComponent {
-  readonly #loginForm = inject(NgForm);
+export class UserFormComponent {
+  readonly #userForm = inject(NgForm);
 
   @Output()
-  formSubmitted = new EventEmitter<LoginFormValues>();
+  formSubmitted = new EventEmitter<UserFormValues>();
 
   @Input({ required: true })
-  loginResponse!: LoginResponseWithState;
+  commandResponse!: LoginResponseWithState | RegisterResponseWithState;
 
   protected handleSubmit() {
-    const values: LoginFormValues = this.#loginForm.form.value;
+    const values: UserFormValues = this.#userForm.form.value;
 
     this.formSubmitted.emit(values);
   }
 
   protected readonly isErrorResponse: TypeGuard<
-    LoginResponseWithState,
+    LoginResponseWithState | RegisterResponseWithState,
     ErrorResponse
   > = isErrorResponse;
 }
@@ -154,9 +156,9 @@ export class LoginFormComponent {
     FormsModule,
     LogoComponent,
     ModalComponent,
-    LoginFormComponent,
+    UserFormComponent,
     ButtonComponent,
-    LoginFormSubmitButtonComponent,
+    UserFormSubmitButtonComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
@@ -177,7 +179,7 @@ export class LoginFormComponent {
     `,
   ],
   template: `
-    @if (auth.loginResponse$ | async; as loginResponse) {
+    @if (viewModel$ | async; as viewModel) {
       <app-logo size="80" />
       <h1>Bookshelf</h1>
       <div class="buttons-container">
@@ -193,17 +195,36 @@ export class LoginFormComponent {
       <ng-template #loginFormDialogRef>
         <app-modal ariaLabel="Login form" title="Login">
           <form
-            app-login-form
+            app-user-form
             (formSubmitted)="auth.loginSubject.next($event)"
-            [loginResponse]="loginResponse"
+            [commandResponse]="viewModel.loginResponse"
           >
             <button
               content-submit-button
+              app-user-form-submit-button
               variant="primary"
-              app-login-form-submit-button
-              [isLoading]="loginResponse.state === 'pending'"
+              [isLoading]="viewModel.loginResponse.state === 'pending'"
             >
               Login
+            </button>
+          </form>
+        </app-modal>
+      </ng-template>
+
+      <ng-template #registerFormDialogRef>
+        <app-modal ariaLabel="Registration form" title="Register">
+          <form
+            app-user-form
+            (formSubmitted)="auth.registerSubject.next($event)"
+            [commandResponse]="viewModel.registerResponse"
+          >
+            <button
+              content-submit-button
+              app-user-form-submit-button
+              variant="secondary"
+              [isLoading]="viewModel.registerResponse.state === 'pending'"
+            >
+              Register
             </button>
           </form>
         </app-modal>
@@ -215,6 +236,19 @@ export class UnauthenticatedAppComponent {
   protected readonly auth = inject(AuthService);
   readonly #modal = inject(ModalService);
 
+  protected readonly viewModel$: Observable<{
+    loginResponse: LoginResponseWithState;
+    registerResponse: RegisterResponseWithState;
+  }> = combineLatest([
+    this.auth.loginResponse$,
+    this.auth.registerResponse$,
+  ]).pipe(
+    map(([loginResponse, registerResponse]) => ({
+      loginResponse,
+      registerResponse,
+    })),
+  );
+
   @ViewChild("loginFormDialogRef")
   loginFormDialogRef!: TemplateRef<ModalComponent>;
 
@@ -222,5 +256,10 @@ export class UnauthenticatedAppComponent {
     this.#modal.open(this.loginFormDialogRef);
   }
 
-  protected handleRegisterClick() {}
+  @ViewChild("registerFormDialogRef")
+  registerFormDialogRef!: TemplateRef<ModalComponent>;
+
+  protected handleRegisterClick() {
+    this.#modal.open(this.registerFormDialogRef);
+  }
 }
