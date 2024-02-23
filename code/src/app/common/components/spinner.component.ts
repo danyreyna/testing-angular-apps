@@ -33,6 +33,7 @@ import {
       :host {
         display: block;
         animation: spin 1s linear infinite;
+        fill: currentColor;
       }
     `,
   ],
@@ -40,7 +41,6 @@ import {
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 512 512"
-      [attr.fill]="fillColor"
       [attr.width]="size"
       [attr.height]="size"
     >
@@ -53,7 +53,4 @@ import {
 export class SpinnerComponent {
   @Input({ transform: numberAttribute })
   size = 16;
-
-  @Input()
-  fillColor = "#fff";
 }
