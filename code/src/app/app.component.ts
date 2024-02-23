@@ -4,6 +4,7 @@ import {
   Component,
   effect,
   inject,
+  signal,
   type Type,
 } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
@@ -17,7 +18,7 @@ import { AuthService } from "./common/auth/auth.service";
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-auth>
-      <ng-container *ngComponentOutlet="componentClass"></ng-container>
+      <ng-container *ngComponentOutlet="componentClass()"></ng-container>
     </app-auth>
   `,
 })
@@ -25,16 +26,16 @@ export class AppComponent {
   readonly #authService = inject(AuthService);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected componentClass: null | Type<any> = null;
+  protected componentClass = signal<null | Type<any>>(null);
 
   constructor() {
     effect(async () => {
       if (this.#authService.user() === null) {
         const module = await import("./unauthenticated-app.component");
-        this.componentClass = module.UnauthenticatedAppComponent;
+        this.componentClass.set(module.UnauthenticatedAppComponent);
       } else {
         const module = await import("./authenticated-app.component");
-        this.componentClass = module.AuthenticatedAppComponent;
+        this.componentClass.set(module.AuthenticatedAppComponent);
       }
     });
   }
