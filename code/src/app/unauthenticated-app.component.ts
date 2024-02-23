@@ -196,7 +196,7 @@ export class UserFormComponent {
         <app-modal ariaLabel="Login form" title="Login">
           <form
             app-user-form
-            (formSubmitted)="auth.loginSubject.next($event)"
+            (formSubmitted)="handleLoginSubmit($event)"
             [commandResponse]="viewModel.loginResponse"
           >
             <button
@@ -215,7 +215,7 @@ export class UserFormComponent {
         <app-modal ariaLabel="Registration form" title="Register">
           <form
             app-user-form
-            (formSubmitted)="auth.registerSubject.next($event)"
+            (formSubmitted)="handleRegisterSubmit($event)"
             [commandResponse]="viewModel.registerResponse"
           >
             <button
@@ -233,15 +233,15 @@ export class UserFormComponent {
   `,
 })
 export class UnauthenticatedAppComponent {
-  protected readonly auth = inject(AuthService);
+  readonly #auth = inject(AuthService);
   readonly #modal = inject(ModalService);
 
   protected readonly viewModel$: Observable<{
     loginResponse: LoginResponseWithState;
     registerResponse: RegisterResponseWithState;
   }> = combineLatest([
-    this.auth.loginResponse$,
-    this.auth.registerResponse$,
+    this.#auth.loginResponse$,
+    this.#auth.registerResponse$,
   ]).pipe(
     map(([loginResponse, registerResponse]) => ({
       loginResponse,
@@ -256,10 +256,21 @@ export class UnauthenticatedAppComponent {
     this.#modal.open(this.loginFormDialogRef);
   }
 
+  protected handleLoginSubmit(userFormValues: UserFormValues) {
+    this.#auth.loginSubject.next(userFormValues);
+  }
+
   @ViewChild("registerFormDialogRef")
   registerFormDialogRef!: TemplateRef<ModalComponent>;
 
   protected handleRegisterClick() {
     this.#modal.open(this.registerFormDialogRef);
+  }
+
+  protected handleRegisterSubmit(userFormValues: UserFormValues) {
+    this.#auth.registerSubject.next({
+      ...userFormValues,
+      source: "registration",
+    });
   }
 }

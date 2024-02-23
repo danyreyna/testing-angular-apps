@@ -5,7 +5,7 @@ import { BootstrapService } from "../bootstrap.service";
 import type { CommandWithState } from "../response-state/command-with-state";
 import { getHttpCommand } from "../response-state/get-http-command";
 import type { SuccessResponse } from "../response-state/response-states";
-import type { UserWithoutPassword } from "../user";
+import type { User, UserWithoutPassword } from "../user";
 
 export type LoginResponseWithState = CommandWithState<UserWithoutPassword>;
 export type SuccessLoginResponse = SuccessResponse<UserWithoutPassword>;
@@ -15,6 +15,8 @@ export type SuccessRegisterResponse = SuccessResponse<null>;
 
 export type LogoutResponseWithState = CommandWithState<null>;
 export type SuccessLogoutResponse = SuccessResponse<null>;
+
+export type RegisterRequestValues = UserFormValues & Pick<User, "source">;
 
 @Injectable({
   providedIn: "root",
@@ -55,7 +57,7 @@ export class AuthService {
 
   readonly #registerCommand = getHttpCommand<
     null,
-    UserFormValues,
+    RegisterRequestValues,
     {
       pathParams: { id: string };
     }
@@ -84,12 +86,12 @@ export class AuthService {
       }
 
       const { id } = this.#registerCommand.url().pathParams;
-      const { username } = subjectValue;
+      const { username, source } = subjectValue;
 
       this.#userState.set({
         id,
         username,
-        source: "registration",
+        source,
       });
     }),
   );
