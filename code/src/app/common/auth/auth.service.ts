@@ -42,7 +42,7 @@ export class AuthService {
     {
       method: "post",
       options: {
-        withCredentials: false,
+        withCredentials: true,
       },
     },
   );
@@ -69,7 +69,7 @@ export class AuthService {
     {
       method: "put",
       options: {
-        withCredentials: false,
+        withCredentials: true,
       },
     },
   );
