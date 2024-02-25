@@ -1,7 +1,7 @@
 import Dexie, { Table } from "dexie";
 import type { User } from "../../src/app/common/user";
 
-export type Session = {
+export type AuthSession = {
   id: string;
   rollingExpiration: Date;
   absoluteExpiration: Date;
@@ -13,14 +13,14 @@ export type DbUser = Pick<User, "id" | "username" | "source"> & {
 };
 
 export class MockDb extends Dexie {
-  sessions!: Table<Session, Session["id"]>;
+  authSessions!: Table<AuthSession, AuthSession["id"]>;
   users!: Table<DbUser, DbUser["id"]>;
 
   constructor() {
     super("mockDatabase");
 
     this.version(1).stores({
-      sessions: "id, userId",
+      authSessions: "id, userId",
       users: "id, &username, source",
     });
   }

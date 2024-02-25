@@ -1,12 +1,12 @@
 import { faker } from "@faker-js/faker";
-import { addSession } from "./session-db";
+import { addAuthSession } from "./auth-session-db";
 
-export const SESSION_ROLLING_DURATION = 600;
-export const SESSION_ABSOLUTE_DURATION = 604_800;
+export const AUTH_SESSION_ROLLING_DURATION = 600;
+export const AUTH_SESSION_ABSOLUTE_DURATION = 604_800;
 
-export const SESSION_COOKIE_NAME = "__Host-id";
+export const AUTH_SESSION_COOKIE_NAME = "__Host-id";
 
-export function generateSessionId() {
+export function generateAuthSessionId() {
   /*
    * In a real backend, use a cryptographically secure random number generator.
    * This token would be an ID pointing to the client's information stored in the database.
@@ -16,19 +16,19 @@ export function generateSessionId() {
   return faker.string.uuid();
 }
 
-export function createSession(sessionId: string, userId: string) {
+export function createAuthSession(authSessionId: string, userId: string) {
   const rollingExpiration = new Date();
   rollingExpiration.setSeconds(
-    rollingExpiration.getSeconds() + SESSION_ROLLING_DURATION,
+    rollingExpiration.getSeconds() + AUTH_SESSION_ROLLING_DURATION,
   );
 
   const absoluteExpiration = new Date();
   absoluteExpiration.setSeconds(
-    absoluteExpiration.getSeconds() + SESSION_ABSOLUTE_DURATION,
+    absoluteExpiration.getSeconds() + AUTH_SESSION_ABSOLUTE_DURATION,
   );
 
-  return addSession({
-    id: sessionId,
+  return addAuthSession({
+    id: authSessionId,
     rollingExpiration,
     absoluteExpiration,
     userId,
