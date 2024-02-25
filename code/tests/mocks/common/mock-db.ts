@@ -12,7 +12,13 @@ export type DbUser = Pick<User, "id" | "username" | "source"> & {
   passwordHash: string;
 };
 
-// Used by `auth` and `user` handlers to not lose stored sessions across page refreshes.
+/*
+ * Mainly used by `auth` and `user` handlers to persist sessions across page refreshes.
+ * In the request handlers used in your regular tests, you can:
+ *   - Directly return an HTTP response and not store anything at all.
+ *   - Use a `Map`.
+ *   - Use this mock db.
+ */
 export class MockDb extends Dexie {
   authSessions!: Table<AuthSession, AuthSession["id"]>;
   users!: Table<DbUser, DbUser["id"]>;
