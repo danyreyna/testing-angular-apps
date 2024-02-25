@@ -5,6 +5,7 @@ const { json } = HttpResponse;
 
 type LoginResponse = { username: string } | { message: string };
 
+// Used by `login-submission-test-04.test.ts`
 export const handlers: Array<HttpHandler> = [
   http.post<PathParams, { username: string; password: string }, LoginResponse>(
     "https://auth-provider.example.com/api/login",
