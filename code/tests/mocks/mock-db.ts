@@ -12,6 +12,7 @@ export type DbUser = Pick<User, "id" | "username" | "source"> & {
   passwordHash: string;
 };
 
+// Used by `auth` and `user` handlers to not lose stored sessions across page refreshes.
 export class MockDb extends Dexie {
   authSessions!: Table<AuthSession, AuthSession["id"]>;
   users!: Table<DbUser, DbUser["id"]>;
