@@ -1,4 +1,4 @@
-import { type DbUser, mockDb } from "../mock-db";
+import { type DbUser, mockDb } from "../common/mock-db";
 
 export async function findByUsername(
   username: DbUser["username"],

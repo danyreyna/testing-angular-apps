@@ -1,5 +1,5 @@
 import Dexie, { Table } from "dexie";
-import type { User } from "../../src/app/common/user";
+import type { User } from "../../../src/app/common/user";
 
 export type AuthSession = {
   id: string;

@@ -1,4 +1,4 @@
-import { mockDb, type AuthSession } from "../mock-db";
+import { mockDb, type AuthSession } from "../common/mock-db";
 
 export async function deleteAuthSession(authSessionId: AuthSession["id"]) {
   try {
