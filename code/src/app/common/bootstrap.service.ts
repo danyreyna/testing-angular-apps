@@ -4,7 +4,10 @@ import type { Book } from "./book.service";
 import type { ListItem } from "./list-item.service";
 import { getHttpQuery } from "./response-state/get-http-query";
 import type { QueryWithState } from "./response-state/query-with-state";
-import type { SuccessResponse } from "./response-state/response-states";
+import {
+  isHttpErrorResponse,
+  type SuccessResponse,
+} from "./response-state/response-states";
 import type { UserWithoutPassword } from "./user";
 
 export type BootstrapResponse = {
@@ -42,7 +45,7 @@ export class BootstrapService {
     map<QueryWithState<BootstrapResponse>, BootstrapData>((response) => {
       if (
         response.state === "error" &&
-        "status" in response &&
+        isHttpErrorResponse(response) &&
         response.status === 401
       ) {
         return {
