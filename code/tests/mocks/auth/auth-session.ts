@@ -28,7 +28,7 @@ const MAX_AGE = `Max-Age=${ROLLING_DURATION}`;
  * match the values used when the cookie was created.
  * https://www.rfc-editor.org/rfc/rfc6265.html
  */
-const PAST_EXPIRES = "Sun, 06 Nov 1994 08:49:37 GMT";
+const PAST_EXPIRES = "Expires=Sun, 06 Nov 1994 08:49:37 GMT";
 
 export function buildAuthSessionCookie(sessionId: AuthSession["id"]) {
   return `${AUTH_SESSION_COOKIE_NAME}=${sessionId};${[...COOKIE_PARAMS, MAX_AGE].join(";")}`;
