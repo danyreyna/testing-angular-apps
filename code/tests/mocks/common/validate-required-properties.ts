@@ -1,6 +1,7 @@
 import { type DefaultBodyType, HttpResponse } from "msw";
 import { isObjectLike } from "../../../src/app/common/is-object-like";
 import type { RequiredPropertiesProblemDetail } from "../../../src/app/common/rfc-9457-problem-detail";
+import { handleInternalServerError } from "./handle-internal-server-error";
 
 export function validateRequiredProperties<
   TRequestBody extends DefaultBodyType = DefaultBodyType,
@@ -15,11 +16,14 @@ export function validateRequiredProperties<
     headers?: HeadersInit;
   },
 ) {
-  if (!isObjectLike(body)) {
-    return null;
-  }
+  const { headers } = errorResponse;
 
-  const { status, getProblemDetailError, headers } = errorResponse;
+  if (!isObjectLike(body)) {
+    return handleInternalServerError(
+      new Error("The request body must be an object"),
+      headers,
+    );
+  }
 
   const missingProperties = requiredProperties.filter(
     (propertyName) => body[propertyName] === undefined,
@@ -28,6 +32,8 @@ export function validateRequiredProperties<
   if (missingProperties.length === 0) {
     return null;
   }
+
+  const { status, getProblemDetailError } = errorResponse;
 
   return HttpResponse.json<RequiredPropertiesProblemDetail>(
     {
