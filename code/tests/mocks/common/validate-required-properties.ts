@@ -1,4 +1,5 @@
 import { type DefaultBodyType, HttpResponse } from "msw";
+import { isObjectLike } from "../../../src/app/common/is-object-like";
 import type { RequiredPropertiesProblemDetail } from "../../../src/app/common/rfc-9457-problem-detail";
 
 export function validateRequiredProperties<
@@ -14,14 +15,7 @@ export function validateRequiredProperties<
     headers?: HeadersInit;
   },
 ) {
-  const isPrimitive =
-    typeof body === "string" ||
-    typeof body === "number" ||
-    typeof body === "boolean";
-
-  const isNullable = body === null || body === undefined;
-
-  if (isPrimitive || isNullable) {
+  if (!isObjectLike(body)) {
     return null;
   }
 
