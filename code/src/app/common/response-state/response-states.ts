@@ -19,6 +19,20 @@ export type ErrorResponse =
     }
   | HttpErrorResponse;
 
+export function isHttpErrorResponse(
+  value: unknown,
+): value is HttpErrorResponse {
+  if (!isObjectLike(value)) {
+    return false;
+  }
+
+  return (
+    value["state"] === ERROR_STATE &&
+    typeof value["message"] === "string" &&
+    typeof value["status"] === "number"
+  );
+}
+
 const SUCCESS_STATE = "success";
 export type SuccessResponse<TData> = {
   state: typeof SUCCESS_STATE;
