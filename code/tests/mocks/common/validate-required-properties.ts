@@ -1,13 +1,5 @@
 import { type DefaultBodyType, HttpResponse } from "msw";
-import type { Rfc9457ProblemDetail } from "../../../src/app/common/rfc-9457-problem-detail";
-
-/*
- * We add an "errors" extension to the Problem Detail
- * https://www.rfc-editor.org/rfc/rfc9457.html#name-extension-members
- */
-export type RequiredPropertiesProblemDetail = Rfc9457ProblemDetail & {
-  errors: { title: string; detail: string }[];
-};
+import type { RequiredPropertiesProblemDetail } from "../../../src/app/common/rfc-9457-problem-detail";
 
 export function validateRequiredProperties<
   TRequestBody extends DefaultBodyType = DefaultBodyType,
