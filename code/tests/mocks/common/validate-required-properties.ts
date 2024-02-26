@@ -1,5 +1,5 @@
 import { type DefaultBodyType, HttpResponse } from "msw";
-import type { Rfc9457ProblemDetail } from "../common/backend-error";
+import type { Rfc9457ProblemDetail } from "../../../src/app/common/rfc-9457-problem-detail";
 
 /*
  * We add an "errors" extension to the Problem Detail
