@@ -1,5 +1,9 @@
+import { getResponse } from "msw";
+
 export async function fetchResponse(
-  fetchCallback: () => ReturnType<typeof fetch>,
+  fetchCallback: () =>
+    | ReturnType<typeof fetch>
+    | ReturnType<typeof getResponse>,
 ) {
   try {
     return await fetchCallback();
