@@ -1,5 +1,6 @@
-import { type DefaultBodyType, http, HttpResponse, type PathParams } from "msw";
+import { http, HttpResponse, type PathParams } from "msw";
 import type { Rfc9457ProblemDetail } from "../../src/app/common/rfc-9457-problem-detail";
+import type { ChangeDetectionPerfRecord } from "../../src/profiler";
 import type {
   ClientCredentialsFlowRequest,
   ClientCredentialsFlowResponse,
@@ -28,7 +29,7 @@ export const handlers = [
       expires_in: EXPIRES_24_HOURS,
     });
   }),
-  http.post<PathParams, DefaultBodyType>(
+  http.post<PathParams, ChangeDetectionPerfRecord>(
     "https://some-monitoring-service.com/metrics",
     async ({ request }) => {
       // The real third party API should validate the bearer token
