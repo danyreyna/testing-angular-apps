@@ -5,9 +5,9 @@ import {
   parseResponseBody,
 } from "../../src/app/common/fetch-utils";
 import { objectToFormData } from "../../src/app/common/object-to-form-data";
+import type { ChangeDetectionPerfRecord } from "../../src/app/common/profiler";
 import { type Rfc9457ProblemDetail } from "../../src/app/common/rfc-9457-problem-detail";
 import type { UserWithoutPassword } from "../../src/app/common/user";
-import type { ChangeDetectionPerfRecord } from "../../src/profiler";
 import { AUTH_SESSION_COOKIE_NAME } from "./auth/auth-session";
 import { getAuthSession } from "./auth/auth-session-db";
 import {

@@ -6,7 +6,7 @@ import {
   AngularProfiler,
   setProfilerInstance,
   startPerformanceMonitor,
-} from "./profiler";
+} from "./app/common/profiler";
 
 async function prepareApp() {
   if (isDevMode()) {
