@@ -1,12 +1,9 @@
-import {
-  type DefaultBodyType,
-  type DefaultRequestMultipartBody,
-  http,
-  HttpResponse,
-  type PathParams,
-} from "msw";
+import { type DefaultBodyType, http, HttpResponse, type PathParams } from "msw";
 import type { Rfc9457ProblemDetail } from "../../src/app/common/rfc-9457-problem-detail";
-import type { ClientCredentialsFlowResponse } from "./auth/client-credentials-flow";
+import type {
+  ClientCredentialsFlowRequest,
+  ClientCredentialsFlowResponse,
+} from "./auth/client-credentials-flow";
 import { generateJwt } from "./auth/jwt";
 
 const EXPIRES_24_HOURS = 86400;
@@ -14,7 +11,7 @@ const EXPIRES_24_HOURS = 86400;
 export const handlers = [
   http.post<
     PathParams,
-    DefaultRequestMultipartBody,
+    ClientCredentialsFlowRequest,
     ClientCredentialsFlowResponse
   >("https://some-monitoring-service.com/oauth/token", async ({ request }) => {
     const formData = await request.formData();
