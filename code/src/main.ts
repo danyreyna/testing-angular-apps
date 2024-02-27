@@ -30,6 +30,6 @@ prepareApp().then(() => {
     .catch((err) => console.error(err));
 });
 
-startPerformanceMonitor(5_000, (changeDetectionPerfRecord) => {
+startPerformanceMonitor(10_000, (changeDetectionPerfRecord) => {
   console.log("sending to profile endpoint", changeDetectionPerfRecord);
 });
