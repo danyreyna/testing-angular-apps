@@ -6,7 +6,7 @@ import {
   type PathParams,
 } from "msw";
 import type { Rfc9457ProblemDetail } from "../../src/app/common/rfc-9457-problem-detail";
-import { generateJwt, type Jwt } from "../generate";
+import { generateJwt, type Jwt } from "./auth/jwt";
 
 const EXPIRES_24_HOURS = 86400;
 
