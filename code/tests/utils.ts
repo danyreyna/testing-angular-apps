@@ -42,7 +42,7 @@ export async function loginAsUser(userProperties?: User) {
 
   await fetch(`https://api.example.com/user/${id}`, {
     method: "PUT",
-    credentials: "omit",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
@@ -51,7 +51,7 @@ export async function loginAsUser(userProperties?: User) {
 
   const authUserResponse = await fetch("https://api.example.com/login", {
     method: "POST",
-    credentials: "omit",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
