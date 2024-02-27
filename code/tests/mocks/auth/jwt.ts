@@ -6,7 +6,7 @@ export function generateJwt(): Jwt {
   return `eyJ${faker.string.alphanumeric({ length: 71 })}J9.eyJ${faker.string.alphanumeric(
     { length: 371 },
   )}J9.${faker.string.fromCharacters(
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-",
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_-",
     342,
   )}`;
 }
