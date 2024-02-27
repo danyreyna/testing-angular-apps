@@ -14,7 +14,7 @@ export async function fetchResponse(
 
 export async function parseResponseBody<TResponse>(response: Response) {
   try {
-    return (await response.json()) as TResponse;
+    return (await response.clone().json()) as TResponse;
   } catch (error) {
     if (error instanceof Error) {
       return error;
