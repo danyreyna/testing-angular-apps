@@ -1,4 +1,4 @@
-import { delay, http, HttpResponse, type PathParams } from "msw";
+import { delay, getResponse, http, HttpResponse, type PathParams } from "msw";
 import type { BootstrapResponse } from "../../src/app/common/bootstrap.service";
 import {
   fetchResponse,
@@ -18,6 +18,7 @@ import { mockBookDbTable } from "./book-handlers";
 import { CORS_HEADERS } from "./common/cors-headers";
 import { handleInternalServerError } from "./common/handle-internal-server-error";
 import { getListItemsByOwner } from "./list-item-handlers";
+import { handlers as monitoringServiceApiHandlers } from "./monitoring-service-api";
 import { getUser } from "./user/user-db";
 
 export const handlers = [
@@ -134,14 +135,23 @@ export const handlers = [
       const clientCredentialsFlowRequest = buildClientCredentialsFlowRequest();
 
       const monitoringServiceTokenResponse = await fetchResponse(() =>
-        fetch("https://some-monitoring-service.com/oauth/token", {
-          method: "post",
-          body: objectToFormData(clientCredentialsFlowRequest),
-        }),
+        getResponse(
+          monitoringServiceApiHandlers,
+          new Request("https://some-monitoring-service.com/oauth/token", {
+            method: "post",
+            body: objectToFormData(clientCredentialsFlowRequest),
+          }),
+        ),
       );
-      if (monitoringServiceTokenResponse instanceof Error) {
+      if (
+        monitoringServiceTokenResponse instanceof Error ||
+        monitoringServiceTokenResponse === undefined
+      ) {
         return handleInternalServerError(
-          monitoringServiceTokenResponse,
+          monitoringServiceTokenResponse ??
+            new Error(
+              `A handler matching the "https://some-monitoring-service.com/oauth/token" request was not found`,
+            ),
           CORS_HEADERS,
         );
       }
@@ -167,17 +177,26 @@ export const handlers = [
       const changeDetectionPerfRecord = await request.json();
 
       const performanceMetricsResponse = await fetchResponse(() =>
-        fetch("https://some-monitoring-service.com/metrics", {
-          method: "post",
-          headers: {
-            Authorization: `Bearer ${clientCredentialsFlowResponse.access_token}`,
-          },
-          body: JSON.stringify(changeDetectionPerfRecord),
-        }),
+        getResponse(
+          monitoringServiceApiHandlers,
+          new Request("https://some-monitoring-service.com/metrics", {
+            method: "post",
+            headers: {
+              Authorization: `Bearer ${clientCredentialsFlowResponse.access_token}`,
+            },
+            body: JSON.stringify(changeDetectionPerfRecord),
+          }),
+        ),
       );
-      if (performanceMetricsResponse instanceof Error) {
+      if (
+        performanceMetricsResponse instanceof Error ||
+        performanceMetricsResponse === undefined
+      ) {
         return handleInternalServerError(
-          performanceMetricsResponse,
+          performanceMetricsResponse ??
+            new Error(
+              `A handler matching the "https://some-monitoring-service.com/metrics" request was not found`,
+            ),
           CORS_HEADERS,
         );
       }
