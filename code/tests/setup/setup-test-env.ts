@@ -13,17 +13,7 @@ getTestBed().initTestEnvironment(
   platformBrowserDynamicTesting(),
 );
 
-vi.mock("@angular/platform-browser", async () => {
-  const module = await vi.importActual<
-    typeof import("@angular/platform-browser")
-  >("@angular/platform-browser");
-
-  return {
-    ...module,
-    // we don't need the profiler in tests
-    enableDebugTools: vi.fn(),
-  };
-});
+vi.mock("../../src/app/common/profiler");
 
 /*
  * Run this `afterEach` first to get back to real timers before any other cleanup.
