@@ -21,9 +21,11 @@ export const buildClientCredentialsFlowRequest =
       audience: "https://api.example.com",
       grant_type: "client_credentials",
       client_id: perBuild(() => faker.string.alphanumeric({ length: 32 })),
-      client_secret: faker.string.fromCharacters(
-        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_",
-        64,
+      client_secret: perBuild(() =>
+        faker.string.fromCharacters(
+          "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_",
+          64,
+        ),
       ),
     },
   });
