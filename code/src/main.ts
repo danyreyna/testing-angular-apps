@@ -31,5 +31,9 @@ prepareApp().then(() => {
 });
 
 startPerformanceMonitor(10_000, (changeDetectionPerfRecord) => {
-  console.log("sending to profile endpoint", changeDetectionPerfRecord);
+  fetch("https://api.example.com/profiler", {
+    method: "post",
+    credentials: "include",
+    body: JSON.stringify(changeDetectionPerfRecord),
+  });
 });
