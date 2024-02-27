@@ -2,11 +2,7 @@ import { isDevMode } from "@angular/core";
 import { bootstrapApplication } from "@angular/platform-browser";
 import { AppComponent } from "./app/app.component";
 import { appConfig } from "./app/app.config";
-import {
-  AngularProfiler,
-  setProfilerInstance,
-  startPerformanceMonitor,
-} from "./app/common/profiler";
+import { AngularProfiler, setProfilerInstance } from "./app/common/profiler";
 
 async function prepareApp() {
   if (isDevMode()) {
@@ -28,12 +24,4 @@ prepareApp().then(() => {
       setProfilerInstance(profiler);
     })
     .catch((err) => console.error(err));
-});
-
-startPerformanceMonitor(10_000, (changeDetectionPerfRecord) => {
-  fetch("https://api.example.com/profiler", {
-    method: "post",
-    credentials: "include",
-    body: JSON.stringify(changeDetectionPerfRecord),
-  });
 });
