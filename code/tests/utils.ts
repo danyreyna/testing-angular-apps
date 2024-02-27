@@ -18,7 +18,7 @@ import { provideAuth } from "../src/app/common/auth/auth.service.provider";
 import { type Theme } from "../src/app/common/theme/theme.service";
 import { provideTheme } from "../src/app/common/theme/theme.service.provider";
 import type { User, UserWithoutPassword } from "../src/app/common/user";
-import { buildUser } from "./generate";
+import { buildUser } from "./mocks/user/build-user";
 
 export async function waitForLoadingToFinish() {
   const loadingElements = [
