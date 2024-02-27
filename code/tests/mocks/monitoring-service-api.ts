@@ -6,15 +6,10 @@ import {
   type PathParams,
 } from "msw";
 import type { Rfc9457ProblemDetail } from "../../src/app/common/rfc-9457-problem-detail";
-import { generateJwt, type Jwt } from "./auth/jwt";
+import type { ClientCredentialsFlowResponse } from "./auth/client-credentials-flow";
+import { generateJwt } from "./auth/jwt";
 
 const EXPIRES_24_HOURS = 86400;
-
-export type ClientCredentialsFlowResponse = {
-  access_token: Jwt;
-  token_type: "Bearer";
-  expires_in: number;
-};
 
 export const handlers = [
   http.post<
