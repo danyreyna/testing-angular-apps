@@ -84,7 +84,7 @@ export const handlers = [
         {
           status,
           title: "User not found",
-          detail: "Can't find an user with the provided token",
+          detail: "Can't find a user with the provided token",
         },
         {
           status,
