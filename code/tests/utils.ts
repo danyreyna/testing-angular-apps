@@ -40,8 +40,8 @@ export async function loginAsUser(userProperties?: User) {
 
   const { id, ...rest } = user;
 
-  await fetch(`https://api.example.com/user/${id}`, {
-    method: "PUT",
+  await fetch(`https://api.example.com/register/${id}`, {
+    method: "POST",
     credentials: "include",
     headers: {
       "Content-Type": "application/json",

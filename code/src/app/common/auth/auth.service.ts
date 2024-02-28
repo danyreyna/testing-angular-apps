@@ -64,10 +64,13 @@ export class AuthService {
   >(
     () => {
       const id = globalThis.crypto.randomUUID();
-      return { href: `https://api.example.com/user/${id}`, pathParams: { id } };
+      return {
+        href: `https://api.example.com/register/${id}`,
+        pathParams: { id },
+      };
     },
     {
-      method: "put",
+      method: "post",
       options: {
         withCredentials: true,
       },
