@@ -40,12 +40,12 @@ export const handlers = [
         return requiredPropertiesValidationResult;
       }
 
-      const passwordHash = getStringHash(password);
-
       const existingUser = await getUser(id);
       if (existingUser instanceof Error) {
         return handleInternalServerError(existingUser, CORS_HEADERS);
       }
+
+      const passwordHash = getStringHash(password);
 
       if (existingUser === undefined) {
         const addUserResult = await addUser({
