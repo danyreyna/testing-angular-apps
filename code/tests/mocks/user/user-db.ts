@@ -36,8 +36,10 @@ export async function deleteUsersWithSource(source: DbUser["source"]) {
 
 export async function addUser(user: DbUser) {
   try {
-    await mockDb.users.add(user);
-    return null;
+    return await mockDb.transaction("rw!", [mockDb.users], async () => {
+      const id = await mockDb.users.add(user);
+      return (await mockDb.users.get(id)) as unknown as DbUser;
+    });
   } catch (error) {
     return new Error("Error adding user", {
       cause: error,
