@@ -1,4 +1,4 @@
-import { http, HttpResponse } from "msw";
+import { DefaultBodyType, http, HttpResponse, PathParams } from "msw";
 import type { Rfc9457ProblemDetail } from "../../../src/app/common/rfc-9457-problem-detail";
 import { AUTH_SESSION_COOKIE_NAME } from "../auth/auth-session";
 import { CORS_HEADERS } from "../common/cors-headers";
@@ -6,7 +6,7 @@ import { handleInternalServerError } from "../common/handle-internal-server-erro
 import { deleteUsersWithSource } from "./user-db";
 
 export const handlers = [
-  http.delete<{ id: string }>(
+  http.delete<PathParams, DefaultBodyType>(
     "https://api.example.com/user",
     async ({ cookies, request }) => {
       const authSessionId = cookies[AUTH_SESSION_COOKIE_NAME];
