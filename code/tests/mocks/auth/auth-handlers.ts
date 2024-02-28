@@ -5,6 +5,7 @@ import type { UserFormValues } from "../../../src/app/unauthenticated-app.compon
 import { CORS_HEADERS } from "../common/cors-headers";
 import { getStringHash } from "../common/get-string-hash";
 import { handleInternalServerError } from "../common/handle-internal-server-error";
+import { validateRequiredProperties } from "../common/validate-required-properties";
 import { findByUsername } from "../user/user-db";
 import {
   AUTH_SESSION_COOKIE_NAME,
@@ -22,35 +23,24 @@ export const handlers = [
       await delay();
 
       const body = await request.json();
+
+      const requiredPropertiesValidationResult = validateRequiredProperties(
+        body,
+        ["username", "password"],
+        {
+          status: 400,
+          getProblemDetailError: (propertyName) => ({
+            title: `A "${propertyName}" is required`,
+            detail: `To login the "${propertyName}" must be provided`,
+          }),
+          headers: CORS_HEADERS,
+        },
+      );
+      if (requiredPropertiesValidationResult !== null) {
+        return requiredPropertiesValidationResult;
+      }
+
       const { username, password } = body;
-
-      if (!username) {
-        const status = 400;
-        return HttpResponse.json<Rfc9457ProblemDetail>(
-          {
-            status,
-            title: "Username is required",
-          },
-          {
-            status,
-            headers: CORS_HEADERS,
-          },
-        );
-      }
-
-      if (!password) {
-        const status = 400;
-        return HttpResponse.json<Rfc9457ProblemDetail>(
-          {
-            status,
-            title: "Password is required",
-          },
-          {
-            status,
-            headers: CORS_HEADERS,
-          },
-        );
-      }
 
       const userResult = await findByUsername(username);
       if (userResult instanceof Error) {
