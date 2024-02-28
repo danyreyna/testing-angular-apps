@@ -14,6 +14,11 @@ export default defineConfig(({ mode }) => ({
     },
     reporters: ["default"],
     environment: "jsdom",
+    environmentOptions: {
+      jsdom: {
+        url: "https://app.example.com",
+      },
+    },
     globals: true,
     alias: [
       {
