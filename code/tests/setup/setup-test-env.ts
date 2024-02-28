@@ -42,11 +42,11 @@ afterEach(() => {
 // general cleanup
 afterEach(async () => {
   await fetch("https://api.example.com/logout", {
-    method: "POST",
+    method: "post",
     credentials: "include",
   });
   await fetch(`https://api.example.com/user?source=test`, {
-    method: "DELETE",
+    method: "delete",
     credentials: "include",
   });
 

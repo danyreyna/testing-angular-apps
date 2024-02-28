@@ -41,7 +41,7 @@ export async function loginAsUser(userProperties?: User) {
   const { id, ...rest } = user;
 
   await fetch(`https://api.example.com/register/${id}`, {
-    method: "POST",
+    method: "post",
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
@@ -50,7 +50,7 @@ export async function loginAsUser(userProperties?: User) {
   });
 
   const authUserResponse = await fetch("https://api.example.com/login", {
-    method: "POST",
+    method: "post",
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
