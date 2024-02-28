@@ -6,7 +6,7 @@ import { handleInternalServerError } from "../common/handle-internal-server-erro
 import { deleteUsersWithSource } from "./user-db";
 
 export const handlers = [
-  http.delete<PathParams, DefaultBodyType>(
+  http.delete<PathParams, DefaultBodyType, Rfc9457ProblemDetail | undefined>(
     "https://api.example.com/user",
     async ({ cookies, request }) => {
       const authSessionId = cookies[AUTH_SESSION_COOKIE_NAME];
@@ -49,7 +49,7 @@ export const handlers = [
         return handleInternalServerError(deleteResult, CORS_HEADERS);
       }
 
-      return new HttpResponse(null, {
+      return HttpResponse.json(undefined, {
         status: 204,
         headers: CORS_HEADERS,
       });
