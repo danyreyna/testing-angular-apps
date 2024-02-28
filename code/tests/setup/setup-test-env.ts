@@ -1,4 +1,5 @@
 import "@analogjs/vite-plugin-angular/setup-vitest";
+import { IDBFactory } from "fake-indexeddb";
 import { getTestBed } from "@angular/core/testing";
 import {
   BrowserDynamicTestingModule,
@@ -48,4 +49,7 @@ afterEach(async () => {
     method: "DELETE",
     credentials: "include",
   });
+
+  // eslint-disable-next-line no-global-assign
+  indexedDB = new IDBFactory();
 });
