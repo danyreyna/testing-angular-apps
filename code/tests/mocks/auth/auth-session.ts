@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
 import type { AuthSession } from "../common/mock-db";
-import { addAuthSession } from "./auth-session-db";
 
 const ROLLING_DURATION = 600;
 const ABSOLUTE_DURATION = 604_800;
@@ -48,7 +47,7 @@ export function generateAuthSessionId() {
   return faker.string.uuid();
 }
 
-export function createAuthSession(authSessionId: string, userId: string) {
+export function getAuthSessionExpirations() {
   const rollingExpiration = new Date();
   rollingExpiration.setSeconds(
     rollingExpiration.getSeconds() + ROLLING_DURATION,
@@ -59,10 +58,8 @@ export function createAuthSession(authSessionId: string, userId: string) {
     absoluteExpiration.getSeconds() + ABSOLUTE_DURATION,
   );
 
-  return addAuthSession({
-    id: authSessionId,
+  return {
     rollingExpiration,
     absoluteExpiration,
-    userId,
-  });
+  };
 }
