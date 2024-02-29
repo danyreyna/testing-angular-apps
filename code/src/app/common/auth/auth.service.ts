@@ -1,3 +1,4 @@
+import type { HttpResponse } from "@angular/common/http";
 import { inject, Injectable, signal } from "@angular/core";
 import { tap } from "rxjs";
 import type { UserFormValues } from "../../unauthenticated-app.component";
@@ -7,14 +8,17 @@ import { getHttpCommand } from "../response-state/get-http-command";
 import type { SuccessResponse } from "../response-state/response-states";
 import type { User, UserWithoutPassword } from "../user";
 
-export type LoginResponseWithState = CommandWithState<UserWithoutPassword>;
-export type SuccessLoginResponse = SuccessResponse<UserWithoutPassword>;
+type LoginResponse = HttpResponse<UserWithoutPassword>;
+export type LoginResponseWithState = CommandWithState<LoginResponse>;
+export type SuccessLoginResponse = SuccessResponse<LoginResponse>;
 
-export type RegisterResponseWithState = CommandWithState<null>;
-export type SuccessRegisterResponse = SuccessResponse<null>;
+type RegisterResponse = HttpResponse<UserWithoutPassword>;
+export type RegisterResponseWithState = CommandWithState<RegisterResponse>;
+export type SuccessRegisterResponse = SuccessResponse<RegisterResponse>;
 
-export type LogoutResponseWithState = CommandWithState<null>;
-export type SuccessLogoutResponse = SuccessResponse<null>;
+type LogoutResponse = HttpResponse<null>;
+export type LogoutResponseWithState = CommandWithState<LogoutResponse>;
+export type SuccessLogoutResponse = SuccessResponse<LogoutResponse>;
 
 export type RegisterRequestValues = UserFormValues & Pick<User, "source">;
 
@@ -50,13 +54,13 @@ export class AuthService {
   readonly loginResponse$ = this.#loginCommand.response.pipe(
     tap((response) => {
       if (response.state === "success") {
-        this.#userState.set(response.data);
+        this.#userState.set(response.data.body);
       }
     }),
   );
 
   readonly #registerCommand = getHttpCommand<
-    null,
+    UserWithoutPassword,
     RegisterRequestValues,
     {
       pathParams: { id: string };
