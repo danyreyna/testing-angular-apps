@@ -1,22 +1,22 @@
-import type { HttpResponse } from "@angular/common/http";
 import { inject, Injectable, signal } from "@angular/core";
 import { tap } from "rxjs";
 import type { UserFormValues } from "../../unauthenticated-app.component";
 import { BootstrapService } from "../bootstrap.service";
 import type { CommandWithState } from "../response-state/command-with-state";
 import { getHttpCommand } from "../response-state/get-http-command";
+import type { HttpRes } from "../response-state/http-res";
 import type { SuccessResponse } from "../response-state/response-states";
 import type { User, UserWithoutPassword } from "../user";
 
-type LoginResponse = HttpResponse<UserWithoutPassword>;
+type LoginResponse = HttpRes<UserWithoutPassword>;
 export type LoginResponseWithState = CommandWithState<LoginResponse>;
 export type SuccessLoginResponse = SuccessResponse<LoginResponse>;
 
-type RegisterResponse = HttpResponse<UserWithoutPassword>;
+type RegisterResponse = HttpRes<UserWithoutPassword>;
 export type RegisterResponseWithState = CommandWithState<RegisterResponse>;
 export type SuccessRegisterResponse = SuccessResponse<RegisterResponse>;
 
-type LogoutResponse = HttpResponse<null>;
+type LogoutResponse = HttpRes<null>;
 export type LogoutResponseWithState = CommandWithState<LogoutResponse>;
 export type SuccessLogoutResponse = SuccessResponse<LogoutResponse>;
 
