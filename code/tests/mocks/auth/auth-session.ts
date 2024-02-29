@@ -30,6 +30,9 @@ const MAX_AGE = `Max-Age=${ROLLING_DURATION}`;
  */
 const PAST_EXPIRES = "Expires=Sun, 06 Nov 1994 08:49:37 GMT";
 
+/*
+ * In a real backend, the cookie would be signed and/or encrypted.
+ */
 export function buildAuthSessionCookie(sessionId: AuthSession["id"]) {
   return `${AUTH_SESSION_COOKIE_NAME}=${sessionId};${[...COOKIE_PARAMS, MAX_AGE].join(";")}`;
 }
