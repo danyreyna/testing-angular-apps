@@ -20,13 +20,14 @@ import { mockDb } from "../common/mock-db";
 import { validateRequiredProperties } from "../common/validate-required-properties";
 import { findByUsername, getUser } from "../user/user-db";
 import {
+  areCredentialsValid,
   AUTH_SESSION_COOKIE_NAME,
   buildAuthSessionCookie,
   generateAuthSessionId,
   getAuthSessionExpirations,
   removeAuthSessionCookie,
 } from "./auth-session";
-import { deleteAuthSession } from "./auth-session-db";
+import { addAuthSession, deleteAuthSession } from "./auth-session-db";
 
 export const handlers = [
   http.post<
@@ -143,65 +144,51 @@ export const handlers = [
     }
 
     const { username, password } = body;
+    const passwordHash = getStringHash(password);
 
-    try {
-      return await mockDb.transaction(
-        "rw",
-        [mockDb.users, mockDb.authSessions],
-        async () => {
-          const userResult = await findByUsername(username);
-          if (userResult instanceof Error) {
-            return handleInternalServerError(userResult, CORS_HEADERS);
-          }
+    const token = generateAuthSessionId();
+    const { rollingExpiration, absoluteExpiration } =
+      getAuthSessionExpirations();
 
-          if (
-            userResult === undefined ||
-            userResult.passwordHash !== getStringHash(password)
-          ) {
-            const status = 400;
-            return HttpResponse.json<Rfc9457ProblemDetail>(
-              {
-                status,
-                title: "Invalid username or password",
-              },
-              {
-                status,
-                headers: CORS_HEADERS,
-              },
-            );
-          }
+    const { isValid, user } = areCredentialsValid(
+      await findByUsername(username),
+      passwordHash,
+    );
 
-          const token = generateAuthSessionId();
-          const createResult = await createAuthSession(token, userResult.id);
-          if (createResult instanceof Error) {
-            return handleInternalServerError(createResult, CORS_HEADERS);
-          }
+    if (isValid) {
+      const createSessionResult = await addAuthSession({
+        id: token,
+        userId: user.id,
+        rollingExpiration,
+        absoluteExpiration,
+      });
+      if (createSessionResult instanceof Error) {
+        return handleInternalServerError(createSessionResult, CORS_HEADERS);
+      }
+    }
 
-          return HttpResponse.json<UserWithoutPassword>(
-            {
-              id: userResult.id,
-              username: userResult.username,
-              source: userResult.source,
-            },
-            {
-              status: 200,
-              headers: {
-                ...CORS_HEADERS,
-                "Set-Cookie": buildAuthSessionCookie(token),
-                "Content-Location": `https://api.example.com/user/${userResult.id}`,
-              },
-            },
-          );
-        },
-      );
-    } catch (error) {
+    if (!isValid) {
       return handleInternalServerError(
-        error instanceof Error
-          ? error
-          : new Error(`Error in Dexie transaction: ${JSON.stringify(error)}`),
+        new Error(`Error at login`),
         CORS_HEADERS,
       );
     }
+
+    return HttpResponse.json<UserWithoutPassword>(
+      {
+        id: user.id,
+        username: user.username,
+        source: user.source,
+      },
+      {
+        status: 200,
+        headers: {
+          ...CORS_HEADERS,
+          "Set-Cookie": buildAuthSessionCookie(token),
+          "Content-Location": `https://api.example.com/user/${user.id}`,
+        },
+      },
+    );
   }),
   http.post<PathParams, DefaultBodyType, Rfc9457ProblemDetail | undefined>(
     "https://api.example.com/logout",
