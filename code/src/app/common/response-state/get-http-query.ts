@@ -1,8 +1,9 @@
 import {
   HttpClient,
-  HttpContext,
-  HttpHeaders,
-  HttpParams,
+  type HttpContext,
+  type HttpHeaders,
+  type HttpParams,
+  type HttpResponse,
 } from "@angular/common/http";
 import { computed, inject, type Signal, signal } from "@angular/core";
 import {
@@ -20,6 +21,7 @@ import {
   handleObservableError,
 } from "../handle-observable-error";
 import type { JSONTypes } from "../json-types";
+import { type HttpRes, isHttpRes } from "./http-res";
 import type { HttpUrl, HttpUrlParams, InputHttpUrl } from "./http-url-params";
 import type { QueryWithState } from "./query-with-state";
 import type { HttpErrorResponse, SuccessResponse } from "./response-states";
@@ -31,7 +33,6 @@ type HttpClientOptions = {
         [header: string]: string | string[];
       };
   context?: HttpContext;
-  observe?: "body";
   params?:
     | HttpParams
     | {
@@ -74,9 +75,9 @@ function getRequestObservable<TResponse extends JSONTypes>(
 
   switch (method) {
     case "get":
-      return http.get<TResponse>(url, options);
+      return http.get<TResponse>(url, { ...options, observe: "response" });
     case "head":
-      return http.head<TResponse>(url, options);
+      return http.head<TResponse>(url, { ...options, observe: "response" });
     default: {
       const exhaustiveCheck: never = method;
       return exhaustiveCheck;
@@ -90,7 +91,7 @@ export type GetHttpQueryResult<
 > = {
   url: Signal<HttpUrl<TUrlParams>>;
   resetCacheSubject: BehaviorSubject<null>;
-  request: Observable<QueryWithState<TResponse>>;
+  request: Observable<QueryWithState<HttpRes<TResponse>>>;
 };
 
 export function getHttpQuery<
@@ -105,8 +106,8 @@ export function getHttpQuery<
       >),
   httpQueryParams: HttpQueryParams,
 ): GetHttpQueryResult<TResponse, TUrlParams> {
-  type TResponseWithState = QueryWithState<TResponse>;
-  type TSuccessResponse = SuccessResponse<TResponse>;
+  type TResponseWithState = QueryWithState<HttpRes<TResponse>>;
+  type TSuccessResponse = SuccessResponse<HttpRes<TResponse>>;
 
   const { shouldUseCache = false } = httpQueryParams;
   const resetCacheSubject = new BehaviorSubject<null>(null);
@@ -140,11 +141,20 @@ export function getHttpQuery<
     httpQueryParams,
   );
 
-  const successMapOperation = map<TResponse, TSuccessResponse>((response) => ({
-    state: "success",
-    data: response,
-  }));
-  const handleObservableErrorOperation = catchError<
+  const mapHttpResponse = map<HttpResponse<TResponse>, TSuccessResponse>(
+    (httpResponse) => {
+      if (isHttpRes(httpResponse)) {
+        return {
+          state: "success",
+          data: httpResponse,
+        };
+      }
+
+      throw new Error("The body is null");
+    },
+  );
+
+  const handleAndRethrowError = catchError<
     TSuccessResponse,
     ReturnType<typeof handleObservableError>
   >((errorResponse) => handleObservableError(errorResponse));
@@ -153,16 +163,13 @@ export function getHttpQuery<
     ? resetCacheSubject.pipe(
         mergeMap(() =>
           requestObservable.pipe(
-            successMapOperation,
             shareReplay(1),
-            handleObservableErrorOperation,
+            mapHttpResponse,
+            handleAndRethrowError,
           ),
         ),
       )
-    : requestObservable.pipe(
-        successMapOperation,
-        handleObservableErrorOperation,
-      );
+    : requestObservable.pipe(mapHttpResponse, handleAndRethrowError);
 
   const request = httpRequest$.pipe(
     startWith<TResponseWithState>({ state: "pending" }),
