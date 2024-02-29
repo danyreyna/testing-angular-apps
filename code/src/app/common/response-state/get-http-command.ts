@@ -23,7 +23,11 @@ import type { JSONTypes } from "../json-types";
 import type { CommandWithState } from "./command-with-state";
 import { type HttpRes, isHttpRes } from "./http-res";
 import type { HttpUrl, HttpUrlParams, InputHttpUrl } from "./http-url-params";
-import type { HttpErrorResponse, IdleState } from "./response-states";
+import type {
+  HttpErrorResponse,
+  IdleState,
+  SuccessResponse,
+} from "./response-states";
 
 const INITIAL_IDLE_STATE = of<IdleState>({ state: "idle" });
 
@@ -210,6 +214,7 @@ export function getHttpCommand<
   httpCommandParams: HttpCommandParams,
 ): GetHttpCommandResult<TResponse, TSubjectValue, TUrlParams> {
   type TResponseWithState = CommandWithState<HttpRes<TResponse>>;
+  type TSuccessResponse = SuccessResponse<HttpRes<TResponse>>;
 
   const urlState = signal<
     InputHttpUrl<
@@ -242,7 +247,7 @@ export function getHttpCommand<
       }
 
       const request$ = getRequestObservablePartial(subjectValue).pipe(
-        map<HttpResponse<TResponse>, TResponseWithState>((httpResponse) => {
+        map<HttpResponse<TResponse>, TSuccessResponse>((httpResponse) => {
           if (isHttpRes(httpResponse)) {
             return {
               state: "success",
@@ -250,10 +255,7 @@ export function getHttpCommand<
             };
           }
 
-          return {
-            state: "error",
-            message: "The body is null",
-          };
+          throw new Error("The body is null");
         }),
         catchError((errorResponse) => handleObservableError(errorResponse)),
       );
