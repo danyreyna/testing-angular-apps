@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
-import type { AuthSession } from "../common/mock-db";
+import { findByUsername } from "../user/user-db";
+import type { AuthSession, DbUser } from "../common/mock-db";
 
 const ROLLING_DURATION = 600;
 const ABSOLUTE_DURATION = 604_800;
@@ -61,5 +62,27 @@ export function getAuthSessionExpirations() {
   return {
     rollingExpiration,
     absoluteExpiration,
+  };
+}
+
+export function areCredentialsValid(
+  user: Awaited<ReturnType<typeof findByUsername>>,
+  passwordHash: string,
+): { isValid: true; user: DbUser } | { isValid: false; user: null } {
+  const isValid =
+    !(user instanceof Error) &&
+    user !== undefined &&
+    user.passwordHash === passwordHash;
+
+  if (isValid) {
+    return {
+      isValid,
+      user,
+    };
+  }
+
+  return {
+    isValid,
+    user: null,
   };
 }
