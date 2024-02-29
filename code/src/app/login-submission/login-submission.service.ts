@@ -1,4 +1,4 @@
-import { HttpClient, type HttpResponse } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import {
   BehaviorSubject,
@@ -14,6 +14,7 @@ import {
   handleObservableError,
 } from "../common/handle-observable-error";
 import type { CommandWithState } from "../common/response-state/command-with-state";
+import type { HttpRes } from "../common/response-state/http-res";
 import type {
   ErrorResponse,
   IdleState,
@@ -21,7 +22,7 @@ import type {
 } from "../common/response-state/response-states";
 import type { LoginFormValues } from "./login-submission-form.component";
 
-type LoginResponse = HttpResponse<{
+type LoginResponse = HttpRes<{
   username: string;
 }>;
 
