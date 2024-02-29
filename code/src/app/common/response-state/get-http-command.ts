@@ -3,6 +3,7 @@ import {
   HttpContext,
   HttpHeaders,
   HttpParams,
+  HttpResponse,
 } from "@angular/common/http";
 import { computed, inject, type Signal, signal } from "@angular/core";
 import {
@@ -38,7 +39,6 @@ export type DeleteParams = {
           [header: string]: string | string[];
         };
     context?: HttpContext;
-    observe?: "body";
     params?:
       | HttpParams
       | {
@@ -64,7 +64,6 @@ export type PatchParams = {
           [header: string]: string | string[];
         };
     context?: HttpContext;
-    observe?: "body";
     params?:
       | HttpParams
       | {
@@ -90,7 +89,6 @@ export type PostParams = {
           [header: string]: string | string[];
         };
     context?: HttpContext;
-    observe?: "body";
     params?:
       | HttpParams
       | {
@@ -121,7 +119,6 @@ export type PutParams = {
           [header: string]: string | string[];
         };
     context?: HttpContext;
-    observe?: "body";
     params?:
       | HttpParams
       | {
@@ -155,7 +152,7 @@ function getRequestObservable<
     switch (method) {
       case "delete": {
         const { options } = httpParams;
-        return http.delete<TResponse>(url, options);
+        return http.delete<TResponse>(url, { ...options, observe: "response" });
       }
       case "patch": {
         const { shouldSendBodyFromSubject = true, options } = httpParams;
@@ -163,7 +160,7 @@ function getRequestObservable<
         return http.patch<TResponse>(
           url,
           shouldSendBodyFromSubject ? subjectValue : null,
-          options,
+          { ...options, observe: "response" },
         );
       }
       case "post": {
@@ -172,7 +169,7 @@ function getRequestObservable<
         return http.post<TResponse>(
           url,
           shouldSendBodyFromSubject ? subjectValue : null,
-          options,
+          { ...options, observe: "response" },
         );
       }
       case "put": {
@@ -181,7 +178,7 @@ function getRequestObservable<
         return http.put<TResponse>(
           url,
           shouldSendBodyFromSubject ? subjectValue : null,
-          options,
+          { ...options, observe: "response" },
         );
       }
       default: {
@@ -199,7 +196,7 @@ export type GetHttpCommandResult<
 > = {
   url: Signal<HttpUrl<TUrlParams>>;
   subject: BehaviorSubject<null | TSubjectValue>;
-  response: Observable<CommandWithState<TResponse>>;
+  response: Observable<CommandWithState<HttpResponse<TResponse>>>;
 };
 
 export function getHttpCommand<
@@ -215,8 +212,8 @@ export function getHttpCommand<
       >),
   httpCommandParams: HttpCommandParams,
 ): GetHttpCommandResult<TResponse, TSubjectValue, TUrlParams> {
-  type TResponseWithState = CommandWithState<TResponse>;
-  type TSuccessResponse = SuccessResponse<TResponse>;
+  type TResponseWithState = CommandWithState<HttpResponse<TResponse>>;
+  type TSuccessResponse = SuccessResponse<HttpResponse<TResponse>>;
 
   const urlState = signal<
     InputHttpUrl<
@@ -249,9 +246,9 @@ export function getHttpCommand<
       }
 
       const request$ = getRequestObservablePartial(subjectValue).pipe(
-        map<TResponse, TSuccessResponse>((response) => ({
+        map<HttpResponse<TResponse>, TSuccessResponse>((httpResponse) => ({
           state: "success",
-          data: response,
+          data: httpResponse,
         })),
         catchError((errorResponse) => handleObservableError(errorResponse)),
       );
