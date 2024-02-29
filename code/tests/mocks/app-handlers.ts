@@ -173,6 +173,9 @@ export const handlers = [
         CORS_HEADERS,
       );
     }
+    /*
+     * In a real backend, store the temporary `access_token` in the database, encrypted.
+     */
     const clientCredentialsFlowResponse =
       await parseResponseBody<ClientCredentialsFlowResponse>(
         monitoringServiceTokenResponse,
