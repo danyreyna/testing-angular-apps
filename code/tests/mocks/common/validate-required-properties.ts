@@ -26,7 +26,8 @@ export function validateRequiredProperties<
   }
 
   const missingProperties = requiredProperties.filter(
-    (propertyName) => body[propertyName] === undefined,
+    (propertyName) =>
+      body[propertyName] === undefined || body[propertyName] === "",
   );
 
   if (missingProperties.length === 0) {
