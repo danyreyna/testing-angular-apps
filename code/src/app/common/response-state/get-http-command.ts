@@ -1,9 +1,9 @@
 import {
   HttpClient,
-  HttpContext,
-  HttpHeaders,
-  HttpParams,
-  HttpResponse,
+  type HttpContext,
+  type HttpHeaders,
+  type HttpParams,
+  type HttpResponse,
 } from "@angular/common/http";
 import { computed, inject, type Signal, signal } from "@angular/core";
 import {
