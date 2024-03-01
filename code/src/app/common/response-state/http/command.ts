@@ -204,7 +204,7 @@ export type ReturnTypeGetHttpCommand<
 > = {
   url: Signal<HttpUrl<TUrlParams>>;
   subject: BehaviorSubject<null | TSubjectValue>;
-  response: Observable<HttpCommand<TResponseBody>>;
+  observable$: Observable<HttpCommand<TResponseBody>>;
 };
 
 export function getHttpCommand<
@@ -236,7 +236,7 @@ export function getHttpCommand<
     TSubjectValue
   >(urlSignal().href, httpCommandParams);
 
-  const response = action$.pipe(
+  const observable$ = action$.pipe(
     switchMap((subjectValue) => {
       if (subjectValue === null) {
         return of<HttpIdleState>({ state: "idle" });
@@ -270,6 +270,6 @@ export function getHttpCommand<
   return {
     url: urlSignal,
     subject,
-    response,
+    observable$,
   };
 }

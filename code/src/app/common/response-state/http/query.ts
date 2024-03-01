@@ -99,7 +99,7 @@ type ReturnTypeGetHttpQuery<
 > = {
   url: Signal<HttpUrl<TUrlParams>>;
   resetCacheSubject: BehaviorSubject<null>;
-  request: Observable<HttpQuery<TResponse>>;
+  observable$: Observable<HttpQuery<TResponse>>;
 };
 
 export function getHttpQuery<
@@ -162,7 +162,7 @@ export function getHttpQuery<
       )
     : requestObservable.pipe(mapHttpResponse, handleAndRethrowError);
 
-  const request = httpRequest$.pipe(
+  const observable$ = httpRequest$.pipe(
     startWith<HttpQuery<TResponseBody>>({ state: "pending" }),
     catchError((error: HandledObservableError) =>
       of<HttpErrorState>({ state: "error", error }),
@@ -172,6 +172,6 @@ export function getHttpQuery<
   return {
     url: urlSignal,
     resetCacheSubject,
-    request,
+    observable$,
   };
 }
