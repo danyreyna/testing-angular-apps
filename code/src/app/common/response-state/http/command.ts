@@ -237,34 +237,40 @@ export function getHttpCommand<
   >(urlSignal().href, httpCommandParams);
 
   const observable$ = action$.pipe(
-    switchMap((subjectValue) => {
-      if (subjectValue === null) {
-        return of<HttpIdleState>({ state: "idle" });
-      }
+    switchMap<null | TSubjectValue, Observable<HttpCommand<TResponseBody>>>(
+      (subjectValue) => {
+        if (subjectValue === null) {
+          return of<HttpIdleState>({ state: "idle" });
+        }
 
-      const request$ = getRequestObservablePartial(subjectValue).pipe(
-        map<HttpResponse<TResponseBody>, HttpSuccessState<TResponseBody>>(
-          (httpResponse) => {
-            if (isHttpResponseWithNonNullBody(httpResponse)) {
-              return {
-                state: "success",
-                response: httpResponse,
-              };
-            }
+        const request$ = getRequestObservablePartial(subjectValue).pipe(
+          map<HttpResponse<TResponseBody>, HttpCommand<TResponseBody>>(
+            (httpResponse) => {
+              if (isHttpResponseWithNonNullBody(httpResponse)) {
+                return {
+                  state: "success",
+                  response: httpResponse,
+                };
+              }
 
-            throw new Error("The body is null");
-          },
-        ),
-        catchError((errorResponse) => handleObservableError(errorResponse)),
-      );
+              throw new Error("The body is null");
+            },
+          ),
+          catchError<
+            HttpCommand<TResponseBody>,
+            ReturnType<typeof handleObservableError>
+          >((errorResponse) => handleObservableError(errorResponse)),
+        );
 
-      return request$.pipe(
-        startWith<HttpCommand<TResponseBody>>({ state: "pending" }),
-        catchError((error: HandledObservableError) =>
-          of<HttpErrorState>({ state: "error", error }),
-        ),
-      );
-    }),
+        return request$.pipe(
+          startWith<HttpCommand<TResponseBody>>({ state: "pending" }),
+          catchError<HttpCommand<TResponseBody>, Observable<HttpErrorState>>(
+            (error: HandledObservableError) =>
+              of<HttpErrorState>({ state: "error", error }),
+          ),
+        );
+      },
+    ),
   );
 
   return {

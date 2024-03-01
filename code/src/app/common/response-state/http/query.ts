@@ -125,47 +125,47 @@ export function getHttpQuery<
     };
   });
 
-  const requestObservable = getRequestObservable<TResponseBody>(
+  const httpRequest$ = getRequestObservable<TResponseBody>(
     urlSignal().href,
     httpQueryParams,
   );
 
-  type TSuccessResponse = HttpSuccessState<TResponseBody>;
+  const mapHttpResponse = map<
+    HttpResponse<TResponseBody>,
+    HttpQuery<TResponseBody>
+  >((httpResponse) => {
+    if (isHttpResponseWithNonNullBody(httpResponse)) {
+      return {
+        state: "success",
+        response: httpResponse,
+      };
+    }
 
-  const mapHttpResponse = map<HttpResponse<TResponseBody>, TSuccessResponse>(
-    (httpResponse) => {
-      if (isHttpResponseWithNonNullBody(httpResponse)) {
-        return {
-          state: "success",
-          response: httpResponse,
-        };
-      }
-
-      throw new Error("The body is null");
-    },
-  );
+    throw new Error("The body is null");
+  });
 
   const handleAndRethrowError = catchError<
-    TSuccessResponse,
+    HttpQuery<TResponseBody>,
     ReturnType<typeof handleObservableError>
   >((errorResponse) => handleObservableError(errorResponse));
 
-  const httpRequest$ = shouldUseCache
+  const request$ = shouldUseCache
     ? resetCacheSubject.pipe(
-        mergeMap(() =>
-          requestObservable.pipe(
-            shareReplay(1),
+        mergeMap<null, Observable<HttpQuery<TResponseBody>>>(() =>
+          httpRequest$.pipe(
+            shareReplay<HttpResponse<TResponseBody>>(1),
             mapHttpResponse,
             handleAndRethrowError,
           ),
         ),
       )
-    : requestObservable.pipe(mapHttpResponse, handleAndRethrowError);
+    : httpRequest$.pipe(mapHttpResponse, handleAndRethrowError);
 
-  const observable$ = httpRequest$.pipe(
+  const observable$ = request$.pipe(
     startWith<HttpQuery<TResponseBody>>({ state: "pending" }),
-    catchError((error: HandledObservableError) =>
-      of<HttpErrorState>({ state: "error", error }),
+    catchError<HttpQuery<TResponseBody>, Observable<HttpErrorState>>(
+      (error: HandledObservableError) =>
+        of<HttpErrorState>({ state: "error", error }),
     ),
   );
 
