@@ -7,17 +7,10 @@ const PENDING_STATE = "pending";
 export type PendingState = { state: typeof PENDING_STATE };
 
 const ERROR_STATE = "error";
-export type HttpErrorResponse = {
+export type ErrorResponse = {
   state: typeof ERROR_STATE;
   message: string;
-  status: number;
 };
-export type ErrorResponse =
-  | {
-      state: typeof ERROR_STATE;
-      message: string;
-    }
-  | HttpErrorResponse;
 
 const SUCCESS_STATE = "success";
 export type SuccessResponse<TData> = {
@@ -54,20 +47,6 @@ export function isPending(value: unknown): value is PendingState {
 
 export function isErrorResponse(value: unknown): value is ErrorResponse {
   return isResponse(value) && value.state === ERROR_STATE;
-}
-
-export function isHttpErrorResponse(
-  value: unknown,
-): value is HttpErrorResponse {
-  if (!isObjectLike(value)) {
-    return false;
-  }
-
-  return (
-    value["state"] === ERROR_STATE &&
-    typeof value["message"] === "string" &&
-    typeof value["status"] === "number"
-  );
 }
 
 export function isSuccessResponse<TData>(
