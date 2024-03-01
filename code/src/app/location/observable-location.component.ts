@@ -6,7 +6,7 @@ import {
   isPending,
   isSuccessResponse,
   type PendingState,
-} from "../common/response-state/response-states";
+} from "../common/response-state/state";
 import { type TypeGuard, TypeGuardPipe } from "../common/type-guard.pipe";
 import { SpinnerComponent } from "../spinner/spinner.component";
 import {

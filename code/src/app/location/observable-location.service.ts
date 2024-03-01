@@ -5,11 +5,11 @@ import {
   type HandledObservableError,
   handleObservableError,
 } from "../common/handle-observable-error";
-import type { QueryWithState } from "../common/response-state/query-with-state";
+import type { QueryWithState } from "../common/response-state/query";
 import type {
   ErrorResponse,
   SuccessResponse,
-} from "../common/response-state/response-states";
+} from "../common/response-state/state";
 
 export type GeolocationResponseWithState = QueryWithState<GeolocationPosition>;
 export type SuccessLocationResponse = SuccessResponse<GeolocationPosition>;
