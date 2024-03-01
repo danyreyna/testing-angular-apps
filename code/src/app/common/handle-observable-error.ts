@@ -39,7 +39,7 @@ function getHttpErrorMessage(errorResponse: HttpErrorResponse) {
     return errorResponse.error.message;
   }
 
-  return `Backend returned code ${errorResponse.status}: ${errorResponse.message}`;
+  return `Backend returned ${errorResponse.status}: ${errorResponse.message}`;
 }
 
 function handleHttpError(errorResponse: HttpErrorResponse) {
