@@ -17,14 +17,17 @@ import {
   startWith,
 } from "rxjs";
 import {
-  type HandledHttpError,
+  type HandledObservableError,
   handleObservableError,
-} from "../handle-observable-error";
-import type { JSONTypes } from "../json-types";
-import { type HttpRes, isHttpRes } from "./http-res";
-import type { HttpUrl, HttpUrlParams, InputHttpUrl } from "./http-url-params";
-import type { QueryWithState } from "./query-with-state";
-import type { HttpErrorResponse, SuccessResponse } from "./response-states";
+} from "../../handle-observable-error";
+import type { JSONTypes } from "../../json-types";
+import type { HttpQuery } from "./query";
+import {
+  type HttpErrorState,
+  type HttpSuccessState,
+  isHttpResponseWithNonNullBody,
+} from "./response-states";
+import type { GroupedUrlParams, HttpUrl, HttpUrlArgument } from "./url";
 
 type HttpClientOptions = {
   headers?:
@@ -51,27 +54,27 @@ type HttpClientOptions = {
       }
     | boolean;
 };
-export type GetParams = {
+
+type GetParams = {
   method: "get";
   shouldUseCache?: boolean;
   options?: HttpClientOptions;
 };
-
-export type HeadParams = {
+type HeadParams = {
   method: "head";
   shouldUseCache?: boolean;
   options?: HttpClientOptions;
 };
 
-export type HttpQueryParams = GetParams | HeadParams;
+type HttpQueryParams = GetParams | HeadParams;
 
 function getRequestObservable<TResponse extends JSONTypes>(
   url: string,
-  httpParams: HttpQueryParams,
+  params: HttpQueryParams,
 ) {
   const http = inject(HttpClient);
 
-  const { method, options } = httpParams;
+  const { method, options } = params;
 
   switch (method) {
     case "get":
@@ -85,68 +88,51 @@ function getRequestObservable<TResponse extends JSONTypes>(
   }
 }
 
-export type GetHttpQueryResult<
-  TResponse extends JSONTypes = null,
-  TUrlParams extends HttpUrlParams = HttpUrlParams,
+type ReturnTypeGetHttpQuery<
+  TResponse extends JSONTypes,
+  TUrlParams extends GroupedUrlParams,
 > = {
   url: Signal<HttpUrl<TUrlParams>>;
   resetCacheSubject: BehaviorSubject<null>;
-  request: Observable<QueryWithState<HttpRes<TResponse>>>;
+  request: Observable<HttpQuery<TResponse>>;
 };
 
 export function getHttpQuery<
-  TResponse extends JSONTypes = null,
-  TUrlParams extends HttpUrlParams = HttpUrlParams,
+  TResponseBody extends JSONTypes = null,
+  TUrlParams extends GroupedUrlParams = GroupedUrlParams,
 >(
-  url:
-    | URL["href"]
-    | (() => InputHttpUrl<
-        NonNullable<TUrlParams["pathParams"]>,
-        NonNullable<TUrlParams["queryParams"]>
-      >),
+  url: URL["href"] | (() => HttpUrlArgument<TUrlParams>),
   httpQueryParams: HttpQueryParams,
-): GetHttpQueryResult<TResponse, TUrlParams> {
-  type TResponseWithState = QueryWithState<HttpRes<TResponse>>;
-  type TSuccessResponse = SuccessResponse<HttpRes<TResponse>>;
-
+): ReturnTypeGetHttpQuery<TResponseBody, TUrlParams> {
   const { shouldUseCache = false } = httpQueryParams;
   const resetCacheSubject = new BehaviorSubject<null>(null);
 
-  const urlState = signal<
-    InputHttpUrl<
-      NonNullable<TUrlParams["pathParams"]>,
-      NonNullable<TUrlParams["queryParams"]>
-    >
-  >({
-    href: "",
-  });
-  const urlSignal = computed(() => {
+  const urlState = signal<HttpUrlArgument<TUrlParams>>(
+    typeof url === "string" ? { href: url } : url(),
+  );
+  const urlSignal = computed<HttpUrl<TUrlParams>>(() => {
     const { href, pathParams, queryParams } = urlState();
 
     return {
       href,
-      pathParams: pathParams ?? ({} as TUrlParams["pathParams"]),
-      queryParams: queryParams ?? ({} as TUrlParams["queryParams"]),
-    } as HttpUrl<TUrlParams>;
+      pathParams: pathParams ?? {},
+      queryParams: queryParams ?? {},
+    };
   });
 
-  if (typeof url === "string") {
-    urlState.set({ href: url });
-  } else {
-    urlState.set(url());
-  }
-
-  const requestObservable = getRequestObservable<TResponse>(
+  const requestObservable = getRequestObservable<TResponseBody>(
     urlSignal().href,
     httpQueryParams,
   );
 
-  const mapHttpResponse = map<HttpResponse<TResponse>, TSuccessResponse>(
+  type TSuccessResponse = HttpSuccessState<TResponseBody>;
+
+  const mapHttpResponse = map<HttpResponse<TResponseBody>, TSuccessResponse>(
     (httpResponse) => {
-      if (isHttpRes(httpResponse)) {
+      if (isHttpResponseWithNonNullBody(httpResponse)) {
         return {
           state: "success",
-          data: httpResponse,
+          response: httpResponse,
         };
       }
 
@@ -172,13 +158,9 @@ export function getHttpQuery<
     : requestObservable.pipe(mapHttpResponse, handleAndRethrowError);
 
   const request = httpRequest$.pipe(
-    startWith<TResponseWithState>({ state: "pending" }),
-    catchError((error: HandledHttpError) =>
-      of<HttpErrorResponse>({
-        state: "error",
-        message: error.message,
-        status: error.status,
-      }),
+    startWith<HttpQuery<TResponseBody>>({ state: "pending" }),
+    catchError((error: HandledObservableError) =>
+      of<HttpErrorState>({ state: "error", error }),
     ),
   );
 

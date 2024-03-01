@@ -16,20 +16,18 @@ import {
   switchMap,
 } from "rxjs";
 import {
-  type HandledHttpError,
+  type HandledObservableError,
   handleObservableError,
-} from "../handle-observable-error";
-import type { JSONTypes } from "../json-types";
-import type { CommandWithState } from "./command-with-state";
-import { type HttpRes, isHttpRes } from "./http-res";
-import type { HttpUrl, HttpUrlParams, InputHttpUrl } from "./http-url-params";
-import type {
-  HttpErrorResponse,
-  IdleState,
-  SuccessResponse,
+} from "../../handle-observable-error";
+import type { JSONTypes } from "../../json-types";
+import type { HttpCommand } from "./command";
+import {
+  type HttpErrorState,
+  type HttpIdleState,
+  type HttpSuccessState,
+  isHttpResponseWithNonNullBody,
 } from "./response-states";
-
-const INITIAL_IDLE_STATE = of<IdleState>({ state: "idle" });
+import type { GroupedUrlParams, HttpUrl, HttpUrlArgument } from "./url";
 
 export type DeleteParams = {
   method: "delete";
@@ -142,7 +140,7 @@ export type HttpCommandParams =
   | PutParams;
 
 function getRequestObservable<
-  TResponse extends JSONTypes,
+  TResponseBody extends JSONTypes,
   TSubjectValue extends JSONTypes,
 >(url: string, httpParams: HttpCommandParams) {
   const http = inject(HttpClient);
@@ -153,12 +151,15 @@ function getRequestObservable<
     switch (method) {
       case "delete": {
         const { options } = httpParams;
-        return http.delete<TResponse>(url, { ...options, observe: "response" });
+        return http.delete<TResponseBody>(url, {
+          ...options,
+          observe: "response",
+        });
       }
       case "patch": {
         const { shouldSendBodyFromSubject = true, options } = httpParams;
 
-        return http.patch<TResponse>(
+        return http.patch<TResponseBody>(
           url,
           shouldSendBodyFromSubject ? subjectValue : null,
           { ...options, observe: "response" },
@@ -167,7 +168,7 @@ function getRequestObservable<
       case "post": {
         const { shouldSendBodyFromSubject = true, options } = httpParams;
 
-        return http.post<TResponse>(
+        return http.post<TResponseBody>(
           url,
           shouldSendBodyFromSubject ? subjectValue : null,
           { ...options, observe: "response" },
@@ -176,7 +177,7 @@ function getRequestObservable<
       case "put": {
         const { shouldSendBodyFromSubject = true, options } = httpParams;
 
-        return http.put<TResponse>(
+        return http.put<TResponseBody>(
           url,
           shouldSendBodyFromSubject ? subjectValue : null,
           { ...options, observe: "response" },
@@ -190,84 +191,71 @@ function getRequestObservable<
   };
 }
 
-export type GetHttpCommandResult<
-  TResponse extends JSONTypes = null,
-  TSubjectValue extends JSONTypes = null,
-  TUrlParams extends HttpUrlParams = HttpUrlParams,
+export type ReturnTypeGetHttpCommand<
+  TResponseBody extends JSONTypes,
+  TSubjectValue extends JSONTypes,
+  TUrlParams extends GroupedUrlParams,
 > = {
   url: Signal<HttpUrl<TUrlParams>>;
   subject: BehaviorSubject<null | TSubjectValue>;
-  response: Observable<CommandWithState<HttpRes<TResponse>>>;
+  response: Observable<HttpCommand<TResponseBody>>;
 };
 
 export function getHttpCommand<
-  TResponse extends JSONTypes = null,
+  TResponseBody extends JSONTypes = null,
   TSubjectValue extends JSONTypes = null,
-  TUrlParams extends HttpUrlParams = HttpUrlParams,
+  TUrlParams extends GroupedUrlParams = GroupedUrlParams,
 >(
-  url:
-    | URL["href"]
-    | (() => InputHttpUrl<
-        NonNullable<TUrlParams["pathParams"]>,
-        NonNullable<TUrlParams["queryParams"]>
-      >),
+  url: URL["href"] | (() => HttpUrlArgument<TUrlParams>),
   httpCommandParams: HttpCommandParams,
-): GetHttpCommandResult<TResponse, TSubjectValue, TUrlParams> {
-  type TResponseWithState = CommandWithState<HttpRes<TResponse>>;
-  type TSuccessResponse = SuccessResponse<HttpRes<TResponse>>;
+): ReturnTypeGetHttpCommand<TResponseBody, TSubjectValue, TUrlParams> {
+  const subject = new BehaviorSubject<null | TSubjectValue>(null);
+  const action$ = subject.asObservable();
 
-  const urlState = signal<
-    InputHttpUrl<
-      NonNullable<TUrlParams["pathParams"]>,
-      NonNullable<TUrlParams["queryParams"]>
-    >
-  >(typeof url === "string" ? { href: url } : url());
-  const urlSignal = computed(() => {
+  const urlState = signal<HttpUrlArgument<TUrlParams>>(
+    typeof url === "string" ? { href: url } : url(),
+  );
+  const urlSignal = computed<HttpUrl<TUrlParams>>(() => {
     const { href, pathParams, queryParams } = urlState();
 
     return {
       href,
-      pathParams: pathParams ?? ({} as TUrlParams["pathParams"]),
-      queryParams: queryParams ?? ({} as TUrlParams["queryParams"]),
-    } as HttpUrl<TUrlParams>;
+      pathParams: pathParams ?? {},
+      queryParams: queryParams ?? {},
+    };
   });
 
-  const subject = new BehaviorSubject<null | TSubjectValue>(null);
-  const action$ = subject.asObservable();
-
   const getRequestObservablePartial = getRequestObservable<
-    TResponse,
+    TResponseBody,
     TSubjectValue
   >(urlSignal().href, httpCommandParams);
 
   const response = action$.pipe(
     switchMap((subjectValue) => {
       if (subjectValue === null) {
-        return INITIAL_IDLE_STATE;
+        return of<HttpIdleState>({ state: "idle" });
       }
 
       const request$ = getRequestObservablePartial(subjectValue).pipe(
-        map<HttpResponse<TResponse>, TSuccessResponse>((httpResponse) => {
-          if (isHttpRes(httpResponse)) {
-            return {
-              state: "success",
-              data: httpResponse,
-            };
-          }
+        map<HttpResponse<TResponseBody>, HttpSuccessState<TResponseBody>>(
+          (httpResponse) => {
+            if (isHttpResponseWithNonNullBody(httpResponse)) {
+              return {
+                state: "success",
+                response: httpResponse,
+              };
+            }
 
-          throw new Error("The body is null");
-        }),
+            throw new Error("The body is null");
+          },
+        ),
         catchError((errorResponse) => handleObservableError(errorResponse)),
       );
 
       return request$.pipe(
-        startWith<TResponseWithState>({ state: "pending" }),
-        catchError((error: HandledHttpError) =>
-          of<HttpErrorResponse>({
-            state: "error",
-            message: error.message,
-            status: error.status,
-          }),
+        startWith<HttpCommand<TResponseBody>>({ state: "pending" }),
+        catchError((error: HandledObservableError) =>
+          of<HttpErrorState>({ state: "error", error }),
         ),
       );
     }),
