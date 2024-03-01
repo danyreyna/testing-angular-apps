@@ -37,7 +37,7 @@ import {
     }
   `,
   template: `
-    @if (loginSubmissionService.loginObservable$ | async; as login) {
+    @if (loginSubmissionService.login$ | async; as login) {
       @if (login | typeGuard: isHttpSuccess; as httpSuccess) {
         <div>
           Welcome
