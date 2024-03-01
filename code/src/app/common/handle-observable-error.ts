@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from "@angular/common/http";
 import { throwError } from "rxjs";
+import { isObjectLike } from "./is-object-like";
 import {
   isRequiredPropertiesProblemDetail,
   isRfc9457ProblemDetail,
@@ -11,6 +12,14 @@ export type HandledHttpError = {
   message: string;
   httpErrorResponse: HttpErrorResponse;
 };
+export function isHandledHttpError(value: unknown): value is HandledHttpError {
+  return (
+    isObjectLike(value) &&
+    typeof value["message"] === "string" &&
+    value["httpErrorResponse"] instanceof HttpErrorResponse
+  );
+}
+
 export type HandledObservableError = HandledHttpError | Error;
 
 function getProblemDetailMessage(error: Rfc9457ProblemDetail) {
