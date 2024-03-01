@@ -26,7 +26,7 @@ import {
   type HttpPendingState,
   type HttpSuccessState,
   isHttpResponseWithNonNullBody,
-} from "./response-states";
+} from "./state";
 import type { GroupedUrlParams, HttpUrl, HttpUrlArgument } from "./url";
 
 export type HttpQuery<TResponseBody extends JSONTypes> =
