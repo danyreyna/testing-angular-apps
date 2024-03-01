@@ -7,8 +7,11 @@ import {
   type Rfc9457ProblemDetail,
 } from "./rfc-9457-problem-detail";
 
-export type HandledHttpError = { message: string; status: number };
-export type HandledObservableError = HandledHttpError | { message: string };
+export type HandledHttpError = {
+  message: string;
+  httpErrorResponse: HttpErrorResponse;
+};
+export type HandledObservableError = HandledHttpError | Error;
 
 function getProblemDetailMessage(error: Rfc9457ProblemDetail) {
   return `${error.title ?? ""}${
@@ -42,20 +45,20 @@ function getHttpErrorMessage(errorResponse: HttpErrorResponse) {
   return `Backend returned ${errorResponse.status}: ${errorResponse.message}`;
 }
 
-function handleHttpError(errorResponse: HttpErrorResponse) {
+function handleHttpError(httpErrorResponse: HttpErrorResponse) {
   const isNetworkError =
-    errorResponse.error instanceof ProgressEvent && errorResponse.status === 0;
+    httpErrorResponse.error instanceof ProgressEvent &&
+    httpErrorResponse.status === 0;
 
   const message = isNetworkError
     ? "A network error occurred"
-    : getHttpErrorMessage(errorResponse);
+    : getHttpErrorMessage(httpErrorResponse);
 
-  return throwError(() => ({ message, status: errorResponse.status }));
+  const handledHttpError: HandledHttpError = { message, httpErrorResponse };
+  return throwError(() => handledHttpError);
 }
 
-export function handleObservableError(
-  observableError: HttpErrorResponse | Error | HandledObservableError,
-) {
+export function handleObservableError(observableError: Error) {
   // in a real world app, we may send the error to some remote logging infrastructure
   // instead of just logging it to the console
   console.error(observableError);
@@ -64,9 +67,7 @@ export function handleObservableError(
     return handleHttpError(observableError);
   }
 
-  if (observableError instanceof Error) {
-    return throwError(() => ({ message: observableError.message }));
-  }
+  const handledObservableError: HandledObservableError = observableError;
 
-  return throwError(() => observableError);
+  return throwError(() => handledObservableError);
 }
