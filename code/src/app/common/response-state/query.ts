@@ -1,8 +1,4 @@
-import type {
-  ErrorResponse,
-  PendingState,
-  SuccessResponse,
-} from "./response-states";
+import type { ErrorResponse, PendingState, SuccessResponse } from "./state";
 
 export type QueryWithState<TData> =
   | PendingState
