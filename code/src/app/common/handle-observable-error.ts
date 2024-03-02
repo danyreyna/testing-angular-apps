@@ -68,8 +68,10 @@ function handleHttpError(httpErrorResponse: HttpErrorResponse) {
 }
 
 export function handleObservableError(observableError: Error) {
-  // in a real world app, we may send the error to some remote logging infrastructure
-  // instead of just logging it to the console
+  /*
+   * In a real world app, we may send the error to some remote logging infrastructure,
+   * instead of just logging it to the console.
+   */
   console.error(observableError);
 
   if (observableError instanceof HttpErrorResponse) {
