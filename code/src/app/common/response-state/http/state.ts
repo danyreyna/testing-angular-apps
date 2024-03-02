@@ -43,7 +43,7 @@ function isHttpState<TResponseBody extends JSONTypes>(
   const hasState = isObjectLike(value) && typeof value["state"] === "string";
 
   if (hasState && value["state"] === ERROR_STATE) {
-    return value["response"] instanceof HttpErrorResponse;
+    return value["error"] instanceof HttpErrorResponse;
   }
 
   if (hasState && value["state"] === SUCCESS_STATE) {
