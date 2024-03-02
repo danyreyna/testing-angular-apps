@@ -1,6 +1,9 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import type { BootstrapData, SuccessBootstrapData } from "../bootstrap.service";
+import type {
+  BootstrapWithState,
+  SuccessBootstrap,
+} from "../bootstrap.service";
 import { FullPageErrorFallbackComponent } from "../components/full-page-error-fallback.component";
 import { FullPageSpinnerComponent } from "../components/full-page-spinner.component";
 import {
@@ -8,8 +11,8 @@ import {
   isErrorResponse,
   isPending,
   isSuccessResponse,
-  type PendingState,
-} from "../response-state/response-states";
+  PendingState,
+} from "../response-state/state";
 import { type TypeGuard, TypeGuardPipe } from "../type-guard.pipe";
 import { AuthService } from "./auth.service";
 
@@ -24,19 +27,16 @@ import { AuthService } from "./auth.service";
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (authService.bootstrapResponse$ | async; as bootstrapResponse) {
-      @if (bootstrapResponse | typeGuard: isPending) {
+    @if (authService.bootstrap$ | async; as bootstrap) {
+      @if (bootstrap | typeGuard: isPending) {
         <app-full-page-spinner />
       }
 
-      @if (bootstrapResponse | typeGuard: isErrorResponse; as errorResponse) {
+      @if (bootstrap | typeGuard: isErrorResponse; as errorResponse) {
         <app-full-page-error-fallback [errorMessage]="errorResponse.message" />
       }
 
-      @if (
-        bootstrapResponse | typeGuard: isSuccessResponse;
-        as successResponse
-      ) {
+      @if (bootstrap | typeGuard: isSuccessResponse; as successResponse) {
         <ng-content />
       }
     }
@@ -45,14 +45,16 @@ import { AuthService } from "./auth.service";
 export class AuthComponent {
   protected readonly authService = inject(AuthService);
 
-  protected readonly isPending: TypeGuard<BootstrapData, PendingState> =
+  protected readonly isPending: TypeGuard<BootstrapWithState, PendingState> =
     isPending;
 
-  protected readonly isErrorResponse: TypeGuard<BootstrapData, ErrorResponse> =
-    isErrorResponse;
+  protected readonly isErrorResponse: TypeGuard<
+    BootstrapWithState,
+    ErrorResponse
+  > = isErrorResponse;
 
   protected readonly isSuccessResponse: TypeGuard<
-    BootstrapData,
-    SuccessBootstrapData
+    BootstrapWithState,
+    SuccessBootstrap
   > = isSuccessResponse;
 }
