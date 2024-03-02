@@ -1,12 +1,13 @@
 import { HttpErrorResponse } from "@angular/common/http";
 import { throwError } from "rxjs";
-import { isObjectLike } from "../is-object-like";
 import {
   isRequiredPropertiesProblemDetail,
   isRfc9457ProblemDetail,
   type RequiredPropertiesProblemDetail,
   type Rfc9457ProblemDetail,
 } from "../error/rfc-9457-problem-detail";
+import { isObjectLike } from "../is-object-like";
+import { handleError } from "./handle-error";
 
 export type HandledHttpError = {
   message: string;
@@ -68,11 +69,7 @@ function handleHttpError(httpErrorResponse: HttpErrorResponse) {
 }
 
 export function handleObservableError(observableError: Error) {
-  /*
-   * In a real world app, we may send the error to some remote logging infrastructure,
-   * instead of just logging it to the console.
-   */
-  console.error(observableError);
+  handleError(observableError);
 
   if (observableError instanceof HttpErrorResponse) {
     return handleHttpError(observableError);
