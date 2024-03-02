@@ -1,5 +1,8 @@
-import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
-import type { HandledObservableError } from "../../handle-observable-error";
+import { HttpResponse } from "@angular/common/http";
+import {
+  type HandledObservableError,
+  isHandledHttpError,
+} from "../../handle-observable-error";
 import { isObjectLike } from "../../is-object-like";
 import type { JSONTypes } from "../../json-types";
 
@@ -43,7 +46,9 @@ function isHttpState<TResponseBody extends JSONTypes>(
   const hasState = isObjectLike(value) && typeof value["state"] === "string";
 
   if (hasState && value["state"] === ERROR_STATE) {
-    return value["error"] instanceof HttpErrorResponse;
+    return (
+      isHandledHttpError(value["error"]) || value["error"] instanceof Error
+    );
   }
 
   if (hasState && value["state"] === SUCCESS_STATE) {
