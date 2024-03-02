@@ -36,8 +36,8 @@ function getRequiredPropertiesProblemDetailMessage(
     .join("\n")}`;
 }
 
-function getHttpErrorMessage(errorResponse: HttpErrorResponse) {
-  const { error } = errorResponse;
+function getHttpErrorMessage(httpErrorResponse: HttpErrorResponse) {
+  const { error } = httpErrorResponse;
 
   if (isRequiredPropertiesProblemDetail(error)) {
     return getRequiredPropertiesProblemDetailMessage(error);
@@ -47,11 +47,11 @@ function getHttpErrorMessage(errorResponse: HttpErrorResponse) {
     return getProblemDetailMessage(error);
   }
 
-  if (errorResponse.error?.message !== undefined) {
-    return errorResponse.error.message;
+  if (error?.message !== undefined) {
+    return error.message;
   }
 
-  return `Backend returned ${errorResponse.status}: ${errorResponse.message}`;
+  return `Backend returned ${httpErrorResponse.status}: ${httpErrorResponse.message}`;
 }
 
 function handleHttpError(httpErrorResponse: HttpErrorResponse) {
