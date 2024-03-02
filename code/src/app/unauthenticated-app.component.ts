@@ -30,9 +30,9 @@ import { ModalComponent } from "./common/components/modal/modal.component";
 import { ModalService } from "./common/components/modal/modal.service";
 import { SpinnerComponent } from "./common/components/spinner.component";
 import {
-  type ErrorResponse,
-  isErrorResponse,
-} from "./common/response-state/response-states";
+  type HttpErrorState,
+  isHttpError,
+} from "./common/response-state/http/state";
 import { type TypeGuard, TypeGuardPipe } from "./common/type-guard.pipe";
 import type { User } from "./common/user";
 
@@ -122,8 +122,8 @@ export type UserFormValues = Pick<User, "username" | "password">;
     <div>
       <ng-content select="[content-submit-button]" />
     </div>
-    @if (commandResponse | typeGuard: isErrorResponse; as errorResponse) {
-      <app-error-message [errorMessage]="errorResponse.message" />
+    @if (commandResponse | typeGuard: isHttpError; as errorResponse) {
+      <app-error-message [errorMessage]="errorResponse.error.message" />
     }
   `,
 })
@@ -142,10 +142,10 @@ export class UserFormComponent {
     this.formSubmitted.emit(values);
   }
 
-  protected readonly isErrorResponse: TypeGuard<
+  protected readonly isHttpError: TypeGuard<
     LoginResponseWithState | RegisterResponseWithState,
-    ErrorResponse
-  > = isErrorResponse;
+    HttpErrorState
+  > = isHttpError;
 }
 
 @Component({
@@ -236,7 +236,7 @@ export class UnauthenticatedAppComponent {
   readonly #auth = inject(AuthService);
   readonly #modal = inject(ModalService);
 
-  readonly #loginResponse$ = this.#auth.loginResponse$.pipe(
+  readonly #loginResponse$ = this.#auth.login$.pipe(
     tap((response) => {
       if (response.state === "success") {
         this.#modal.closeAll();
@@ -244,7 +244,7 @@ export class UnauthenticatedAppComponent {
     }),
   );
 
-  readonly #registerResponse$ = this.#auth.registerResponse$.pipe(
+  readonly #registerResponse$ = this.#auth.register$.pipe(
     tap((response) => {
       if (response.state === "success") {
         this.#modal.closeAll();
