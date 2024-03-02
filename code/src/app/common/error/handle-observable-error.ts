@@ -1,12 +1,12 @@
 import { HttpErrorResponse } from "@angular/common/http";
 import { throwError } from "rxjs";
-import { isObjectLike } from "./is-object-like";
+import { isObjectLike } from "../is-object-like";
 import {
   isRequiredPropertiesProblemDetail,
   isRfc9457ProblemDetail,
   type RequiredPropertiesProblemDetail,
   type Rfc9457ProblemDetail,
-} from "./rfc-9457-problem-detail";
+} from "../rfc-9457-problem-detail";
 
 export type HandledHttpError = {
   message: string;

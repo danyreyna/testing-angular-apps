@@ -18,7 +18,7 @@ import {
 import {
   type HandledObservableError,
   handleObservableError,
-} from "../../handle-observable-error";
+} from "../../error/handle-observable-error";
 import type { JSONTypes } from "../../json-types";
 import {
   type HttpErrorState,

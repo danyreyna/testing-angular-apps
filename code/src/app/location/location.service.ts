@@ -4,7 +4,7 @@ import { catchError, map, of, startWith } from "rxjs";
 import {
   type HandledObservableError,
   handleObservableError,
-} from "../common/handle-observable-error";
+} from "../common/error/handle-observable-error";
 import type { QueryWithState } from "../common/response-state/query";
 import type {
   ErrorResponse,
