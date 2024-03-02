@@ -1,4 +1,4 @@
-import { isObjectLike, type ObjectLike } from "./is-object-like";
+import { isObjectLike, type ObjectLike } from "../is-object-like";
 
 export type Rfc9457ProblemDetail = {
   type?: string;

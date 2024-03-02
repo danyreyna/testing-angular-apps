@@ -6,7 +6,7 @@ import {
   isRfc9457ProblemDetail,
   type RequiredPropertiesProblemDetail,
   type Rfc9457ProblemDetail,
-} from "../rfc-9457-problem-detail";
+} from "../error/rfc-9457-problem-detail";
 
 export type HandledHttpError = {
   message: string;

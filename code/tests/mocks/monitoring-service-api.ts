@@ -1,6 +1,6 @@
 import { http, HttpResponse, type PathParams } from "msw";
 import type { ChangeDetectionPerfRecord } from "../../src/app/common/profiler";
-import type { Rfc9457ProblemDetail } from "../../src/app/common/rfc-9457-problem-detail";
+import type { Rfc9457ProblemDetail } from "../../src/app/common/error/rfc-9457-problem-detail";
 import type {
   ClientCredentialsFlowRequest,
   ClientCredentialsFlowResponse,

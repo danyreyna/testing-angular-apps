@@ -1,6 +1,6 @@
 import { type DefaultBodyType, HttpResponse } from "msw";
 import { isObjectLike } from "../../../src/app/common/is-object-like";
-import type { RequiredPropertiesProblemDetail } from "../../../src/app/common/rfc-9457-problem-detail";
+import type { RequiredPropertiesProblemDetail } from "../../../src/app/common/error/rfc-9457-problem-detail";
 import { handleInternalServerError } from "./handle-internal-server-error";
 
 export function validateRequiredProperties<

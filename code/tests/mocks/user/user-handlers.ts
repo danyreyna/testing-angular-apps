@@ -1,5 +1,5 @@
 import { DefaultBodyType, http, HttpResponse, PathParams } from "msw";
-import type { Rfc9457ProblemDetail } from "../../../src/app/common/rfc-9457-problem-detail";
+import type { Rfc9457ProblemDetail } from "../../../src/app/common/error/rfc-9457-problem-detail";
 import { AUTH_SESSION_COOKIE_NAME } from "../auth/auth-session";
 import { CORS_HEADERS } from "../common/cors-headers";
 import { handleInternalServerError } from "../common/handle-internal-server-error";
