@@ -18,7 +18,7 @@ import {
 @Component({
   selector: "app-location",
   standalone: true,
-  imports: [CommonModule, TypeGuardPipe, SpinnerComponent],
+  imports: [CommonModule, SpinnerComponent, TypeGuardPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     .color-red {

@@ -7,14 +7,13 @@ import {
   signal,
   type Type,
 } from "@angular/core";
-import { RouterOutlet } from "@angular/router";
 import { AuthComponent } from "./common/auth/auth.component";
 import { AuthService } from "./common/auth/auth.service";
 
 @Component({
   selector: "app-root",
   standalone: true,
-  imports: [CommonModule, RouterOutlet, AuthComponent],
+  imports: [AuthComponent, CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-auth>

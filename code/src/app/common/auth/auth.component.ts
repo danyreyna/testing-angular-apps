@@ -21,9 +21,9 @@ import { AuthService } from "./auth.service";
   standalone: true,
   imports: [
     CommonModule,
-    TypeGuardPipe,
-    FullPageSpinnerComponent,
     FullPageErrorFallbackComponent,
+    FullPageSpinnerComponent,
+    TypeGuardPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `

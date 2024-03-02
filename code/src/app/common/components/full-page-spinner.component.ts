@@ -5,7 +5,7 @@ import { BookSpinnerComponent } from "./book-spinner.component";
 @Component({
   selector: "app-full-page-spinner",
   standalone: true,
-  imports: [CommonModule, BookSpinnerComponent],
+  imports: [BookSpinnerComponent, CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     :host {

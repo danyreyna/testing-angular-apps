@@ -1,4 +1,4 @@
-import { DialogModule, DialogRef } from "@angular/cdk/dialog";
+import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
@@ -13,7 +13,7 @@ import { CircleButtonComponent } from "../circle-button.component";
 @Component({
   selector: "app-modal",
   standalone: true,
-  imports: [CommonModule, DialogModule, CircleButtonComponent],
+  imports: [CircleButtonComponent, CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     :host {
