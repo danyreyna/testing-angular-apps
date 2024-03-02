@@ -2,24 +2,15 @@ import { inject, Injectable, signal } from "@angular/core";
 import { tap } from "rxjs";
 import type { UserFormValues } from "../../unauthenticated-app.component";
 import { BootstrapService } from "../bootstrap.service";
-import type { CommandWithState } from "../response-state/command-with-state";
-import { getHttpCommand } from "../response-state/get-http-command";
-import type { HttpRes } from "../response-state/http-res";
-import type { SuccessResponse } from "../response-state/response-states";
+import {
+  getHttpCommand,
+  type HttpCommand,
+} from "../response-state/http/command";
 import type { User, UserWithoutPassword } from "../user";
 
-type LoginResponse = HttpRes<UserWithoutPassword>;
-export type LoginResponseWithState = CommandWithState<LoginResponse>;
-export type SuccessLoginResponse = SuccessResponse<LoginResponse>;
+export type LoginResponseWithState = HttpCommand<UserWithoutPassword>;
 
-type RegisterResponse = HttpRes<UserWithoutPassword>;
-export type RegisterResponseWithState = CommandWithState<RegisterResponse>;
-export type SuccessRegisterResponse = SuccessResponse<RegisterResponse>;
-
-type LogoutResponse = HttpRes<null>;
-export type LogoutResponseWithState = CommandWithState<LogoutResponse>;
-export type SuccessLogoutResponse = SuccessResponse<LogoutResponse>;
-
+export type RegisterResponseWithState = HttpCommand<UserWithoutPassword>;
 export type RegisterRequestValues = UserFormValues & Pick<User, "source">;
 
 @Injectable({
@@ -31,12 +22,14 @@ export class AuthService {
   readonly #userState = signal<null | UserWithoutPassword>(null);
   readonly user = this.#userState.asReadonly();
 
-  readonly resetBootstrapDataCache =
-    this.#bootstrapService.resetBootstrapDataCache;
-  readonly bootstrapResponse$ = this.#bootstrapService.bootstrapRequest$.pipe(
-    tap((response) => {
-      if (response.state === "success" && response.data !== null) {
-        this.#userState.set(response.data.user);
+  readonly resetBootstrapCache = this.#bootstrapService.resetBootstrapCache;
+  readonly bootstrap$ = this.#bootstrapService.bootstrap$.pipe(
+    tap((bootstrapWithState) => {
+      if (
+        bootstrapWithState.state === "success" &&
+        bootstrapWithState.data !== null
+      ) {
+        this.#userState.set(bootstrapWithState.data.user);
       }
     }),
   );
@@ -51,10 +44,10 @@ export class AuthService {
     },
   );
   readonly loginSubject = this.#loginCommand.subject;
-  readonly loginResponse$ = this.#loginCommand.response.pipe(
-    tap((response) => {
-      if (response.state === "success") {
-        this.#userState.set(response.data.body);
+  readonly login$ = this.#loginCommand.observable$.pipe(
+    tap((httpResult) => {
+      if (httpResult.state === "success") {
+        this.#userState.set(httpResult.response.body);
       }
     }),
   );
@@ -81,9 +74,9 @@ export class AuthService {
     },
   );
   readonly registerSubject = this.#registerCommand.subject;
-  readonly registerResponse$ = this.#registerCommand.response.pipe(
-    tap((response) => {
-      if (response.state !== "success") {
+  readonly register$ = this.#registerCommand.observable$.pipe(
+    tap((httpResult) => {
+      if (httpResult.state !== "success") {
         return;
       }
 
@@ -114,9 +107,9 @@ export class AuthService {
     },
   );
   readonly logoutSubject = this.#logoutCommand.subject;
-  readonly logoutResponse$ = this.#logoutCommand.response.pipe(
-    tap((response) => {
-      if (response.state === "success") {
+  readonly logout$ = this.#logoutCommand.observable$.pipe(
+    tap((httpResult) => {
+      if (httpResult.state === "success") {
         this.#userState.set(null);
       }
     }),
