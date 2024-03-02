@@ -4,8 +4,8 @@ import type {
   BootstrapWithState,
   SuccessBootstrap,
 } from "../bootstrap.service";
-import { FullPageErrorFallbackComponent } from "../components/full-page-error-fallback.component";
 import { FullPageSpinnerComponent } from "../components/full-page-spinner.component";
+import { FullPageErrorFallbackComponent } from "../error/full-page-error-fallback.component";
 import {
   type ErrorResponse,
   isErrorResponse,

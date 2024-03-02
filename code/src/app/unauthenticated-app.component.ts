@@ -22,13 +22,13 @@ import {
   buttonStyles,
   type ButtonVariant,
 } from "./common/components/button.component";
-import { ErrorMessageComponent } from "./common/components/error-message.component";
 import { FormGroupComponent } from "./common/components/form-group.component";
 import { InputComponent } from "./common/components/input.component";
 import { LogoComponent } from "./common/components/logo.component";
 import { ModalComponent } from "./common/components/modal/modal.component";
 import { ModalService } from "./common/components/modal/modal.service";
 import { SpinnerComponent } from "./common/components/spinner.component";
+import { ErrorMessageComponent } from "./common/error/error-message.component";
 import {
   type HttpErrorState,
   isHttpError,
