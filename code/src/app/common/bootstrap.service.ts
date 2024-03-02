@@ -1,13 +1,14 @@
 import { Injectable } from "@angular/core";
 import { map } from "rxjs";
+import { isHandledHttpError } from "../common/handle-observable-error";
+import {
+  getHttpQuery,
+  type HttpQuery,
+} from "../common/response-state/http/query";
+import type { QueryWithState } from "../common/response-state/query";
+import type { SuccessResponse } from "../common/response-state/state";
 import type { Book } from "./book.service";
 import type { ListItem } from "./list-item.service";
-import { getHttpQuery } from "./response-state/get-http-query";
-import type { QueryWithState } from "./response-state/query-with-state";
-import {
-  isHttpErrorResponse,
-  type SuccessResponse,
-} from "./response-state/response-states";
 import type { UserWithoutPassword } from "./user";
 
 export type BootstrapResponse = {
@@ -19,10 +20,9 @@ type NoAuthData = null;
 type MappedBoostrapResponse = BootstrapResponse & {
   books: Map<string, Book>;
 };
-export type BootstrapData = QueryWithState<NoAuthData | MappedBoostrapResponse>;
-export type SuccessBootstrapData = SuccessResponse<
-  NoAuthData | MappedBoostrapResponse
->;
+type Bootstrap = NoAuthData | MappedBoostrapResponse;
+export type BootstrapWithState = QueryWithState<Bootstrap>;
+export type SuccessBootstrap = SuccessResponse<Bootstrap>;
 
 @Injectable({
   providedIn: "root",
@@ -39,37 +39,46 @@ export class BootstrapService {
     },
   );
 
-  readonly resetBootstrapDataCache = this.#bootstrapQuery.resetCacheSubject;
+  readonly resetBootstrapCache = this.#bootstrapQuery.resetCacheSubject;
 
-  readonly bootstrapRequest$ = this.#bootstrapQuery.request.pipe(
-    map<QueryWithState<BootstrapResponse>, BootstrapData>((response) => {
-      if (
-        response.state === "error" &&
-        isHttpErrorResponse(response) &&
-        response.status === 401
-      ) {
+  readonly bootstrap$ = this.#bootstrapQuery.observable$.pipe(
+    map<HttpQuery<BootstrapResponse>, BootstrapWithState>((httpResult) => {
+      if (httpResult.state === "pending") {
+        return httpResult;
+      }
+
+      if (httpResult.state === "error") {
+        if (
+          isHandledHttpError(httpResult.error) &&
+          httpResult.error.httpErrorResponse.status === 401
+        ) {
+          return {
+            state: "success",
+            data: null,
+          };
+        }
+
         return {
-          state: "success",
-          data: null,
+          state: "error",
+          message: httpResult.error.message,
         };
       }
 
-      if (response.state === "success") {
-        const { user, listItems } = response.data;
+      const { user, listItems } = httpResult.response.body;
 
-        const books = listItems.reduce((accumulator, { book }) => {
-          if (book === null) {
-            return accumulator;
-          }
-
-          accumulator.set(book.id, book);
+      const books = listItems.reduce((accumulator, { book }) => {
+        if (book === null) {
           return accumulator;
-        }, new Map<string, Book>());
+        }
 
-        return { state: "success", data: { user, listItems, books } };
-      }
+        accumulator.set(book.id, book);
+        return accumulator;
+      }, new Map<string, Book>());
 
-      return response;
+      return {
+        state: "success",
+        data: { user, listItems, books },
+      };
     }),
   );
 }
