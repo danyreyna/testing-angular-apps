@@ -96,7 +96,7 @@ export class AuthService {
     }),
   );
 
-  readonly #logoutCommand = getHttpCommand<null, null | "logout">(
+  readonly #logoutCommand = getHttpCommand<null, "logout">(
     "https://api.example.com/logout",
     {
       method: "post",
