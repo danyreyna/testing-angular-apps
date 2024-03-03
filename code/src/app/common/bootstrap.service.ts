@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { map } from "rxjs";
-import { isHandledHttpError } from "../common/handle-observable-error";
+import { isHandledHttpError } from "../common/error/handle-observable-error";
 import {
   getHttpQuery,
   type HttpQuery,

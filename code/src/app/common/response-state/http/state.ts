@@ -2,7 +2,7 @@ import { HttpResponse } from "@angular/common/http";
 import {
   type HandledObservableError,
   isHandledHttpError,
-} from "../../handle-observable-error";
+} from "../../error/handle-observable-error";
 import { isObjectLike } from "../../is-object-like";
 import type { JSONTypes } from "../../json-types";
 
