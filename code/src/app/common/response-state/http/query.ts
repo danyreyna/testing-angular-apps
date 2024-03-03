@@ -24,8 +24,8 @@ import type { JSONTypes } from "../../json-types";
 import {
   type HttpErrorState,
   type HttpPendingState,
+  type HttpResponseWithNonNullBody,
   type HttpSuccessState,
-  isHttpResponseWithNonNullBody,
 } from "./state";
 import type { GroupedUrlParams, HttpUrl, HttpUrlArgument } from "./url";
 
@@ -134,14 +134,10 @@ export function getHttpQuery<
     HttpResponse<TResponseBody>,
     HttpQuery<TResponseBody>
   >((httpResponse) => {
-    if (isHttpResponseWithNonNullBody(httpResponse)) {
-      return {
-        state: "success",
-        response: httpResponse,
-      };
-    }
-
-    throw new Error("The body is null");
+    return {
+      state: "success",
+      response: httpResponse as HttpResponseWithNonNullBody<TResponseBody>,
+    };
   });
 
   const handleAndRethrowError = catchError<

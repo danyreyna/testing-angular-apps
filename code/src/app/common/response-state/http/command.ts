@@ -24,8 +24,8 @@ import {
   type HttpErrorState,
   type HttpIdleState,
   type HttpPendingState,
+  type HttpResponseWithNonNullBody,
   type HttpSuccessState,
-  isHttpResponseWithNonNullBody,
 } from "./state";
 import type { GroupedUrlParams, HttpUrl, HttpUrlArgument } from "./url";
 
@@ -246,14 +246,11 @@ export function getHttpCommand<
         const request$ = getRequestObservablePartial(subjectValue).pipe(
           map<HttpResponse<TResponseBody>, HttpCommand<TResponseBody>>(
             (httpResponse) => {
-              if (isHttpResponseWithNonNullBody(httpResponse)) {
-                return {
-                  state: "success",
-                  response: httpResponse,
-                };
-              }
-
-              throw new Error("The body is null");
+              return {
+                state: "success",
+                response:
+                  httpResponse as HttpResponseWithNonNullBody<TResponseBody>,
+              };
             },
           ),
           catchError<

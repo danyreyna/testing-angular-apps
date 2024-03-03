@@ -6,15 +6,10 @@ import {
 import { isObjectLike } from "../../is-object-like";
 import type { JSONTypes } from "../../json-types";
 
-type HttpResponseWithNonNullBody<TResponseBody extends JSONTypes> =
+export type HttpResponseWithNonNullBody<TResponseBody extends JSONTypes> =
   HttpResponse<TResponseBody> & {
     body: NonNullable<HttpResponse<TResponseBody>["body"]>;
   };
-export function isHttpResponseWithNonNullBody<TResponseBody extends JSONTypes>(
-  httpResponse: HttpResponse<TResponseBody>,
-): httpResponse is HttpResponseWithNonNullBody<TResponseBody> {
-  return httpResponse.body !== null;
-}
 
 const IDLE_STATE = "idle";
 export type HttpIdleState = { state: typeof IDLE_STATE };
