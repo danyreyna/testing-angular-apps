@@ -17,8 +17,7 @@ export type ErrorMessageVariant = "stacked" | "inline";
   host: {
     role: "alert",
   },
-  styles: [
-    `
+  styles: `
       :host {
         color: ${DANGER_COLOR};
       }
@@ -38,7 +37,6 @@ export type ErrorMessageVariant = "stacked" | "inline";
         display: inline-block;
       }
     `,
-  ],
   template: `
     <span>There was an error:</span>
     <pre class="message">{{ errorMessage }}</pre>

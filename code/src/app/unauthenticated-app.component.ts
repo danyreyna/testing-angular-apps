@@ -93,8 +93,7 @@ export type UserFormValues = Pick<User, "username" | "password">;
   host: {
     "(ngSubmit)": "handleSubmit()",
   },
-  styles: [
-    `
+  styles: `
       :host {
         display: flex;
         flex-direction: column;
@@ -109,7 +108,6 @@ export type UserFormValues = Pick<User, "username" | "password">;
         max-width: 300px;
       }
     `,
-  ],
   template: `
     <app-form-group>
       <label for="username">Username</label>
@@ -160,8 +158,7 @@ export class UserFormComponent {
     UserFormSubmitButtonComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: [
-    `
+  styles: `
       :host {
         display: flex;
         flex-direction: column;
@@ -176,7 +173,6 @@ export class UserFormComponent {
         grid-gap: 0.75rem;
       }
     `,
-  ],
   template: `
     @if (viewModel$ | async; as viewModel) {
       <app-logo size="80" />

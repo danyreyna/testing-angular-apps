@@ -19,8 +19,7 @@ import {
   host: {
     "aria-label": "loading",
   },
-  styles: [
-    `
+  styles: `
       @keyframes spin {
         0% {
           transform: rotate(0deg);
@@ -36,7 +35,6 @@ import {
         fill: currentColor;
       }
     `,
-  ],
   template: `
     <svg
       xmlns="http://www.w3.org/2000/svg"
