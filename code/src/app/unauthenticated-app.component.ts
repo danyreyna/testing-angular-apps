@@ -152,6 +152,7 @@ export class UserFormComponent {
   imports: [
     ButtonComponent,
     CommonModule,
+    FormsModule,
     LogoComponent,
     ModalComponent,
     UserFormComponent,
