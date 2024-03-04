@@ -59,7 +59,7 @@ export function startPerformanceMonitor(
   interval: number,
   sendToMonitoringTool: SendToMonitoringTool,
 ) {
-  setInterval(() => {
+  const intervalId: number = setInterval(() => {
     if (profilerInstance === null) {
       return;
     }
@@ -83,4 +83,6 @@ export function startPerformanceMonitor(
 
     sendToMonitoringTool(changeDetectionPerfRecord);
   }, interval);
+
+  return intervalId;
 }
