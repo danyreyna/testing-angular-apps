@@ -14,8 +14,21 @@ import { ErrorMessageComponent } from "./common/error/error-message.component";
   standalone: true,
   imports: [CommonModule, ErrorMessageComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: `
+      .error-fallback-container {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+    `,
   template: `
-    <app-error-message [errorMessage]="errorMessage" />
+    <div
+      app-error-message
+      [errorMessage]="errorMessage"
+      class="error-fallback-container"
+    ></div>
   `,
 })
 export class ErrorFallbackComponent {
