@@ -28,7 +28,17 @@ const MAX_AGE = `Max-Age=${ROLLING_DURATION}`;
  * match the values used when the cookie was created.
  * https://www.rfc-editor.org/rfc/rfc6265.html
  */
-const PAST_EXPIRES = "Expires=Sun, 06 Nov 1994 08:49:37 GMT";
+// const PAST_EXPIRES = "Expires=Sun, 06 Nov 1994 08:49:37 GMT";
+
+/*
+ * Although using `Expires` is the recommended way to remove a cookie,
+ * MSW has a bug in the way it handles the comma in the HTTP-date format,
+ * so we'll use `Max-Age` instead.
+ * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie#expiresdate
+ * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Date
+ * https://github.com/mswjs/msw/blob/b3e47f71d3a0333aaeab3da5839cb9068a30d7ef/src/core/utils/HttpResponse/decorators.ts#L46
+ */
+const EXPIRED_MAX_AGE = "Max-Age=0";
 
 /*
  * In a real backend, the cookie would be signed and/or encrypted.
@@ -38,7 +48,7 @@ export function buildAuthSessionCookie(sessionId: AuthSession["id"]) {
 }
 
 export function removeAuthSessionCookie() {
-  return `${AUTH_SESSION_COOKIE_NAME}=;${[...COOKIE_PARAMS, PAST_EXPIRES].join(";")}`;
+  return `${AUTH_SESSION_COOKIE_NAME}=;${[...COOKIE_PARAMS, EXPIRED_MAX_AGE].join(";")}`;
 }
 
 export function generateAuthSessionId() {
