@@ -102,6 +102,12 @@ type ReturnTypeGetHttpQuery<
   observable$: Observable<HttpQuery<TResponse>>;
 };
 
+function getUrlValues<TUrlParams extends GroupedUrlParams>(
+  url: string | (() => HttpUrlArgument<TUrlParams>),
+) {
+  return typeof url === "string" ? { href: url } : url();
+}
+
 export function getHttpQuery<
   TResponseBody extends JSONTypes = null,
   TUrlParams extends GroupedUrlParams = GroupedUrlParams,
@@ -112,9 +118,7 @@ export function getHttpQuery<
   const { shouldUseCache = false } = httpQueryParams;
   const resetCacheSubject = new BehaviorSubject<null>(null);
 
-  const urlState = signal<HttpUrlArgument<TUrlParams>>(
-    typeof url === "string" ? { href: url } : url(),
-  );
+  const urlState = signal<HttpUrlArgument<TUrlParams>>(getUrlValues(url));
   const urlSignal = computed<HttpUrl<TUrlParams>>(() => {
     const { href, pathParams, queryParams } = urlState();
 
