@@ -84,6 +84,6 @@ export class LoginSubmissionComponent implements OnDestroy {
   > = isHttpError;
 
   ngOnDestroy() {
-    this.loginSubmissionService.loginSubject.next(null);
+    this.loginSubmissionService.cleanup();
   }
 }

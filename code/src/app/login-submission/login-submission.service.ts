@@ -22,4 +22,8 @@ export class LoginSubmissionService {
   );
   readonly loginSubject = this.#loginCommand.subject;
   readonly login$ = this.#loginCommand.observable$;
+
+  cleanup() {
+    this.#loginCommand.cleanup();
+  }
 }

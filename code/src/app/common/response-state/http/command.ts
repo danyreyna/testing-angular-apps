@@ -204,6 +204,7 @@ export type ReturnTypeGetHttpCommand<
 > = {
   url: Signal<HttpUrl<TUrlParams>>;
   subject: BehaviorSubject<null | TSubjectValue>;
+  cleanup: () => void;
   observable$: Observable<HttpCommand<TResponseBody>>;
 };
 
@@ -270,9 +271,14 @@ export function getHttpCommand<
     ),
   );
 
+  function cleanup() {
+    subject.next(null);
+  }
+
   return {
     url: urlSignal,
     subject,
     observable$,
+    cleanup,
   };
 }

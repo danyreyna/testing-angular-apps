@@ -114,4 +114,10 @@ export class AuthService {
       }
     }),
   );
+
+  cleanup() {
+    this.#loginCommand.cleanup();
+    this.#registerCommand.cleanup();
+    this.#logoutCommand.cleanup();
+  }
 }

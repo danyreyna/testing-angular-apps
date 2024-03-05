@@ -285,7 +285,6 @@ export class UnauthenticatedAppComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.#auth.loginSubject.next(null);
-    this.#auth.registerSubject.next(null);
+    this.#auth.cleanup();
   }
 }
