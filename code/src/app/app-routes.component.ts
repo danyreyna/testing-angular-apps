@@ -48,7 +48,6 @@ export class ErrorFallbackComponent {
 
       <router-outlet />
     </app-error-boundary>
-    >
   `,
 })
 export class AppRoutesComponent {
