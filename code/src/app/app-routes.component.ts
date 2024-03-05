@@ -40,14 +40,15 @@ export class ErrorFallbackComponent {
   selector: "[app-routes]",
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ng-container app-error-boundary>
+    <app-error-boundary>
       <app-error-fallback
         [errorMessage]="errorBoundaryHandler.error()?.message ?? ''"
         fallback
       />
 
       <router-outlet />
-    </ng-container>
+    </app-error-boundary>
+    >
   `,
 })
 export class AppRoutesComponent {
