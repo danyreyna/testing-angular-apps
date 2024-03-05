@@ -6,6 +6,7 @@ import {
   EventEmitter,
   inject,
   Input,
+  type OnDestroy,
   Output,
   TemplateRef,
   ViewChild,
@@ -228,7 +229,7 @@ export class UserFormComponent {
     }
   `,
 })
-export class UnauthenticatedAppComponent {
+export class UnauthenticatedAppComponent implements OnDestroy {
   readonly #auth = inject(AuthService);
   readonly #modal = inject(ModalService);
 
@@ -281,5 +282,10 @@ export class UnauthenticatedAppComponent {
       ...userFormValues,
       source: "registration",
     });
+  }
+
+  ngOnDestroy() {
+    this.#auth.loginSubject.next(null);
+    this.#auth.registerSubject.next(null);
   }
 }

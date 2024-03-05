@@ -204,5 +204,6 @@ export class AuthenticatedAppComponent implements OnDestroy {
     }
 
     this.#logoutSubscription?.unsubscribe();
+    this.authService.logoutSubject.next(null);
   }
 }

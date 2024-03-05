@@ -1,5 +1,10 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  type OnDestroy,
+} from "@angular/core";
 import {
   type HttpErrorState,
   isHttpError,
@@ -61,7 +66,7 @@ import {
     }
   `,
 })
-export class LoginSubmissionComponent {
+export class LoginSubmissionComponent implements OnDestroy {
   protected readonly loginSubmissionService = inject(LoginSubmissionService);
 
   protected handleSubmit(formValues: LoginFormValues) {
@@ -77,4 +82,8 @@ export class LoginSubmissionComponent {
     LoginResponseWithState,
     HttpErrorState
   > = isHttpError;
+
+  ngOnDestroy() {
+    this.loginSubmissionService.loginSubject.next(null);
+  }
 }
