@@ -1,3 +1,5 @@
+import { isObjectLike } from "../is-object-like";
+
 const IDLE_STATE = "idle";
 export type IdleState = { state: typeof IDLE_STATE };
 
@@ -5,17 +7,10 @@ const PENDING_STATE = "pending";
 export type PendingState = { state: typeof PENDING_STATE };
 
 const ERROR_STATE = "error";
-export type HttpErrorResponse = {
+export type ErrorResponse = {
   state: typeof ERROR_STATE;
   message: string;
-  status: number;
 };
-export type ErrorResponse =
-  | {
-      state: typeof ERROR_STATE;
-      message: string;
-    }
-  | HttpErrorResponse;
 
 const SUCCESS_STATE = "success";
 export type SuccessResponse<TData> = {
@@ -30,20 +25,19 @@ type Response<TData> =
   | SuccessResponse<TData>;
 
 function isResponse<TData>(value: unknown): value is Response<TData> {
-  const isObject = typeof value === "object" && value !== null;
-  const hasState =
-    isObject && "state" in value && typeof value.state === "string";
+  const hasState = isObjectLike(value) && typeof value["state"] === "string";
 
-  if (hasState && value.state === ERROR_STATE) {
-    return "message" in value && typeof value.message === "string";
+  if (hasState && value["state"] === ERROR_STATE) {
+    return typeof value["message"] === "string";
   }
 
-  if (hasState && value.state === SUCCESS_STATE) {
-    return "data" in value;
+  if (hasState && value["state"] === SUCCESS_STATE) {
+    return value["data"] !== undefined;
   }
 
   return (
-    hasState && (value.state === IDLE_STATE || value.state === PENDING_STATE)
+    hasState &&
+    (value["state"] === IDLE_STATE || value["state"] === PENDING_STATE)
   );
 }
 

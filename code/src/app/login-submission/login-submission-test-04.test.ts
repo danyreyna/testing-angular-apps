@@ -20,8 +20,6 @@ const buildLoginForm = build<LoginFormValues>({
   },
 });
 
-const { json } = HttpResponse;
-
 test(`logging in displays the user's username`, async () => {
   await render(LoginSubmissionComponent, {
     providers: [provideHttpClient()],
@@ -58,7 +56,7 @@ test("unknown server error displays the error message", async () => {
   const testErrorMessage = "Oh no, something bad happened";
   server.use(
     http.post("https://auth-provider.example.com/api/login", async () => {
-      return json({ message: testErrorMessage }, { status: 500 });
+      return HttpResponse.json({ message: testErrorMessage }, { status: 500 });
     }),
   );
 

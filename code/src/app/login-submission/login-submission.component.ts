@@ -1,10 +1,15 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import {
-  type ErrorResponse,
-  isErrorResponse,
-  isSuccessResponse,
-} from "../common/response-state/response-states";
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  type OnDestroy,
+} from "@angular/core";
+import {
+  type HttpErrorState,
+  isHttpError,
+  isHttpSuccess,
+} from "../common/response-state/http/state";
 import { type TypeGuard, TypeGuardPipe } from "../common/type-guard.pipe";
 import { SpinnerComponent } from "../spinner/spinner.component";
 import {
@@ -37,50 +42,48 @@ import {
     }
   `,
   template: `
-    @if (
-      loginSubmissionService.loginResponseWithState$ | async;
-      as loginResponse
-    ) {
-      @if (
-        loginResponse | typeGuard: isSuccessResponse;
-        as successLoginResponse
-      ) {
+    @if (loginSubmissionService.login$ | async; as login) {
+      @if (login | typeGuard: isHttpSuccess; as httpSuccess) {
         <div>
           Welcome
-          <strong>{{ successLoginResponse.data.username }}</strong>
+          <strong>{{ httpSuccess.response.body.username }}</strong>
         </div>
       } @else {
         <app-login-submission-form (formSubmitted)="handleSubmit($event)" />
       }
 
       <div class="height-200">
-        @if (loginResponse.state === "pending") {
+        @if (login.state === "pending") {
           <app-spinner />
         }
 
-        @if (loginResponse | typeGuard: isErrorResponse; as errorResponse) {
+        @if (login | typeGuard: isHttpError; as httpError) {
           <div role="alert" class="color-red">
-            {{ errorResponse.message }}
+            {{ httpError.error.message }}
           </div>
         }
       </div>
     }
   `,
 })
-export class LoginSubmissionComponent {
+export class LoginSubmissionComponent implements OnDestroy {
   protected readonly loginSubmissionService = inject(LoginSubmissionService);
 
   protected handleSubmit(formValues: LoginFormValues) {
     this.loginSubmissionService.loginSubject.next(formValues);
   }
 
-  protected readonly isSuccessResponse: TypeGuard<
+  protected readonly isHttpSuccess: TypeGuard<
     LoginResponseWithState,
     SuccessLoginResponse
-  > = isSuccessResponse;
+  > = isHttpSuccess;
 
-  protected readonly isErrorResponse: TypeGuard<
+  protected readonly isHttpError: TypeGuard<
     LoginResponseWithState,
-    ErrorResponse
-  > = isErrorResponse;
+    HttpErrorState
+  > = isHttpError;
+
+  ngOnDestroy() {
+    this.loginSubmissionService.cleanup();
+  }
 }

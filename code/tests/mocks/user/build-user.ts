@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { build, perBuild } from "@jackfranklin/test-data-bot";
-import type { User } from "../src/app/common/user";
+import type { User } from "../../../src/app/common/user";
 
 export const buildUser = build<User>({
   fields: {

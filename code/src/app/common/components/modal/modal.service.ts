@@ -12,4 +12,8 @@ export class ModalService {
       panelClass: "modal-overlay",
     });
   }
+
+  closeAll() {
+    this.#dialog.closeAll();
+  }
 }

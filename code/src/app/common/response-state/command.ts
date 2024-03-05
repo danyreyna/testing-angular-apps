@@ -3,7 +3,7 @@ import type {
   IdleState,
   PendingState,
   SuccessResponse,
-} from "./response-states";
+} from "./state";
 
 export type CommandWithState<TData> =
   | IdleState

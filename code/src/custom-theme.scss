@@ -48,7 +48,7 @@ body {
   height: 100%;
 }
 body {
-  line-height: 24px;
+  line-height: 1.5;
   margin: 0;
   font-family: system-ui;
 }
@@ -89,6 +89,24 @@ textarea {
 
 button {
   border-radius: 0;
+}
+
+pre,
+code,
+kbd,
+samp {
+  font-family: Menlo, monospace;
+  font-size: 1em;
+  direction: ltr;
+  unicode-bidi: bidi-override;
+}
+
+pre {
+  display: block;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  overflow: auto;
+  font-size: 0.875em;
 }
 
 .screen-reader-only {

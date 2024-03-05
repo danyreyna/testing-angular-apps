@@ -6,7 +6,7 @@ import {
   isPending,
   isSuccessResponse,
   type PendingState,
-} from "../common/response-state/response-states";
+} from "../common/response-state/state";
 import { type TypeGuard, TypeGuardPipe } from "../common/type-guard.pipe";
 import { SpinnerComponent } from "../spinner/spinner.component";
 import {
@@ -18,7 +18,7 @@ import {
 @Component({
   selector: "app-location",
   standalone: true,
-  imports: [CommonModule, TypeGuardPipe, SpinnerComponent],
+  imports: [CommonModule, SpinnerComponent, TypeGuardPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     .color-red {

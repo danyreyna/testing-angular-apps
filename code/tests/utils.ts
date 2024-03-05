@@ -18,7 +18,7 @@ import { provideAuth } from "../src/app/common/auth/auth.service.provider";
 import { type Theme } from "../src/app/common/theme/theme.service";
 import { provideTheme } from "../src/app/common/theme/theme.service.provider";
 import type { User, UserWithoutPassword } from "../src/app/common/user";
-import { buildUser } from "./generate";
+import { buildUser } from "./mocks/user/build-user";
 
 export async function waitForLoadingToFinish() {
   const loadingElements = [
@@ -40,9 +40,9 @@ export async function loginAsUser(userProperties?: User) {
 
   const { id, ...rest } = user;
 
-  await fetch(`https://api.example.com/user/${id}`, {
-    method: "PUT",
-    credentials: "omit",
+  await fetch(`https://api.example.com/register/${id}`, {
+    method: "post",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
@@ -50,8 +50,8 @@ export async function loginAsUser(userProperties?: User) {
   });
 
   const authUserResponse = await fetch("https://api.example.com/login", {
-    method: "POST",
-    credentials: "omit",
+    method: "post",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },

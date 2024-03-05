@@ -1,22 +1,17 @@
 import { inject, Injectable, signal } from "@angular/core";
 import { tap } from "rxjs";
+import type { UserFormValues } from "../../unauthenticated-app.component";
 import { BootstrapService } from "../bootstrap.service";
-import type { CommandWithState } from "../response-state/command-with-state";
-import { getHttpCommand } from "../response-state/get-http-command";
-import type { SuccessResponse } from "../response-state/response-states";
+import {
+  getHttpCommand,
+  type HttpCommand,
+} from "../response-state/http/command";
 import type { User, UserWithoutPassword } from "../user";
 
-export type LoginFormValues = Pick<User, "username" | "password">;
-export type RegisterFormValues = Pick<User, "username" | "password">;
+export type LoginResponseWithState = HttpCommand<UserWithoutPassword>;
 
-export type LoginResponseWithState = CommandWithState<UserWithoutPassword>;
-export type SuccessLoginResponse = SuccessResponse<UserWithoutPassword>;
-
-export type RegisterResponseWithState = CommandWithState<null>;
-export type SuccessRegisterResponse = SuccessResponse<null>;
-
-export type LogoutResponseWithState = CommandWithState<null>;
-export type SuccessLogoutResponse = SuccessResponse<null>;
+export type RegisterResponseWithState = HttpCommand<UserWithoutPassword>;
+export type RegisterRequestValues = UserFormValues & Pick<User, "source">;
 
 @Injectable({
   providedIn: "root",
@@ -27,56 +22,61 @@ export class AuthService {
   readonly #userState = signal<null | UserWithoutPassword>(null);
   readonly user = this.#userState.asReadonly();
 
-  readonly resetBootstrapDataCache =
-    this.#bootstrapService.resetBootstrapDataCache;
-  readonly bootstrapResponse$ = this.#bootstrapService.bootstrapData$.pipe(
-    tap((response) => {
-      if (response.state === "success" && response.data !== null) {
-        this.#userState.set(response.data.user);
+  readonly resetBootstrapCache = this.#bootstrapService.resetBootstrapCache;
+  readonly bootstrap$ = this.#bootstrapService.bootstrap$.pipe(
+    tap((bootstrapWithState) => {
+      if (
+        bootstrapWithState.state === "success" &&
+        bootstrapWithState.data !== null
+      ) {
+        this.#userState.set(bootstrapWithState.data.user);
       }
     }),
   );
 
-  readonly #loginCommand = getHttpCommand<UserWithoutPassword, LoginFormValues>(
+  readonly #loginCommand = getHttpCommand<UserWithoutPassword, UserFormValues>(
     "https://api.example.com/login",
     {
       method: "post",
       options: {
-        withCredentials: false,
+        withCredentials: true,
       },
     },
   );
   readonly loginSubject = this.#loginCommand.subject;
-  readonly loginResponse$ = this.#loginCommand.response.pipe(
-    tap((response) => {
-      if (response.state === "success") {
-        this.#userState.set(response.data);
+  readonly login$ = this.#loginCommand.observable$.pipe(
+    tap((httpResult) => {
+      if (httpResult.state === "success") {
+        this.#userState.set(httpResult.response.body);
       }
     }),
   );
 
   readonly #registerCommand = getHttpCommand<
-    null,
-    RegisterFormValues,
+    UserWithoutPassword,
+    RegisterRequestValues,
     {
       pathParams: { id: string };
     }
   >(
     () => {
       const id = globalThis.crypto.randomUUID();
-      return { href: `https://api.example.com/user/${id}`, pathParams: { id } };
+      return {
+        href: `https://api.example.com/register/${id}`,
+        pathParams: { id },
+      };
     },
     {
-      method: "put",
+      method: "post",
       options: {
-        withCredentials: false,
+        withCredentials: true,
       },
     },
   );
   readonly registerSubject = this.#registerCommand.subject;
-  readonly registerResponse$ = this.#registerCommand.response.pipe(
-    tap((response) => {
-      if (response.state !== "success") {
+  readonly register$ = this.#registerCommand.observable$.pipe(
+    tap((httpResult) => {
+      if (httpResult.state !== "success") {
         return;
       }
 
@@ -86,17 +86,17 @@ export class AuthService {
       }
 
       const { id } = this.#registerCommand.url().pathParams;
-      const { username } = subjectValue;
+      const { username, source } = subjectValue;
 
       this.#userState.set({
         id,
         username,
-        source: "registration",
+        source,
       });
     }),
   );
 
-  readonly #logoutCommand = getHttpCommand<null, null | "logout">(
+  readonly #logoutCommand = getHttpCommand<null, "logout">(
     "https://api.example.com/logout",
     {
       method: "post",
@@ -107,11 +107,17 @@ export class AuthService {
     },
   );
   readonly logoutSubject = this.#logoutCommand.subject;
-  readonly logoutResponse$ = this.#logoutCommand.response.pipe(
-    tap((response) => {
-      if (response.state === "success") {
+  readonly logout$ = this.#logoutCommand.observable$.pipe(
+    tap((httpResult) => {
+      if (httpResult.state === "success") {
         this.#userState.set(null);
       }
     }),
   );
+
+  cleanup() {
+    this.#loginCommand.cleanup();
+    this.#registerCommand.cleanup();
+    this.#logoutCommand.cleanup();
+  }
 }

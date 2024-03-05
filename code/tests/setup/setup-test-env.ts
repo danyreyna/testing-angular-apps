@@ -1,4 +1,5 @@
 import "@analogjs/vite-plugin-angular/setup-vitest";
+import { IDBFactory } from "fake-indexeddb";
 import { getTestBed } from "@angular/core/testing";
 import {
   BrowserDynamicTestingModule,
@@ -13,17 +14,7 @@ getTestBed().initTestEnvironment(
   platformBrowserDynamicTesting(),
 );
 
-vi.mock("@angular/platform-browser", async () => {
-  const module = await vi.importActual<
-    typeof import("@angular/platform-browser")
-  >("@angular/platform-browser");
-
-  return {
-    ...module,
-    // we don't need the profiler in tests
-    enableDebugTools: vi.fn(),
-  };
-});
+vi.mock("../../src/app/common/profiler");
 
 /*
  * Run this `afterEach` first to get back to real timers before any other cleanup.
@@ -50,14 +41,15 @@ afterEach(() => {
 
 // general cleanup
 afterEach(async () => {
-  await Promise.all([
-    fetch("https://api.example.com/logout", {
-      method: "POST",
-      credentials: "include",
-    }),
-    fetch(`https://api.example.com/user?source=test`, {
-      method: "DELETE",
-      credentials: "include",
-    }),
-  ]);
+  await fetch("https://api.example.com/logout", {
+    method: "post",
+    credentials: "include",
+  });
+  await fetch(`https://api.example.com/user?source=test`, {
+    method: "delete",
+    credentials: "include",
+  });
+
+  // eslint-disable-next-line no-global-assign
+  indexedDB = new IDBFactory();
 });

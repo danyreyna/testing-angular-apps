@@ -6,7 +6,11 @@ export default defineConfig(({ mode }) => ({
   plugins: [angular()],
   test: {
     include: ["./src/**/*.{test,spec}.ts"],
-    setupFiles: ["./tests/setup/setup-test-env.ts"],
+    setupFiles: [
+      "core-js/stable/structured-clone",
+      "fake-indexeddb/auto",
+      "./tests/setup/setup-test-env.ts",
+    ],
     restoreMocks: true,
     coverage: {
       include: ["src/**/*.ts"],
@@ -14,6 +18,11 @@ export default defineConfig(({ mode }) => ({
     },
     reporters: ["default"],
     environment: "jsdom",
+    environmentOptions: {
+      jsdom: {
+        url: "https://app.example.com",
+      },
+    },
     globals: true,
     alias: [
       {
