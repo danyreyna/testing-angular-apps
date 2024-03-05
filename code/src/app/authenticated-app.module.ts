@@ -1,6 +1,10 @@
 import { CommonModule } from "@angular/common";
 import { ErrorHandler, NgModule } from "@angular/core";
-import { AuthenticatedAppComponent } from "./authenticated-app.component";
+import { AppRoutesModule } from "./app-routes.module";
+import {
+  AuthenticatedAppComponent,
+  NavComponent,
+} from "./authenticated-app.component";
 import { ButtonComponent } from "./common/components/button.component";
 import {
   ErrorBoundaryComponent,
@@ -14,10 +18,12 @@ import { FullPageErrorFallbackComponent } from "./common/error/full-page-error-f
 @NgModule({
   declarations: [AuthenticatedAppComponent],
   imports: [
-    ButtonComponent,
     CommonModule,
+    AppRoutesModule,
+    ButtonComponent,
     ErrorBoundaryComponent,
     FullPageErrorFallbackComponent,
+    NavComponent,
   ],
   providers: [{ provide: ErrorHandler, useClass: ErrorBoundaryHandler }],
   exports: [AuthenticatedAppComponent],
