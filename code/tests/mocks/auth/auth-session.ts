@@ -5,10 +5,14 @@ import type { AuthSession, DbUser } from "../common/mock-db";
 const ROLLING_DURATION = 600;
 const ABSOLUTE_DURATION = 604_800;
 
-export const AUTH_SESSION_COOKIE_NAME = "__Host-id";
+/*
+ * In a real backend, use `__Host-id`.
+ * See "Cookie prefixes" at https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
+ */
+export const AUTH_SESSION_COOKIE_NAME = "id";
 
 /*
- * In a real backend, also set HttpOnly.
+ * In a real backend, set "HttpOnly".
  * We're not setting it here because for security reasons,
  * browsers block frontend JavaScript code from including the `Set-Cookie` header
  * on manually constructed responses.
@@ -17,7 +21,12 @@ export const AUTH_SESSION_COOKIE_NAME = "__Host-id";
  * directly on `document.cookie` and needs JavaScript access to it.
  * https://mswjs.io/docs/recipes/cookies/#mock-response-cookies
  */
-const COOKIE_PARAMS = ["Secure", "SameSite=Strict", "Path=/"];
+/*
+ * In a real backend, set "Secure".
+ * We're not using it here because Chromium browsers can't load
+ * the `mockServiceWorker.js` script when using `ng serve --ssl`.
+ */
+const COOKIE_PARAMS = ["SameSite=Strict", "Path=/"];
 const MAX_AGE = `Max-Age=${ROLLING_DURATION}`;
 
 /*
