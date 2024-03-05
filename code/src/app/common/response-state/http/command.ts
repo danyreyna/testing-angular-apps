@@ -148,12 +148,12 @@ export type HttpCommandParams =
 function getRequestObservable<
   TResponseBody extends JSONTypes,
   TSubjectValue extends JSONTypes,
->(url: string, httpParams: HttpCommandParams) {
+>(httpParams: HttpCommandParams) {
   const http = inject(HttpClient);
 
   const { method } = httpParams;
 
-  return (subjectValue: TSubjectValue) => {
+  return (url: string, subjectValue: TSubjectValue) => {
     switch (method) {
       case "delete": {
         const { options } = httpParams;
@@ -208,6 +208,12 @@ export type ReturnTypeGetHttpCommand<
   observable$: Observable<HttpCommand<TResponseBody>>;
 };
 
+function getUrlValues<TUrlParams extends GroupedUrlParams>(
+  url: string | (() => HttpUrlArgument<TUrlParams>),
+) {
+  return typeof url === "string" ? { href: url } : url();
+}
+
 export function getHttpCommand<
   TResponseBody extends JSONTypes = null,
   TSubjectValue extends JSONTypes = null,
@@ -219,9 +225,7 @@ export function getHttpCommand<
   const subject = new BehaviorSubject<null | TSubjectValue>(null);
   const action$ = subject.asObservable();
 
-  const urlState = signal<HttpUrlArgument<TUrlParams>>(
-    typeof url === "string" ? { href: url } : url(),
-  );
+  const urlState = signal<HttpUrlArgument<TUrlParams>>(getUrlValues(url));
   const urlSignal = computed<HttpUrl<TUrlParams>>(() => {
     const { href, pathParams, queryParams } = urlState();
 
@@ -235,7 +239,7 @@ export function getHttpCommand<
   const getRequestObservablePartial = getRequestObservable<
     TResponseBody,
     TSubjectValue
-  >(urlSignal().href, httpCommandParams);
+  >(httpCommandParams);
 
   const observable$ = action$.pipe(
     switchMap<null | TSubjectValue, Observable<HttpCommand<TResponseBody>>>(
@@ -244,7 +248,12 @@ export function getHttpCommand<
           return of<HttpIdleState>({ state: "idle" });
         }
 
-        const request$ = getRequestObservablePartial(subjectValue).pipe(
+        urlState.set(getUrlValues(url));
+
+        const request$ = getRequestObservablePartial(
+          urlSignal().href,
+          subjectValue,
+        ).pipe(
           map<HttpResponse<TResponseBody>, HttpCommand<TResponseBody>>(
             (httpResponse) => {
               return {
