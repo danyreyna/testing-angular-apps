@@ -98,7 +98,7 @@ type ReturnTypeGetHttpQuery<
   TUrlParams extends GroupedUrlParams,
 > = {
   url: Signal<HttpUrl<TUrlParams>>;
-  resetCacheSubject: BehaviorSubject<null>;
+  resetCache: () => void;
   observable$: Observable<HttpQuery<TResponse>>;
 };
 
@@ -165,9 +165,13 @@ export function getHttpQuery<
     ),
   );
 
+  function resetCache() {
+    resetCacheSubject.next(null);
+  }
+
   return {
     url: urlSignal,
-    resetCacheSubject,
+    resetCache,
     observable$,
   };
 }

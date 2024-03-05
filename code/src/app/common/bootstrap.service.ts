@@ -39,7 +39,7 @@ export class BootstrapService {
     },
   );
 
-  readonly resetBootstrapCache = this.#bootstrapQuery.resetCacheSubject;
+  readonly resetBootstrapCache = this.#bootstrapQuery.resetCache;
 
   readonly bootstrap$ = this.#bootstrapQuery.observable$.pipe(
     map<HttpQuery<BootstrapResponse>, BootstrapWithState>((httpResult) => {
