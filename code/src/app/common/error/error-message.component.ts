@@ -5,7 +5,7 @@ import { DANGER_COLOR } from "../styles/colors";
 export type ErrorMessageVariant = "stacked" | "inline";
 
 @Component({
-  selector: "app-error-message",
+  selector: "app-error-message, [app-error-message]",
   standalone: true,
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
