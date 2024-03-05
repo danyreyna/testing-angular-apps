@@ -34,7 +34,7 @@ export class ErrorBoundaryHandler implements ErrorHandler {
 }
 
 @Component({
-  selector: "app-error-boundary",
+  selector: "[app-error-boundary]",
   standalone: true,
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
