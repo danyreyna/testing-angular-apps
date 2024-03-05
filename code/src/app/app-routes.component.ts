@@ -37,7 +37,7 @@ export class ErrorFallbackComponent {
 }
 
 @Component({
-  selector: "[app-routes]",
+  selector: "app-routes",
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-error-boundary>
