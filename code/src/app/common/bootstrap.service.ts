@@ -8,7 +8,7 @@ import {
 import type { QueryWithState } from "../common/response-state/query";
 import type { SuccessResponse } from "../common/response-state/state";
 import type { Book } from "./book.service";
-import type { ListItem } from "./list-item.service";
+import type { ListItem } from "./list-items.service";
 import type { UserWithoutPassword } from "./user";
 
 export type BootstrapResponse = {

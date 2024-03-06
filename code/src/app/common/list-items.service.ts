@@ -8,4 +8,4 @@ export type ListItem = {
 };
 
 @Injectable()
-export class ListItemService {}
+export class ListItemsService {}
