@@ -10,6 +10,7 @@ import { RouterLink } from "@angular/router";
 import type { Subscription } from "rxjs";
 import { AuthService } from "./common/auth/auth.service";
 import type { ErrorBoundaryHandler } from "./common/error/error-boundary";
+import { fetchResponse } from "./common/fetch-utils";
 import { startPerformanceMonitor } from "./common/profiler";
 import {
   GRAY_10_COLOR,
@@ -186,12 +187,21 @@ export class AuthenticatedAppComponent implements OnDestroy {
   constructor() {
     this.#performanceMonitorIntervalId = startPerformanceMonitor(
       10_000,
-      (changeDetectionPerfRecord) => {
-        fetch("https://api.example.com/profiler", {
-          method: "post",
-          credentials: "include",
-          body: JSON.stringify(changeDetectionPerfRecord),
-        });
+      async (changeDetectionPerfRecord) => {
+        const response = await fetchResponse(() =>
+          fetch("https://api.example.com/profiler", {
+            method: "post",
+            credentials: "include",
+            body: JSON.stringify(changeDetectionPerfRecord),
+          }),
+        );
+
+        if (
+          response instanceof Error &&
+          this.#performanceMonitorIntervalId !== null
+        ) {
+          clearInterval(this.#performanceMonitorIntervalId);
+        }
       },
     );
 
