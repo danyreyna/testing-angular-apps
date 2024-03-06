@@ -32,6 +32,7 @@ import {
     TypeGuardPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [LoginSubmissionService],
   styles: `
     .height-200 {
       height: 200px;

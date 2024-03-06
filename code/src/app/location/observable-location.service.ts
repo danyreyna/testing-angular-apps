@@ -14,9 +14,7 @@ import type {
 export type GeolocationResponseWithState = QueryWithState<GeolocationPosition>;
 export type SuccessLocationResponse = SuccessResponse<GeolocationPosition>;
 
-@Injectable({
-  providedIn: "root",
-})
+@Injectable()
 export class ObservableLocationService {
   readonly #geolocationService = inject(GeolocationService);
 

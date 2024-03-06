@@ -12,9 +12,7 @@ type LoginResponse = {
 export type LoginResponseWithState = HttpCommand<LoginResponse>;
 export type SuccessLoginResponse = HttpSuccessState<LoginResponse>;
 
-@Injectable({
-  providedIn: "root",
-})
+@Injectable()
 export class LoginSubmissionService {
   readonly #loginCommand = getHttpCommand<LoginResponse, LoginFormValues>(
     "https://auth-provider.example.com/api/login",

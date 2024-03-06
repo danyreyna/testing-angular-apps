@@ -160,6 +160,7 @@ export class UserFormComponent {
     UserFormSubmitButtonComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [ModalService],
   styles: `
       :host {
         display: flex;

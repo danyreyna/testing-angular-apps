@@ -20,6 +20,7 @@ import {
   standalone: true,
   imports: [CommonModule, SpinnerComponent, TypeGuardPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [LocationService],
   styles: `
     .color-red {
       color: red;

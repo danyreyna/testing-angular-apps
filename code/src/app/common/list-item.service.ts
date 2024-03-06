@@ -7,7 +7,5 @@ export type ListItem = {
   bookId: string;
 };
 
-@Injectable({
-  providedIn: "root",
-})
+@Injectable()
 export class ListItemService {}
