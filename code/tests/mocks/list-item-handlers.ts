@@ -1,4 +1,4 @@
-import type { ListItem } from "../../src/app/common/list-items.service";
+import type { ListItem } from "../../src/app/list-item/list-items.service";
 
 export const mockListItemDbTable = new Map<string, ListItem>();
 

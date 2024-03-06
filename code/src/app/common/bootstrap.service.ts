@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { map } from "rxjs";
+import type { Book } from "../book/book.service";
 import { isHandledHttpError } from "../common/error/handle-observable-error";
 import {
   getHttpQuery,
@@ -7,8 +8,7 @@ import {
 } from "../common/response-state/http/query";
 import type { QueryWithState } from "../common/response-state/query";
 import type { SuccessResponse } from "../common/response-state/state";
-import type { Book } from "./book.service";
-import type { ListItem } from "./list-items.service";
+import type { ListItem } from "../list-item/list-items.service";
 import type { UserWithoutPassword } from "./user";
 
 export type BootstrapResponse = {
