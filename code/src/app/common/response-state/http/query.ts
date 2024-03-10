@@ -1,11 +1,9 @@
 import {
   HttpClient,
   type HttpContext,
-  type HttpHeaders,
-  type HttpParams,
   type HttpResponse,
 } from "@angular/common/http";
-import { computed, inject, type Signal, signal } from "@angular/core";
+import { inject } from "@angular/core";
 import {
   BehaviorSubject,
   catchError,
@@ -22,34 +20,18 @@ import {
 } from "../../error/handle-observable-error";
 import type { JSONTypes } from "../../json-types";
 import {
-  type HttpErrorState,
-  type HttpPendingState,
-  type HttpResponseWithNonNullBody,
-  type HttpSuccessState,
-} from "./state";
-import type { GroupedUrlParams, HttpUrl, HttpUrlArgument } from "./url";
+  type HttpQuery,
+  type HttpQueryContext,
+  type HttpQueryErrorState,
+} from "./query-state";
+import type {
+  HttpResponseWithNonNullBody,
+  RequestHeaders,
+  UrlParams,
+} from "./types";
 
-export type HttpQuery<TResponseBody extends JSONTypes> =
-  | HttpPendingState
-  | HttpErrorState
-  | HttpSuccessState<TResponseBody>;
-
-type HttpClientOptions = {
-  headers?:
-    | HttpHeaders
-    | {
-        [header: string]: string | string[];
-      };
+type AngularHttpOptions = {
   context?: HttpContext;
-  params?:
-    | HttpParams
-    | {
-        [param: string]:
-          | string
-          | number
-          | boolean
-          | ReadonlyArray<string | number | boolean>;
-      };
   reportProgress?: boolean;
   responseType?: "json";
   withCredentials?: boolean;
@@ -60,98 +42,94 @@ type HttpClientOptions = {
     | boolean;
 };
 
-type GetParams = {
-  method: "get";
-  shouldUseCache?: boolean;
-  options?: HttpClientOptions;
-};
-type HeadParams = {
-  method: "head";
-  shouldUseCache?: boolean;
-  options?: HttpClientOptions;
-};
+type QueryFnOptions<TRequestHeaders extends RequestHeaders> = {
+  headers?: TRequestHeaders;
+} & AngularHttpOptions;
 
-type HttpQueryParams = GetParams | HeadParams;
-
-function getRequestObservable<TResponse extends JSONTypes>(
-  url: string,
-  params: HttpQueryParams,
-) {
+export function httpGet<
+  TResponseBody extends JSONTypes,
+  TRequestHeaders extends RequestHeaders = RequestHeaders,
+>(url: string, options?: QueryFnOptions<TRequestHeaders>) {
   const http = inject(HttpClient);
 
-  const { method, options } = params;
-
-  switch (method) {
-    case "get":
-      return http.get<TResponse>(url, { ...options, observe: "response" });
-    case "head":
-      return http.head<TResponse>(url, { ...options, observe: "response" });
-    default: {
-      const exhaustiveCheck: never = method;
-      return exhaustiveCheck;
-    }
-  }
+  return http.get<TResponseBody>(url, {
+    ...options,
+    observe: "response",
+  });
 }
 
-type ReturnTypeGetHttpQuery<
-  TResponse extends JSONTypes,
-  TUrlParams extends GroupedUrlParams,
+export function httpHead<
+  TRequestHeaders extends RequestHeaders = RequestHeaders,
+>(url: string, options?: QueryFnOptions<TRequestHeaders>) {
+  const http = inject(HttpClient);
+
+  return http.head<null>(url, {
+    ...options,
+    observe: "response",
+  });
+}
+
+type HttpQueryOptions<
+  TResponseBody extends JSONTypes,
+  TUrlParams extends UrlParams,
+  THeaders extends RequestHeaders,
 > = {
-  url: Signal<HttpUrl<TUrlParams>>;
-  resetCache: () => void;
-  observable$: Observable<HttpQuery<TResponse>>;
+  queryFn: (
+    context: HttpQueryContext<TUrlParams, THeaders>,
+  ) => Observable<HttpResponse<TResponseBody>>;
+  shouldUseCache?: boolean;
+  urlParams?: TUrlParams;
+  headers?: THeaders;
 };
 
-function getUrlValues<TUrlParams extends GroupedUrlParams>(
-  url: string | (() => HttpUrlArgument<TUrlParams>),
-) {
-  return typeof url === "string" ? { href: url } : url();
-}
+type ReturnTypeGetHttpQuery<
+  TResponseBody extends JSONTypes,
+  TUrlParams extends UrlParams,
+  THeaders extends RequestHeaders,
+> = {
+  invalidateCache: () => void;
+  observable$: Observable<HttpQuery<TResponseBody, TUrlParams, THeaders>>;
+};
 
 export function getHttpQuery<
-  TResponseBody extends JSONTypes = null,
-  TUrlParams extends GroupedUrlParams = GroupedUrlParams,
+  TResponseBody extends JSONTypes,
+  TUrlParams extends UrlParams,
+  THeaders extends RequestHeaders,
 >(
-  url: URL["href"] | (() => HttpUrlArgument<TUrlParams>),
-  httpQueryParams: HttpQueryParams,
-): ReturnTypeGetHttpQuery<TResponseBody, TUrlParams> {
-  const { shouldUseCache = false } = httpQueryParams;
+  options: HttpQueryOptions<TResponseBody, TUrlParams, THeaders>,
+): ReturnTypeGetHttpQuery<TResponseBody, TUrlParams, THeaders> {
+  const { queryFn, urlParams, headers, shouldUseCache = false } = options;
   const resetCacheSubject = new BehaviorSubject<null>(null);
 
-  const urlState = signal<HttpUrlArgument<TUrlParams>>(getUrlValues(url));
-  const urlSignal = computed<HttpUrl<TUrlParams>>(() => {
-    const { href, pathParams, queryParams } = urlState();
+  const context = {
+    urlParams: urlParams ?? ({} as TUrlParams),
+    headers: headers ?? ({} as THeaders),
+  };
 
-    return {
-      href,
-      pathParams: pathParams ?? {},
-      queryParams: queryParams ?? {},
-    };
-  });
-
-  const httpRequest$ = getRequestObservable<TResponseBody>(
-    urlSignal().href,
-    httpQueryParams,
-  );
+  const httpRequest$ = queryFn(context);
 
   const mapHttpResponse = map<
     HttpResponse<TResponseBody>,
-    HttpQuery<TResponseBody>
+    HttpQuery<TResponseBody, TUrlParams, THeaders>
   >((httpResponse) => {
     return {
       state: "success",
       response: httpResponse as HttpResponseWithNonNullBody<TResponseBody>,
+      context,
     };
   });
 
   const handleAndRethrowError = catchError<
-    HttpQuery<TResponseBody>,
+    HttpQuery<TResponseBody, TUrlParams, THeaders>,
     ReturnType<typeof handleObservableError>
   >((errorResponse) => handleObservableError(errorResponse));
 
   const request$ = shouldUseCache
     ? resetCacheSubject.pipe(
-        mergeMap<null, Observable<HttpQuery<TResponseBody>>>(() =>
+        mergeMap<
+          null,
+          Observable<HttpQuery<TResponseBody, TUrlParams, THeaders>>
+        >(() =>
           httpRequest$.pipe(
             shareReplay<HttpResponse<TResponseBody>>(1),
             mapHttpResponse,
@@ -162,20 +140,27 @@ export function getHttpQuery<
     : httpRequest$.pipe(mapHttpResponse, handleAndRethrowError);
 
   const observable$ = request$.pipe(
-    startWith<HttpQuery<TResponseBody>>({ state: "pending" }),
-    catchError<HttpQuery<TResponseBody>, Observable<HttpErrorState>>(
-      (error: HandledObservableError) =>
-        of<HttpErrorState>({ state: "error", error }),
+    startWith<HttpQuery<TResponseBody, TUrlParams, THeaders>>({
+      state: "pending",
+    }),
+    catchError<
+      HttpQuery<TResponseBody, TUrlParams, THeaders>,
+      Observable<HttpQueryErrorState<TUrlParams, THeaders>>
+    >((error: HandledObservableError) =>
+      of<HttpQueryErrorState<TUrlParams, THeaders>>({
+        state: "error",
+        error,
+        context,
+      }),
     ),
   );
 
-  function resetCache() {
+  function invalidateCache() {
     resetCacheSubject.next(null);
   }
 
   return {
-    url: urlSignal,
-    resetCache,
+    invalidateCache,
     observable$,
   };
 }

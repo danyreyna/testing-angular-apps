@@ -1,11 +1,9 @@
 import {
   HttpClient,
   type HttpContext,
-  type HttpHeaders,
-  type HttpParams,
   type HttpResponse,
 } from "@angular/common/http";
-import { computed, inject, type Signal, signal } from "@angular/core";
+import { inject, signal } from "@angular/core";
 import {
   BehaviorSubject,
   catchError,
@@ -14,6 +12,7 @@ import {
   of,
   startWith,
   switchMap,
+  tap,
 } from "rxjs";
 import {
   type HandledObservableError,
@@ -21,273 +20,241 @@ import {
 } from "../../error/handle-observable-error";
 import type { JSONTypes } from "../../json-types";
 import {
-  type HttpErrorState,
-  type HttpIdleState,
-  type HttpPendingState,
-  type HttpResponseWithNonNullBody,
-  type HttpSuccessState,
-} from "./state";
-import type { GroupedUrlParams, HttpUrl, HttpUrlArgument } from "./url";
+  type HttpCommand,
+  type HttpCommandErrorState,
+  type HttpCommandIdleState,
+  type HttpCommandSuccessState,
+  type HttpCommandVariables,
+  isHttpCommandError,
+  isHttpCommandSuccess,
+} from "./command-state";
+import type { HttpResponseWithNonNullBody, RequestHeaders } from "./types";
 
-export type HttpCommand<TResponseBody extends JSONTypes> =
-  | HttpIdleState
-  | HttpPendingState
-  | HttpErrorState
-  | HttpSuccessState<TResponseBody>;
-
-export type DeleteParams = {
-  method: "delete";
-  options?: {
-    headers?:
-      | HttpHeaders
-      | {
-          [header: string]: string | string[];
-        };
-    context?: HttpContext;
-    params?:
-      | HttpParams
-      | {
-          [param: string]:
-            | string
-            | number
-            | boolean
-            | ReadonlyArray<string | number | boolean>;
-        };
-    reportProgress?: boolean;
-    responseType?: "json";
-    withCredentials?: boolean;
-  };
+type AngularHttpOptions = {
+  context?: HttpContext;
+  reportProgress?: boolean;
+  responseType?: "json";
+  withCredentials?: boolean;
 };
 
-export type PatchParams = {
-  method: "patch";
-  shouldSendBodyFromSubject?: boolean;
-  options?: {
-    headers?:
-      | HttpHeaders
-      | {
-          [header: string]: string | string[];
-        };
-    context?: HttpContext;
-    params?:
-      | HttpParams
-      | {
-          [param: string]:
-            | string
-            | number
-            | boolean
-            | ReadonlyArray<string | number | boolean>;
-        };
-    reportProgress?: boolean;
-    responseType?: "json";
-    withCredentials?: boolean;
-  };
-};
-
-export type PostParams = {
-  method: "post";
-  shouldSendBodyFromSubject?: boolean;
-  options?: {
-    headers?:
-      | HttpHeaders
-      | {
-          [header: string]: string | string[];
-        };
-    context?: HttpContext;
-    params?:
-      | HttpParams
-      | {
-          [param: string]:
-            | string
-            | number
-            | boolean
-            | ReadonlyArray<string | number | boolean>;
-        };
-    reportProgress?: boolean;
-    responseType?: "json";
-    withCredentials?: boolean;
-    transferCache?:
-      | {
-          includeHeaders?: string[];
-        }
-      | boolean;
-  };
-};
-
-export type PutParams = {
-  method: "put";
-  shouldSendBodyFromSubject?: boolean;
-  options?: {
-    headers?:
-      | HttpHeaders
-      | {
-          [header: string]: string | string[];
-        };
-    context?: HttpContext;
-    params?:
-      | HttpParams
-      | {
-          [param: string]:
-            | string
-            | number
-            | boolean
-            | ReadonlyArray<string | number | boolean>;
-        };
-    reportProgress?: boolean;
-    responseType?: "json";
-    withCredentials?: boolean;
-  };
-};
-
-export type HttpCommandParams =
-  | DeleteParams
-  | PatchParams
-  | PostParams
-  | PutParams;
-
-function getRequestObservable<
-  TResponseBody extends JSONTypes,
-  TSubjectValue extends JSONTypes,
->(httpParams: HttpCommandParams) {
-  const http = inject(HttpClient);
-
-  const { method } = httpParams;
-
-  return (url: string, subjectValue: TSubjectValue) => {
-    switch (method) {
-      case "delete": {
-        const { options } = httpParams;
-        return http.delete<TResponseBody>(url, {
-          ...options,
-          observe: "response",
-        });
-      }
-      case "patch": {
-        const { shouldSendBodyFromSubject = true, options } = httpParams;
-
-        return http.patch<TResponseBody>(
-          url,
-          shouldSendBodyFromSubject ? subjectValue : null,
-          { ...options, observe: "response" },
-        );
-      }
-      case "post": {
-        const { shouldSendBodyFromSubject = true, options } = httpParams;
-
-        return http.post<TResponseBody>(
-          url,
-          shouldSendBodyFromSubject ? subjectValue : null,
-          { ...options, observe: "response" },
-        );
-      }
-      case "put": {
-        const { shouldSendBodyFromSubject = true, options } = httpParams;
-
-        return http.put<TResponseBody>(
-          url,
-          shouldSendBodyFromSubject ? subjectValue : null,
-          { ...options, observe: "response" },
-        );
-      }
-      default: {
-        const exhaustiveCheck: never = method;
-        return exhaustiveCheck;
-      }
-    }
-  };
-}
-
-export type ReturnTypeGetHttpCommand<
-  TResponseBody extends JSONTypes,
-  TSubjectValue extends JSONTypes,
-  TUrlParams extends GroupedUrlParams,
+type CommandFnOptions<
+  TRequestHeaders extends RequestHeaders,
+  TRequestBody extends JSONTypes,
 > = {
-  url: Signal<HttpUrl<TUrlParams>>;
-  subject: BehaviorSubject<null | TSubjectValue>;
-  cleanup: () => void;
-  observable$: Observable<HttpCommand<TResponseBody>>;
+  http?: HttpClient;
+  headers?: TRequestHeaders;
+  body?: TRequestBody;
+} & AngularHttpOptions;
+
+export function httpDelete<
+  TResponseBody extends JSONTypes,
+  TRequestHeaders extends RequestHeaders = RequestHeaders,
+  TRequestBody extends JSONTypes = null,
+>(url: string, options?: CommandFnOptions<TRequestHeaders, TRequestBody>) {
+  const http = options?.http ?? inject(HttpClient);
+
+  return http.delete<TResponseBody>(url, {
+    ...options,
+    observe: "response",
+  });
+}
+
+export function httpPatch<
+  TResponseBody extends JSONTypes,
+  TRequestBody extends JSONTypes = null,
+  TRequestHeaders extends RequestHeaders = RequestHeaders,
+>(url: string, options: CommandFnOptions<TRequestHeaders, TRequestBody> = {}) {
+  const http = options?.http ?? inject(HttpClient);
+
+  const { body, ...rest } = options;
+
+  return http.patch<TResponseBody>(url, body ?? null, {
+    ...rest,
+    observe: "response",
+  });
+}
+
+type AngularHttpPostOptions = {
+  transferCache?:
+    | {
+        includeHeaders?: string[];
+      }
+    | boolean;
 };
 
-function getUrlValues<TUrlParams extends GroupedUrlParams>(
-  url: string | (() => HttpUrlArgument<TUrlParams>),
-) {
-  return typeof url === "string" ? { href: url } : url();
+type PostFnOptions<
+  TRequestHeaders extends RequestHeaders,
+  TRequestBody extends JSONTypes,
+> = CommandFnOptions<TRequestHeaders, TRequestBody> & AngularHttpPostOptions;
+
+export function httpPost<
+  TResponseBody extends JSONTypes,
+  TRequestBody extends JSONTypes = null,
+  TRequestHeaders extends RequestHeaders = RequestHeaders,
+>(url: string, options: PostFnOptions<TRequestHeaders, TRequestBody> = {}) {
+  const http = options?.http ?? inject(HttpClient);
+
+  const { body, ...rest } = options;
+
+  return http.post<TResponseBody>(url, body ?? null, {
+    ...rest,
+    observe: "response",
+  });
 }
+
+export function httpPut<
+  TResponseBody extends JSONTypes,
+  TRequestBody extends JSONTypes = null,
+  TRequestHeaders extends RequestHeaders = RequestHeaders,
+>(url: string, options: CommandFnOptions<TRequestHeaders, TRequestBody> = {}) {
+  const http = options?.http ?? inject(HttpClient);
+
+  const { body, ...rest } = options;
+
+  return http.put<TResponseBody>(url, body ?? null, {
+    ...rest,
+    observe: "response",
+  });
+}
+
+type HttpCommandOptions<
+  TResponseBody extends JSONTypes,
+  TVariables extends void | HttpCommandVariables,
+  TContext,
+> = {
+  commandFn: (variables: TVariables) => Observable<HttpResponse<TResponseBody>>;
+  onRequest?: (
+    variables: TVariables,
+  ) => Promise<null | TContext> | null | TContext;
+  onSettled?: (
+    httpResult:
+      | HttpCommandErrorState<TVariables>
+      | HttpCommandSuccessState<TResponseBody, TVariables>,
+    context: null | TContext,
+  ) => Promise<void> | void;
+  onError?: (
+    httpResult: HttpCommandErrorState<TVariables>,
+    context: null | TContext,
+  ) => Promise<void> | void;
+  onSuccess?: (
+    httpResult: HttpCommandSuccessState<TResponseBody, TVariables>,
+    context: null | TContext,
+  ) => Promise<void> | void;
+};
+
+type ReturnTypeGetHttpCommand<
+  TResponseBody extends JSONTypes,
+  TVariables extends void | HttpCommandVariables,
+> = {
+  run: (variables: TVariables) => void;
+  reset: () => void;
+  observable$: Observable<HttpCommand<TResponseBody, TVariables>>;
+};
 
 export function getHttpCommand<
-  TResponseBody extends JSONTypes = null,
-  TSubjectValue extends JSONTypes = null,
-  TUrlParams extends GroupedUrlParams = GroupedUrlParams,
+  TResponseBody extends JSONTypes,
+  TVariables extends void | HttpCommandVariables = void,
+  TContext = unknown,
 >(
-  url: URL["href"] | (() => HttpUrlArgument<TUrlParams>),
-  httpCommandParams: HttpCommandParams,
-): ReturnTypeGetHttpCommand<TResponseBody, TSubjectValue, TUrlParams> {
-  const subject = new BehaviorSubject<null | TSubjectValue>(null);
+  options: HttpCommandOptions<TResponseBody, TVariables, TContext>,
+): ReturnTypeGetHttpCommand<TResponseBody, TVariables> {
+  const {
+    commandFn,
+    onRequest: handleRequest,
+    onSettled: handleSettled,
+    onError: handleError,
+    onSuccess: handleSuccess,
+  } = options;
+
+  const subject = new BehaviorSubject<null | TVariables>(null);
   const action$ = subject.asObservable();
 
-  const urlState = signal<HttpUrlArgument<TUrlParams>>(getUrlValues(url));
-  const urlSignal = computed<HttpUrl<TUrlParams>>(() => {
-    const { href, pathParams, queryParams } = urlState();
-
-    return {
-      href,
-      pathParams: pathParams ?? {},
-      queryParams: queryParams ?? {},
-    };
-  });
-
-  const getRequestObservablePartial = getRequestObservable<
-    TResponseBody,
-    TSubjectValue
-  >(httpCommandParams);
+  const context = signal<null | TContext>(null);
 
   const observable$ = action$.pipe(
-    switchMap<null | TSubjectValue, Observable<HttpCommand<TResponseBody>>>(
-      (subjectValue) => {
-        if (subjectValue === null) {
-          return of<HttpIdleState>({ state: "idle" });
-        }
+    switchMap<
+      null | TVariables,
+      Observable<HttpCommand<TResponseBody, TVariables>>
+    >((variables) => {
+      if (variables === null) {
+        return of<HttpCommandIdleState>({ state: "idle" });
+      }
 
-        urlState.set(getUrlValues(url));
+      const request$ = commandFn(variables).pipe(
+        map<
+          HttpResponse<TResponseBody>,
+          HttpCommand<TResponseBody, TVariables>
+        >((httpResponse) => {
+          return {
+            state: "success",
+            response:
+              httpResponse as HttpResponseWithNonNullBody<TResponseBody>,
+            variables,
+          };
+        }),
+        catchError<
+          HttpCommand<TResponseBody, TVariables>,
+          ReturnType<typeof handleObservableError>
+        >((errorResponse) => handleObservableError(errorResponse)),
+      );
 
-        const request$ = getRequestObservablePartial(
-          urlSignal().href,
-          subjectValue,
-        ).pipe(
-          map<HttpResponse<TResponseBody>, HttpCommand<TResponseBody>>(
-            (httpResponse) => {
-              return {
-                state: "success",
-                response:
-                  httpResponse as HttpResponseWithNonNullBody<TResponseBody>,
-              };
-            },
-          ),
-          catchError<
-            HttpCommand<TResponseBody>,
-            ReturnType<typeof handleObservableError>
-          >((errorResponse) => handleObservableError(errorResponse)),
-        );
+      return request$.pipe(
+        tap(async () => {
+          if (handleRequest !== undefined) {
+            context.set(await handleRequest(variables));
+          }
+        }),
+        startWith<HttpCommand<TResponseBody, TVariables>>({
+          state: "pending",
+        }),
+        catchError<
+          HttpCommand<TResponseBody, TVariables>,
+          Observable<HttpCommandErrorState<TVariables>>
+        >((observableError: HandledObservableError) =>
+          of<HttpCommandErrorState<TVariables>>({
+            state: "error",
+            error: observableError,
+            variables,
+          }),
+        ),
+        tap((httpResult) => {
+          if (
+            handleSettled !== undefined &&
+            (isHttpCommandError<TVariables>(httpResult) ||
+              isHttpCommandSuccess<TResponseBody, TVariables>(httpResult))
+          ) {
+            handleSettled(httpResult, context());
+          }
 
-        return request$.pipe(
-          startWith<HttpCommand<TResponseBody>>({ state: "pending" }),
-          catchError<HttpCommand<TResponseBody>, Observable<HttpErrorState>>(
-            (error: HandledObservableError) =>
-              of<HttpErrorState>({ state: "error", error }),
-          ),
-        );
-      },
-    ),
+          if (
+            handleError !== undefined &&
+            isHttpCommandError<TVariables>(httpResult)
+          ) {
+            handleError(httpResult, context());
+          }
+
+          if (
+            handleSuccess !== undefined &&
+            isHttpCommandSuccess<TResponseBody, TVariables>(httpResult)
+          ) {
+            handleSuccess(httpResult, context());
+          }
+        }),
+      );
+    }),
   );
 
-  function cleanup() {
+  function run(variables: TVariables) {
+    subject.next(variables);
+  }
+
+  function reset() {
     subject.next(null);
   }
 
   return {
-    url: urlSignal,
-    subject,
+    run,
+    reset,
     observable$,
-    cleanup,
   };
 }
