@@ -1,15 +1,9 @@
 import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  type OnDestroy,
-} from "@angular/core";
-import {
-  type HttpErrorState,
-  isHttpError,
-  isHttpSuccess,
-} from "../common/response-state/http/state";
+  isHttpCommandError,
+  isHttpCommandSuccess,
+} from "../common/response-state/http/command-state";
 import { type TypeGuard, TypeGuardPipe } from "../common/type-guard.pipe";
 import { SpinnerComponent } from "../spinner/spinner.component";
 import {
@@ -17,6 +11,7 @@ import {
   LoginSubmissionFormComponent,
 } from "./login-submission-form.component";
 import {
+  type ErrorLoginResponse,
   type LoginResponseWithState,
   LoginSubmissionService,
   type SuccessLoginResponse,
@@ -43,7 +38,7 @@ import {
     }
   `,
   template: `
-    @if (loginSubmissionService.login$ | async; as login) {
+    @if (loginSubmissionService.loginCommand.observable$ | async; as login) {
       @if (login | typeGuard: isHttpSuccess; as httpSuccess) {
         <div>
           Welcome
@@ -67,24 +62,20 @@ import {
     }
   `,
 })
-export class LoginSubmissionComponent implements OnDestroy {
+export class LoginSubmissionComponent {
   protected readonly loginSubmissionService = inject(LoginSubmissionService);
 
   protected handleSubmit(formValues: LoginFormValues) {
-    this.loginSubmissionService.loginSubject.next(formValues);
+    this.loginSubmissionService.loginCommand.run({ body: formValues });
   }
 
   protected readonly isHttpSuccess: TypeGuard<
     LoginResponseWithState,
     SuccessLoginResponse
-  > = isHttpSuccess;
+  > = isHttpCommandSuccess;
 
   protected readonly isHttpError: TypeGuard<
     LoginResponseWithState,
-    HttpErrorState
-  > = isHttpError;
-
-  ngOnDestroy() {
-    this.loginSubmissionService.cleanup();
-  }
+    ErrorLoginResponse
+  > = isHttpCommandError;
 }

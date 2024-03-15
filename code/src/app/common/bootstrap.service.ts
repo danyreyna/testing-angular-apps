@@ -2,10 +2,7 @@ import { Injectable } from "@angular/core";
 import { map } from "rxjs";
 import type { Book } from "../book/book.service";
 import { isHandledHttpError } from "../common/error/handle-observable-error";
-import {
-  getHttpQuery,
-  type HttpQuery,
-} from "../common/response-state/http/query";
+import { getHttpQuery, httpGet } from "../common/response-state/http/query";
 import type { QueryWithState } from "../common/response-state/query";
 import type { SuccessResponse } from "../common/response-state/state";
 import type { ListItem } from "../list-item/list-items.service";
@@ -28,21 +25,16 @@ export type SuccessBootstrap = SuccessResponse<Bootstrap>;
   providedIn: "root",
 })
 export class BootstrapService {
-  readonly #bootstrapQuery = getHttpQuery<BootstrapResponse>(
-    "https://api.example.com/bootstrap",
-    {
-      method: "get",
-      shouldUseCache: true,
-      options: {
+  readonly #bootstrapQuery = getHttpQuery({
+    queryFn: () =>
+      httpGet<BootstrapResponse>("https://api.example.com/bootstrap", {
         withCredentials: true,
-      },
-    },
-  );
-
-  readonly resetBootstrapCache = this.#bootstrapQuery.resetCache;
-
+      }),
+    shouldUseCache: true,
+  });
+  readonly invalidateBootstrapCache = this.#bootstrapQuery.invalidateCache;
   readonly bootstrap$ = this.#bootstrapQuery.observable$.pipe(
-    map<HttpQuery<BootstrapResponse>, BootstrapWithState>((httpResult) => {
+    map((httpResult): BootstrapWithState => {
       if (httpResult.state === "pending") {
         return httpResult;
       }

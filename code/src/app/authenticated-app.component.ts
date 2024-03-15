@@ -159,7 +159,7 @@ export class NavComponent {}
           app-button
           variant="secondary"
           class="logout-button"
-          (click)="authService.logoutSubject.next('logout')"
+          (click)="authService.logoutCommand.run()"
         >
           Logout
         </button>
@@ -205,7 +205,8 @@ export class AuthenticatedAppComponent implements OnDestroy {
       },
     );
 
-    this.#logoutSubscription = this.authService.logout$.subscribe();
+    this.#logoutSubscription =
+      this.authService.logoutCommand.observable$.subscribe();
   }
 
   ngOnDestroy() {

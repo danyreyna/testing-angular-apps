@@ -16,7 +16,9 @@ import { combineLatest, map, type Observable, tap } from "rxjs";
 import {
   AuthService,
   type LoginResponseWithState,
+  type LoginVariables,
   type RegisterResponseWithState,
+  type RegisterVariables,
 } from "./common/auth/auth.service";
 import {
   ButtonComponent,
@@ -31,9 +33,9 @@ import { ModalService } from "./common/components/modal/modal.service";
 import { SpinnerComponent } from "./common/components/spinner.component";
 import { ErrorMessageComponent } from "./common/error/error-message.component";
 import {
-  type HttpErrorState,
-  isHttpError,
-} from "./common/response-state/http/state";
+  type HttpCommandErrorState,
+  isHttpCommandError,
+} from "./common/response-state/http/command-state";
 import { type TypeGuard, TypeGuardPipe } from "./common/type-guard.pipe";
 import type { User } from "./common/user";
 
@@ -121,7 +123,7 @@ export type UserFormValues = Pick<User, "username" | "password">;
     <div>
       <ng-content select="[content-submit-button]" />
     </div>
-    @if (commandResponse | typeGuard: isHttpError; as errorResponse) {
+    @if (commandResponse | typeGuard: isHttpCommandError; as errorResponse) {
       <app-error-message [errorMessage]="errorResponse.error.message" />
     }
   `,
@@ -141,10 +143,10 @@ export class UserFormComponent {
     this.formSubmitted.emit(values);
   }
 
-  protected readonly isHttpError: TypeGuard<
+  protected readonly isHttpCommandError: TypeGuard<
     LoginResponseWithState | RegisterResponseWithState,
-    HttpErrorState
-  > = isHttpError;
+    HttpCommandErrorState<LoginVariables | RegisterVariables>
+  > = isHttpCommandError;
 }
 
 @Component({
@@ -195,13 +197,13 @@ export class UserFormComponent {
           <form
             app-user-form
             (formSubmitted)="handleLoginSubmit($event)"
-            [commandResponse]="viewModel.loginResponse"
+            [commandResponse]="viewModel.login"
           >
             <button
               content-submit-button
               app-user-form-submit-button
               variant="primary"
-              [isLoading]="viewModel.loginResponse.state === 'pending'"
+              [isLoading]="viewModel.login.state === 'pending'"
             >
               Login
             </button>
@@ -214,13 +216,13 @@ export class UserFormComponent {
           <form
             app-user-form
             (formSubmitted)="handleRegisterSubmit($event)"
-            [commandResponse]="viewModel.registerResponse"
+            [commandResponse]="viewModel.register"
           >
             <button
               content-submit-button
               app-user-form-submit-button
               variant="secondary"
-              [isLoading]="viewModel.registerResponse.state === 'pending'"
+              [isLoading]="viewModel.register.state === 'pending'"
             >
               Register
             </button>
@@ -234,7 +236,7 @@ export class UnauthenticatedAppComponent implements OnDestroy {
   readonly #auth = inject(AuthService);
   readonly #modal = inject(ModalService);
 
-  readonly #loginResponse$ = this.#auth.login$.pipe(
+  readonly #login$ = this.#auth.loginCommand.observable$.pipe(
     tap((response) => {
       if (response.state === "success") {
         this.#modal.closeAll();
@@ -242,7 +244,7 @@ export class UnauthenticatedAppComponent implements OnDestroy {
     }),
   );
 
-  readonly #registerResponse$ = this.#auth.register$.pipe(
+  readonly #register$ = this.#auth.registerCommand.observable$.pipe(
     tap((response) => {
       if (response.state === "success") {
         this.#modal.closeAll();
@@ -251,12 +253,12 @@ export class UnauthenticatedAppComponent implements OnDestroy {
   );
 
   protected readonly viewModel$: Observable<{
-    loginResponse: LoginResponseWithState;
-    registerResponse: RegisterResponseWithState;
-  }> = combineLatest([this.#loginResponse$, this.#registerResponse$]).pipe(
-    map(([loginResponse, registerResponse]) => ({
-      loginResponse,
-      registerResponse,
+    login: LoginResponseWithState;
+    register: RegisterResponseWithState;
+  }> = combineLatest([this.#login$, this.#register$]).pipe(
+    map(([login, register]) => ({
+      login,
+      register,
     })),
   );
 
@@ -268,7 +270,7 @@ export class UnauthenticatedAppComponent implements OnDestroy {
   }
 
   protected handleLoginSubmit(userFormValues: UserFormValues) {
-    this.#auth.loginSubject.next(userFormValues);
+    this.#auth.loginCommand.run({ body: userFormValues });
   }
 
   @ViewChild("registerFormDialogRef")
@@ -279,9 +281,16 @@ export class UnauthenticatedAppComponent implements OnDestroy {
   }
 
   protected handleRegisterSubmit(userFormValues: UserFormValues) {
-    this.#auth.registerSubject.next({
-      ...userFormValues,
-      source: "registration",
+    this.#auth.registerCommand.run({
+      urlParams: {
+        pathParams: {
+          userId: globalThis.crypto.randomUUID(),
+        },
+      },
+      body: {
+        ...userFormValues,
+        source: "registration",
+      },
     });
   }
 
