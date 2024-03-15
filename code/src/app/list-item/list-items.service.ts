@@ -1,11 +1,9 @@
 import { Injectable } from "@angular/core";
 import { combineLatest, map, Subject } from "rxjs";
 import type { Book } from "../book/book.service";
-import {
-  getHttpQuery,
-  type HttpQuery,
-} from "../common/response-state/http/query";
+import { getHttpQuery, httpGet } from "../common/response-state/http/query";
 import type { QueryWithState } from "../common/response-state/query";
+import type { SuccessResponse } from "../common/response-state/state";
 import type { User } from "../common/user";
 
 export type ListItem = {
@@ -21,25 +19,28 @@ export type ListItem = {
 
 export type ListItemsResponseBody = { listItems: ListItem[] };
 
+type MappedListItemData = null | ListItem;
+export type ListItemResponseWithState = QueryWithState<MappedListItemData>;
+export type SuccessListItemResponse = SuccessResponse<MappedListItemData>;
+
 @Injectable()
 export class ListItemsService {
-  readonly #getListItems = getHttpQuery<ListItemsResponseBody>(
-    "https://api.example.com/list-items",
-    { method: "get", options: { withCredentials: true } },
-  );
-  readonly listItems$ = this.#getListItems.observable$;
+  readonly #listItemsQuery = getHttpQuery({
+    queryFn: () =>
+      httpGet<ListItemsResponseBody>("https://api.example.com/list-items", {
+        withCredentials: true,
+      }),
+  });
+  readonly listItems$ = this.#listItemsQuery.observable$;
 
   readonly getListItemWithBookId = new Subject<Book["id"]>();
   readonly #listItemAction$ = this.getListItemWithBookId.asObservable();
 
   readonly listItem$ = combineLatest([
     this.#listItemAction$,
-    this.#getListItems.observable$,
+    this.#listItemsQuery.observable$,
   ]).pipe(
-    map<
-      [Book["id"], HttpQuery<ListItemsResponseBody>],
-      QueryWithState<ListItem | null>
-    >(([bookId, httpResult]) => {
+    map(([bookId, httpResult]): QueryWithState<MappedListItemData> => {
       if (httpResult.state === "pending") {
         return { state: "pending" };
       }
