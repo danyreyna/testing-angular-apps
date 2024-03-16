@@ -127,7 +127,6 @@ export class StarsComponent {
   standalone: true,
   imports: [CommonModule, StarsComponent, TypeGuardPipe, ErrorMessageComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [ListItemsService],
   styles: `
       :host {
         display: inline-flex;

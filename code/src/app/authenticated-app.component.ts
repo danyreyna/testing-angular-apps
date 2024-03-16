@@ -18,6 +18,7 @@ import {
   TEXT_COLOR,
 } from "./common/styles/colors";
 import { MEDIUM_BREAKPOINT } from "./common/styles/media-queries";
+import { ListItemsService } from "./list-item/list-items.service";
 
 @Component({
   selector: "a[app-nav-link]",
@@ -111,6 +112,7 @@ export class NavComponent {}
 @Component({
   selector: "app-authenticated-app",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [ListItemsService],
   styles: `
       .user-bar {
         display: flex;
