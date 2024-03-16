@@ -280,11 +280,13 @@ export class UnauthenticatedAppComponent implements OnDestroy {
     this.#modal.open(this.registerFormDialogRef);
   }
 
+  #userId = globalThis.crypto.randomUUID();
+
   protected handleRegisterSubmit(userFormValues: UserFormValues) {
     this.#auth.registerCommand.run({
       urlParams: {
         pathParams: {
-          userId: globalThis.crypto.randomUUID(),
+          userId: this.#userId,
         },
       },
       body: {
