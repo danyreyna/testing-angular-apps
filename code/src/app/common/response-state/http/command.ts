@@ -130,15 +130,15 @@ type HttpCommandOptions<
     httpResult:
       | HttpCommandErrorState<TVariables>
       | HttpCommandSuccessState<TResponseBody, TVariables>,
-    context: null | TContext,
+    context: TContext,
   ) => Promise<void> | void;
   onError?: (
     httpResult: HttpCommandErrorState<TVariables>,
-    context: null | TContext,
+    context: TContext,
   ) => Promise<void> | void;
   onSuccess?: (
     httpResult: HttpCommandSuccessState<TResponseBody, TVariables>,
-    context: null | TContext,
+    context: TContext,
   ) => Promise<void> | void;
 };
 
@@ -223,21 +223,21 @@ export function getHttpCommand<
             (isHttpCommandError<TVariables>(httpResult) ||
               isHttpCommandSuccess<TResponseBody, TVariables>(httpResult))
           ) {
-            handleSettled(httpResult, context());
+            handleSettled(httpResult, context()!);
           }
 
           if (
             handleError !== undefined &&
             isHttpCommandError<TVariables>(httpResult)
           ) {
-            handleError(httpResult, context());
+            handleError(httpResult, context()!);
           }
 
           if (
             handleSuccess !== undefined &&
             isHttpCommandSuccess<TResponseBody, TVariables>(httpResult)
           ) {
-            handleSuccess(httpResult, context());
+            handleSuccess(httpResult, context()!);
           }
         }),
       );
