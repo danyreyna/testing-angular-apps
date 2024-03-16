@@ -74,16 +74,18 @@ export class NavLinkComponent {}
         padding: 1em 1.5em;
         border: 1px solid ${GRAY_10_COLOR};
         border-radius: 3px;
-
-        @media (min-width: ${MEDIUM_BREAKPOINT}) {
-          position: sticky;
-          top: 4px;
-        }
       }
 
       .links-list {
         list-style: none;
         padding: 0;
+      }
+
+      @media (min-width: ${MEDIUM_BREAKPOINT}) {
+        :host {
+          position: sticky;
+          top: 4px;
+        }
       }
     `,
   template: `
@@ -131,11 +133,6 @@ export class NavComponent {}
         grid-gap: 1em;
         grid-template-columns: 1fr;
         grid-template-rows: auto;
-
-        @media (min-width: ${MEDIUM_BREAKPOINT}) {
-          grid-template-columns: 1fr 3fr;
-          grid-template-rows: none;
-        }
       }
 
       .nav-container {
@@ -144,6 +141,13 @@ export class NavComponent {}
 
       .routes-container {
         width: 100%;
+      }
+
+      @media (min-width: ${MEDIUM_BREAKPOINT}) {
+        .app-container {
+          grid-template-columns: 1fr 3fr;
+          grid-template-rows: none;
+        }
       }
     `,
   template: `
