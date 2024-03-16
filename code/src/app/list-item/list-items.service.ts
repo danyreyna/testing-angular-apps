@@ -1,6 +1,8 @@
-import { Injectable } from "@angular/core";
-import { combineLatest, map, Subject } from "rxjs";
+import { HttpClient } from "@angular/common/http";
+import { effect, inject, Injectable, signal } from "@angular/core";
+import { combineLatest, map, Subject, tap } from "rxjs";
 import type { Book } from "../book/book.service";
+import { getHttpCommand, httpPut } from "../common/response-state/http/command";
 import { getHttpQuery, httpGet } from "../common/response-state/http/query";
 import type { QueryWithState } from "../common/response-state/query";
 import type { SuccessResponse } from "../common/response-state/state";
@@ -23,24 +25,50 @@ type MappedListItemData = null | ListItem;
 export type ListItemResponseWithState = QueryWithState<MappedListItemData>;
 export type SuccessListItemResponse = SuccessResponse<MappedListItemData>;
 
+type UpdateListItemVariables = {
+  urlParams: { pathParams: { listItemId: string } };
+  body: Partial<ListItem>;
+};
+
 @Injectable()
 export class ListItemsService {
+  readonly #http = inject(HttpClient);
+
   readonly #listItemsQuery = getHttpQuery({
     queryFn: () =>
       httpGet<ListItemsResponseBody>("https://api.example.com/list-items", {
         withCredentials: true,
       }),
+    shouldUseCache: true,
   });
-  readonly listItems$ = this.#listItemsQuery.observable$;
 
-  readonly getListItemWithBookId = new Subject<Book["id"]>();
-  readonly #listItemAction$ = this.getListItemWithBookId.asObservable();
+  readonly #listItemsState = signal<null | ListItemsResponseBody>(null);
+  readonly listItems = this.#listItemsState.asReadonly();
+
+  constructor() {
+    effect(() => {
+      this.#listItemsQuery.observable$.pipe(
+        tap((httpResult) => {
+          if (httpResult.state === "success") {
+            this.#listItemsState.set(httpResult.response.body);
+          }
+        }),
+      );
+    });
+  }
+
+  readonly #getListItemWithBookIdSubject = new Subject<Book["id"]>();
+  readonly #getListItemWithBookIdAction$ =
+    this.#getListItemWithBookIdSubject.asObservable();
+  getListItemWithBookId(bookId: Book["id"]) {
+    this.#getListItemWithBookIdSubject.next(bookId);
+  }
 
   readonly listItem$ = combineLatest([
-    this.#listItemAction$,
+    this.#getListItemWithBookIdAction$,
     this.#listItemsQuery.observable$,
   ]).pipe(
-    map(([bookId, httpResult]): QueryWithState<MappedListItemData> => {
+    map(([bookId, httpResult]): ListItemResponseWithState => {
       if (httpResult.state === "pending") {
         return { state: "pending" };
       }
@@ -65,4 +93,50 @@ export class ListItemsService {
       };
     }),
   );
+
+  readonly updateListItemCommand = getHttpCommand({
+    commandFn: ({
+      urlParams: {
+        pathParams: { listItemId },
+      },
+      body,
+    }: UpdateListItemVariables) =>
+      httpPut(`https://api.example.com/list-items/${listItemId}`, {
+        http: this.#http,
+        withCredentials: true,
+        body,
+      }),
+    onRequest: ({
+      urlParams: {
+        pathParams: { listItemId: newItemId },
+      },
+      body: newItemBody,
+    }) => {
+      const previousItems = this.listItems();
+
+      this.#listItemsState.update((currentState) => {
+        if (currentState === null) {
+          return currentState;
+        }
+
+        const { listItems } = currentState;
+
+        return {
+          listItems: listItems.map((item) =>
+            item.id === newItemId ? { ...item, ...newItemBody } : item,
+          ),
+        };
+      });
+
+      return () => {
+        this.#listItemsState.set(previousItems);
+      };
+    },
+    onError: (_httpResult, recoverFn) => {
+      recoverFn();
+    },
+    onSettled: () => {
+      this.#listItemsQuery.invalidateCache();
+    },
+  });
 }
