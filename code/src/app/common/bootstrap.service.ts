@@ -10,7 +10,7 @@ import type { UserWithoutPassword } from "./user";
 
 export type BootstrapResponse = {
   user: UserWithoutPassword;
-  listItems: (Omit<ListItem, "book"> & { book: null | Book })[];
+  listItems: (ListItem & { book: null | Book })[];
 };
 
 type NoAuthData = null;

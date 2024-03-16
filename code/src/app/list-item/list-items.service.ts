@@ -24,7 +24,6 @@ export type ListItem = {
   notes: string;
   startDate: number;
   finishDate: null | number;
-  book: Book;
 };
 
 export type ListItemsResponseBody = { listItems: ListItem[] };
