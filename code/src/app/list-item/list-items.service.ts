@@ -54,6 +54,7 @@ export class ListItemsService {
         this.#listItemsState.set(httpResult.response.body);
       }
     }),
+    map(({ state }) => state),
   );
 
   readonly #listItemsState = signal<null | ListItemsResponseBody>(null);
