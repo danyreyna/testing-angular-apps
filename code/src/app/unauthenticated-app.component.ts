@@ -22,8 +22,8 @@ import {
 } from "./common/auth/auth.service";
 import {
   ButtonComponent,
-  buttonStyles,
   type ButtonVariant,
+  getButtonStyles,
 } from "./common/components/button.component";
 import { FormGroupComponent } from "./common/components/form-group.component";
 import { InputComponent } from "./common/components/input.component";
@@ -52,13 +52,9 @@ import type { User } from "./common/user";
   host: {
     type: "submit",
   },
-  styles: `
-      ${buttonStyles}
-
-      :host {
-        display: flex;
-      }
-    `,
+  styles: getButtonStyles(`
+    display: flex;
+  `),
   template: `
     <ng-content />
     @if (isLoading) {
