@@ -26,7 +26,9 @@ export type ListItem = {
   finishDate: null | number;
 };
 
-export type ListItemsResponseBody = { listItems: ListItem[] };
+export type ListItemsResponseBody = {
+  listItems: (ListItem & { book: null | Book })[];
+};
 
 type MappedListItemData = null | ListItem;
 export type ListItemResponseWithState = QueryWithState<MappedListItemData>;

@@ -5,12 +5,12 @@ import { isHandledHttpError } from "../common/error/handle-observable-error";
 import { getHttpQuery, httpGet } from "../common/response-state/http/query";
 import type { QueryWithState } from "../common/response-state/query";
 import type { SuccessResponse } from "../common/response-state/state";
-import type { ListItem } from "../list-item/list-items.service";
+import type { ListItemsResponseBody } from "../list-item/list-items.service";
 import type { UserWithoutPassword } from "./user";
 
 export type BootstrapResponse = {
   user: UserWithoutPassword;
-  listItems: (ListItem & { book: null | Book })[];
+  listItems: ListItemsResponseBody["listItems"];
 };
 
 type NoAuthData = null;
