@@ -70,7 +70,6 @@ export class ListItemsService {
   getListItemWithBookId(bookId: Book["id"]) {
     this.#getListItemWithBookIdSubject.next(bookId);
   }
-
   readonly listItem$ = combineLatest([
     this.#getListItemWithBookIdAction$,
     this.#listItemsQuery.observable$,
