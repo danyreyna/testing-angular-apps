@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { effect, inject, Injectable, signal } from "@angular/core";
+import { inject, Injectable, signal } from "@angular/core";
 import { combineLatest, map, Subject, tap } from "rxjs";
 import type { Book } from "../book/book.service";
 import { getHttpCommand, httpPut } from "../common/response-state/http/command";
@@ -48,21 +48,16 @@ export class ListItemsService {
       }),
     shouldUseCache: true,
   });
+  readonly listItemsQuery$ = this.#listItemsQuery.observable$.pipe(
+    tap((httpResult) => {
+      if (httpResult.state === "success") {
+        this.#listItemsState.set(httpResult.response.body);
+      }
+    }),
+  );
 
   readonly #listItemsState = signal<null | ListItemsResponseBody>(null);
   readonly listItems = this.#listItemsState.asReadonly();
-
-  constructor() {
-    effect(() => {
-      this.#listItemsQuery.observable$.pipe(
-        tap((httpResult) => {
-          if (httpResult.state === "success") {
-            this.#listItemsState.set(httpResult.response.body);
-          }
-        }),
-      );
-    });
-  }
 
   readonly #getListItemWithBookIdSubject = new Subject<Book["id"]>();
   readonly #getListItemWithBookIdAction$ =
