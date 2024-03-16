@@ -3,6 +3,10 @@ import { effect, inject, Injectable, signal } from "@angular/core";
 import { combineLatest, map, Subject, tap } from "rxjs";
 import type { Book } from "../book/book.service";
 import { getHttpCommand, httpPut } from "../common/response-state/http/command";
+import type {
+  HttpCommand,
+  HttpCommandErrorState,
+} from "../common/response-state/http/command-state";
 import { getHttpQuery, httpGet } from "../common/response-state/http/query";
 import type { QueryWithState } from "../common/response-state/query";
 import type { SuccessResponse } from "../common/response-state/state";
@@ -29,6 +33,9 @@ type UpdateListItemVariables = {
   urlParams: { pathParams: { listItemId: string } };
   body: Partial<ListItem>;
 };
+export type UpdateListItemCommand = HttpCommand<null, UpdateListItemVariables>;
+export type UpdateListItemError =
+  HttpCommandErrorState<UpdateListItemVariables>;
 
 @Injectable()
 export class ListItemsService {
@@ -101,11 +108,14 @@ export class ListItemsService {
       },
       body,
     }: UpdateListItemVariables) =>
-      httpPut(`https://api.example.com/list-items/${listItemId}`, {
-        http: this.#http,
-        withCredentials: true,
-        body,
-      }),
+      httpPut<null, UpdateListItemVariables["body"]>(
+        `https://api.example.com/list-items/${listItemId}`,
+        {
+          http: this.#http,
+          withCredentials: true,
+          body,
+        },
+      ),
     onRequest: ({
       urlParams: {
         pathParams: { listItemId: newItemId },
