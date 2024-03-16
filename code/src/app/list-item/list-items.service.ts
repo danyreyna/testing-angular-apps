@@ -2,7 +2,11 @@ import { HttpClient } from "@angular/common/http";
 import { inject, Injectable, signal } from "@angular/core";
 import { combineLatest, map, Subject, tap } from "rxjs";
 import type { Book } from "../book/book.service";
-import { getHttpCommand, httpPut } from "../common/response-state/http/command";
+import {
+  getHttpCommand,
+  httpDelete,
+  httpPut,
+} from "../common/response-state/http/command";
 import type {
   HttpCommand,
   HttpCommandErrorState,
@@ -13,7 +17,7 @@ import type { SuccessResponse } from "../common/response-state/state";
 import type { User } from "../common/user";
 
 export type ListItem = {
-  id: string;
+  id: ReturnType<typeof globalThis.crypto.randomUUID>;
   ownerId: User["id"];
   bookId: string;
   rating: number;
@@ -36,6 +40,17 @@ type UpdateListItemVariables = {
 export type UpdateListItemCommand = HttpCommand<null, UpdateListItemVariables>;
 export type UpdateListItemError =
   HttpCommandErrorState<UpdateListItemVariables>;
+
+type RemoveListItemVariables = {
+  urlParams: { pathParams: { listItemId: string } };
+};
+export type RemoveListItemCommand = HttpCommand<null, RemoveListItemVariables>;
+
+type CreateListItemVariables = {
+  urlParams: { pathParams: { listItemId: string } };
+  body: { bookId: Book["id"] };
+};
+export type CreateListItemCommand = HttpCommand<null, CreateListItemVariables>;
 
 @Injectable()
 export class ListItemsService {
@@ -140,6 +155,67 @@ export class ListItemsService {
     onError: (_httpResult, recoverFn) => {
       recoverFn();
     },
+    onSettled: () => {
+      this.#listItemsQuery.invalidateCache();
+    },
+  });
+
+  readonly removeListItemCommand = getHttpCommand({
+    commandFn: ({
+      urlParams: {
+        pathParams: { listItemId },
+      },
+    }: RemoveListItemVariables) =>
+      httpDelete<null>(`https://api.example.com/list-items/${listItemId}`, {
+        http: this.#http,
+        withCredentials: true,
+      }),
+    onRequest: ({
+      urlParams: {
+        pathParams: { listItemId },
+      },
+    }) => {
+      const previousItems = this.listItems();
+
+      this.#listItemsState.update((currentState) => {
+        if (currentState === null) {
+          return currentState;
+        }
+
+        const { listItems } = currentState;
+
+        return {
+          listItems: listItems.filter(({ id }) => id !== listItemId),
+        };
+      });
+
+      return () => {
+        this.#listItemsState.set(previousItems);
+      };
+    },
+    onError: (_httpResult, recoverFn) => {
+      recoverFn();
+    },
+    onSettled: () => {
+      this.#listItemsQuery.invalidateCache();
+    },
+  });
+
+  readonly createListItemCommand = getHttpCommand({
+    commandFn: ({
+      urlParams: {
+        pathParams: { listItemId },
+      },
+      body,
+    }: CreateListItemVariables) =>
+      httpPut<null, CreateListItemVariables["body"]>(
+        `https://api.example.com/list-items/${listItemId}`,
+        {
+          http: this.#http,
+          withCredentials: true,
+          body,
+        },
+      ),
     onSettled: () => {
       this.#listItemsQuery.invalidateCache();
     },
