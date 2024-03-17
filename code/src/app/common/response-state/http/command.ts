@@ -199,8 +199,8 @@ export function getHttpCommand<
       );
 
       return request$.pipe(
-        tap(async () => {
-          if (handleRequest !== undefined) {
+        tap(async (httpResult) => {
+          if (httpResult.state === "pending" && handleRequest !== undefined) {
             context.set(await handleRequest(variables));
           }
         }),
