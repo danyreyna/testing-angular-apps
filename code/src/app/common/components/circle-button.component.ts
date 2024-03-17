@@ -23,16 +23,21 @@ export const circleButtonStyles = `
   }
 `;
 
-export function getCircleButtonTemplate(content: string) {
-  return `
-  <div class="screen-reader-only">
-    {{ textLabel }}
-  </div>
-  <span aria-hidden="true">
-    ${content}
-  </span>
-`;
-}
+@Component({
+  selector: "app-circle-button-content",
+  standalone: true,
+  imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <div class="screen-reader-only">
+      <ng-content select="[textLabelSlot]" />
+    </div>
+    <span aria-hidden="true">
+      <ng-content />
+    </span>
+  `,
+})
+export class CircleButtonContentComponent {}
 
 @Directive({
   selector: "[appCircleButton]",
@@ -48,9 +53,6 @@ export function getCircleButtonTemplate(content: string) {
   },
 })
 export class CircleButtonDirective {
-  @Input({ required: true })
-  textLabel = "";
-
   @Input({ transform: numberAttribute })
   size = 40;
 }
@@ -58,15 +60,23 @@ export class CircleButtonDirective {
 @Component({
   selector: "button[app-circle-button]",
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CircleButtonContentComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   hostDirectives: [
     {
       directive: CircleButtonDirective,
-      inputs: ["textLabel", "size"],
+      inputs: ["size"],
     },
   ],
   styles: circleButtonStyles,
-  template: getCircleButtonTemplate("<ng-content />"),
+  template: `
+    <app-circle-button-content>
+      <ng-container textLabelSlot>{{ textLabel }}</ng-container>
+      <ng-content />
+    </app-circle-button-content>
+  `,
 })
-export class CircleButtonComponent {}
+export class CircleButtonComponent {
+  @Input({ required: true })
+  textLabel = "";
+}

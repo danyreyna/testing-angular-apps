@@ -11,9 +11,9 @@ import { MatTooltip } from "@angular/material/tooltip";
 import { combineLatest, map, type Observable } from "rxjs";
 import type { Book } from "../book/book.service";
 import {
+  CircleButtonContentComponent,
   CircleButtonDirective,
   circleButtonStyles,
-  getCircleButtonTemplate,
 } from "../common/components/circle-button.component";
 import { SpinnerComponent } from "../common/components/spinner.component";
 import type { HttpCommand } from "../common/response-state/http/command-state";
@@ -125,12 +125,17 @@ export class PlusCircleIconComponent {}
 @Component({
   selector: "button[app-tooltip-button]",
   standalone: true,
-  imports: [CommonModule, TimesCircleIconComponent],
+  imports: [
+    CommonModule,
+    TimesCircleIconComponent,
+    CircleButtonContentComponent,
+    SpinnerComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   hostDirectives: [
     {
       directive: CircleButtonDirective,
-      inputs: ["textLabel", "size"],
+      inputs: ["size"],
     },
   ],
   /*
@@ -145,7 +150,6 @@ export class PlusCircleIconComponent {}
       "highlight-color": httpCommand.state === "idle" || httpCommand.state === "success"
     }`,
     "[matTooltip]": `getLabel()`,
-    "[textLabel]": `getLabel()`,
     "[disabled]": `httpCommand.state === "pending"`,
   },
   styles: [
@@ -174,15 +178,19 @@ export class PlusCircleIconComponent {}
       }
     `,
   ],
-  template: getCircleButtonTemplate(`
-    @if (httpCommand.state === "error") {
-      <app-times-circle-icon />
-    } @else if (httpCommand.state === "pending") {
-      <app-spinner />
-    } @else {
-      <ng-content />
-    }
-  `),
+  template: `
+    <app-circle-button-content>
+      <ng-container textLabelSlot>{{ getLabel() }}</ng-container>
+
+      @if (httpCommand.state === "error") {
+        <app-times-circle-icon />
+      } @else if (httpCommand.state === "pending") {
+        <app-spinner />
+      } @else {
+        <ng-content />
+      }
+    </app-circle-button-content>
+  `,
 })
 export class TooltipButtonComponent implements OnInit {
   readonly #elementRef: ElementRef<HTMLButtonElement> = inject(ElementRef);
