@@ -9,7 +9,7 @@ import type { RegisterRequestValues } from "../../../src/app/common/auth/auth.se
 import type {
   RequiredPropertiesProblemDetail,
   Rfc9457ProblemDetail,
-} from "../../../src/app/common/error/rfc-9457-problem-detail";
+} from "../../../src/app/common/http/rfc-9457-problem-detail";
 import type { UserWithoutPassword } from "../../../src/app/common/user";
 import type { UserFormValues } from "../../../src/app/unauthenticated-app.component";
 import { CORS_HEADERS } from "../common/cors-headers";

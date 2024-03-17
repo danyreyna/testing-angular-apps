@@ -1,5 +1,5 @@
 import { HttpResponse } from "msw";
-import type { Rfc9457ProblemDetail } from "../../../src/app/common/error/rfc-9457-problem-detail";
+import type { Rfc9457ProblemDetail } from "../../../src/app/common/http/rfc-9457-problem-detail";
 
 export function handleInternalServerError(error: Error, headers?: HeadersInit) {
   const status = 500;
