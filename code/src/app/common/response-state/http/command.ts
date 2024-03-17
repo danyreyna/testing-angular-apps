@@ -18,7 +18,7 @@ import {
   type HandledObservableError,
   handleObservableError,
 } from "../../error/handle-observable-error";
-import type { JSONTypes } from "../../http/json-types";
+import type { JsonTypes } from "../../http/json-types";
 import {
   type HttpCommand,
   type HttpCommandErrorState,
@@ -39,7 +39,7 @@ type AngularHttpOptions = {
 
 type CommandFnOptions<
   TRequestHeaders extends RequestHeaders,
-  TRequestBody extends JSONTypes,
+  TRequestBody extends JsonTypes,
 > = {
   http?: HttpClient;
   headers?: TRequestHeaders;
@@ -47,9 +47,9 @@ type CommandFnOptions<
 } & AngularHttpOptions;
 
 export function httpDelete<
-  TResponseBody extends JSONTypes,
+  TResponseBody extends JsonTypes,
   TRequestHeaders extends RequestHeaders = RequestHeaders,
-  TRequestBody extends JSONTypes = null,
+  TRequestBody extends JsonTypes = null,
 >(url: string, options?: CommandFnOptions<TRequestHeaders, TRequestBody>) {
   const http = options?.http ?? inject(HttpClient);
 
@@ -60,8 +60,8 @@ export function httpDelete<
 }
 
 export function httpPatch<
-  TResponseBody extends JSONTypes,
-  TRequestBody extends JSONTypes = null,
+  TResponseBody extends JsonTypes,
+  TRequestBody extends JsonTypes = null,
   TRequestHeaders extends RequestHeaders = RequestHeaders,
 >(url: string, options: CommandFnOptions<TRequestHeaders, TRequestBody> = {}) {
   const http = options?.http ?? inject(HttpClient);
@@ -84,12 +84,12 @@ type AngularHttpPostOptions = {
 
 type PostFnOptions<
   TRequestHeaders extends RequestHeaders,
-  TRequestBody extends JSONTypes,
+  TRequestBody extends JsonTypes,
 > = CommandFnOptions<TRequestHeaders, TRequestBody> & AngularHttpPostOptions;
 
 export function httpPost<
-  TResponseBody extends JSONTypes,
-  TRequestBody extends JSONTypes = null,
+  TResponseBody extends JsonTypes,
+  TRequestBody extends JsonTypes = null,
   TRequestHeaders extends RequestHeaders = RequestHeaders,
 >(url: string, options: PostFnOptions<TRequestHeaders, TRequestBody> = {}) {
   const http = options?.http ?? inject(HttpClient);
@@ -103,8 +103,8 @@ export function httpPost<
 }
 
 export function httpPut<
-  TResponseBody extends JSONTypes,
-  TRequestBody extends JSONTypes = null,
+  TResponseBody extends JsonTypes,
+  TRequestBody extends JsonTypes = null,
   TRequestHeaders extends RequestHeaders = RequestHeaders,
 >(url: string, options: CommandFnOptions<TRequestHeaders, TRequestBody> = {}) {
   const http = options?.http ?? inject(HttpClient);
@@ -118,7 +118,7 @@ export function httpPut<
 }
 
 type HttpCommandOptions<
-  TResponseBody extends JSONTypes,
+  TResponseBody extends JsonTypes,
   TVariables extends void | HttpCommandVariables,
   TContext,
 > = {
@@ -143,7 +143,7 @@ type HttpCommandOptions<
 };
 
 type ReturnTypeGetHttpCommand<
-  TResponseBody extends JSONTypes,
+  TResponseBody extends JsonTypes,
   TVariables extends void | HttpCommandVariables,
 > = {
   run: (variables: TVariables) => void;
@@ -152,7 +152,7 @@ type ReturnTypeGetHttpCommand<
 };
 
 export function getHttpCommand<
-  TResponseBody extends JSONTypes,
+  TResponseBody extends JsonTypes,
   TVariables extends void | HttpCommandVariables = void,
   TContext = unknown,
 >(

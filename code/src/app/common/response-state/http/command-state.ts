@@ -3,7 +3,7 @@ import {
   type HandledObservableError,
   isHandledHttpError,
 } from "../../error/handle-observable-error";
-import type { JSONTypes } from "../../http/json-types";
+import type { JsonTypes } from "../../http/json-types";
 import { isObjectLike } from "../../is-object-like";
 import type {
   HttpResponseWithNonNullBody,
@@ -14,7 +14,7 @@ import type {
 export type HttpCommandVariables = {
   urlParams?: UrlParams;
   headers?: RequestHeaders;
-  body?: JSONTypes;
+  body?: JsonTypes;
 };
 
 const IDLE_STATE = "idle";
@@ -34,7 +34,7 @@ export type HttpCommandErrorState<
 
 const SUCCESS_STATE = "success";
 export type HttpCommandSuccessState<
-  TResponseBody extends JSONTypes,
+  TResponseBody extends JsonTypes,
   TVariables extends void | HttpCommandVariables = void,
 > = {
   state: typeof SUCCESS_STATE;
@@ -43,7 +43,7 @@ export type HttpCommandSuccessState<
 };
 
 type HttpState<
-  TResponseBody extends JSONTypes,
+  TResponseBody extends JsonTypes,
   TVariables extends void | HttpCommandVariables,
 > =
   | HttpCommandIdleState
@@ -52,7 +52,7 @@ type HttpState<
   | HttpCommandSuccessState<TResponseBody, TVariables>;
 
 function isHttpCommandState<
-  TResponseBody extends JSONTypes,
+  TResponseBody extends JsonTypes,
   TVariables extends void | HttpCommandVariables,
 >(value: unknown): value is HttpState<TResponseBody, TVariables> {
   const hasState = isObjectLike(value) && typeof value["state"] === "string";
@@ -86,14 +86,14 @@ export function isHttpCommandError<
 }
 
 export function isHttpCommandSuccess<
-  TResponseBody extends JSONTypes,
+  TResponseBody extends JsonTypes,
   TVariables extends void | HttpCommandVariables,
 >(value: unknown): value is HttpCommandSuccessState<TResponseBody, TVariables> {
   return isHttpCommandState(value) && value.state === SUCCESS_STATE;
 }
 
 export type HttpCommand<
-  TResponseBody extends JSONTypes,
+  TResponseBody extends JsonTypes,
   TVariables extends void | HttpCommandVariables = void,
 > =
   | HttpCommandIdleState

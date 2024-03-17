@@ -3,7 +3,7 @@ import {
   type HandledObservableError,
   isHandledHttpError,
 } from "../../error/handle-observable-error";
-import type { JSONTypes } from "../../http/json-types";
+import type { JsonTypes } from "../../http/json-types";
 import { isObjectLike } from "../../is-object-like";
 import type {
   HttpResponseWithNonNullBody,
@@ -34,7 +34,7 @@ export type HttpQueryErrorState<
 
 const SUCCESS_STATE = "success";
 export type HttpQuerySuccessState<
-  TResponseBody extends JSONTypes,
+  TResponseBody extends JsonTypes,
   TUrlParams extends UrlParams,
   THeaders extends RequestHeaders,
 > = {
@@ -44,7 +44,7 @@ export type HttpQuerySuccessState<
 };
 
 type HttpState<
-  TResponseBody extends JSONTypes,
+  TResponseBody extends JsonTypes,
   TUrlParams extends UrlParams,
   THeaders extends RequestHeaders,
 > =
@@ -53,7 +53,7 @@ type HttpState<
   | HttpQuerySuccessState<TResponseBody, TUrlParams, THeaders>;
 
 function isHttpState<
-  TResponseBody extends JSONTypes,
+  TResponseBody extends JsonTypes,
   TUrlParams extends UrlParams,
   THeaders extends RequestHeaders,
 >(value: unknown): value is HttpState<TResponseBody, TUrlParams, THeaders> {
@@ -86,7 +86,7 @@ export function isHttpQueryError<
 }
 
 export function isHttpQuerySuccess<
-  TResponseBody extends JSONTypes,
+  TResponseBody extends JsonTypes,
   TUrlParams extends UrlParams,
   THeaders extends RequestHeaders,
 >(
@@ -96,7 +96,7 @@ export function isHttpQuerySuccess<
 }
 
 export type HttpQuery<
-  TResponseBody extends JSONTypes,
+  TResponseBody extends JsonTypes,
   TUrlParams extends UrlParams,
   THeaders extends RequestHeaders,
 > =

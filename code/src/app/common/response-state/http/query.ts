@@ -18,7 +18,7 @@ import {
   type HandledObservableError,
   handleObservableError,
 } from "../../error/handle-observable-error";
-import type { JSONTypes } from "../../http/json-types";
+import type { JsonTypes } from "../../http/json-types";
 import {
   type HttpQuery,
   type HttpQueryContext,
@@ -47,7 +47,7 @@ type QueryFnOptions<TRequestHeaders extends RequestHeaders> = {
 } & AngularHttpOptions;
 
 export function httpGet<
-  TResponseBody extends JSONTypes,
+  TResponseBody extends JsonTypes,
   TRequestHeaders extends RequestHeaders = RequestHeaders,
 >(url: string, options?: QueryFnOptions<TRequestHeaders>) {
   const http = inject(HttpClient);
@@ -70,7 +70,7 @@ export function httpHead<
 }
 
 type HttpQueryOptions<
-  TResponseBody extends JSONTypes,
+  TResponseBody extends JsonTypes,
   TUrlParams extends UrlParams,
   THeaders extends RequestHeaders,
 > = {
@@ -83,7 +83,7 @@ type HttpQueryOptions<
 };
 
 type ReturnTypeGetHttpQuery<
-  TResponseBody extends JSONTypes,
+  TResponseBody extends JsonTypes,
   TUrlParams extends UrlParams,
   THeaders extends RequestHeaders,
 > = {
@@ -92,7 +92,7 @@ type ReturnTypeGetHttpQuery<
 };
 
 export function getHttpQuery<
-  TResponseBody extends JSONTypes,
+  TResponseBody extends JsonTypes,
   TUrlParams extends UrlParams,
   THeaders extends RequestHeaders,
 >(
