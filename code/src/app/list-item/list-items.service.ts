@@ -34,9 +34,10 @@ type MappedListItemData = null | ListItem;
 export type ListItemResponseWithState = QueryWithState<MappedListItemData>;
 export type SuccessListItemResponse = SuccessResponse<MappedListItemData>;
 
+export type UpdateListItemRequestBody = Partial<ListItem>;
 type UpdateListItemVariables = {
   urlParams: { pathParams: { listItemId: string } };
-  body: Partial<ListItem>;
+  body: UpdateListItemRequestBody;
 };
 export type UpdateListItemCommand = HttpCommand<null, UpdateListItemVariables>;
 export type UpdateListItemError =
@@ -119,7 +120,7 @@ export class ListItemsService {
       },
       body,
     }: UpdateListItemVariables) =>
-      httpPut<null, UpdateListItemVariables["body"]>(
+      httpPut<null, UpdateListItemRequestBody>(
         `https://api.example.com/list-items/${listItemId}`,
         {
           http: this.#http,
