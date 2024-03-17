@@ -1,5 +1,5 @@
 import { HttpResponse } from "@angular/common/http";
-import type { JSONTypes } from "../../json-types";
+import type { JSONTypes } from "../../http/json-types";
 
 type HttpPathParams = Record<string, string>;
 type HttpQueryParams = Record<string, string | string[]>;

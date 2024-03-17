@@ -3,8 +3,8 @@ import {
   type HandledObservableError,
   isHandledHttpError,
 } from "../../error/handle-observable-error";
+import type { JSONTypes } from "../../http/json-types";
 import { isObjectLike } from "../../is-object-like";
-import type { JSONTypes } from "../../json-types";
 import type {
   HttpResponseWithNonNullBody,
   RequestHeaders,
