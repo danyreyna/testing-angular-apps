@@ -57,6 +57,9 @@ export const handlers = [
 
     const { id } = params;
     const { username, password, source } = body;
+    /*
+     * In a real backend, use Argon2id.
+     */
     const passwordHash = getStringHash(password);
 
     const token = generateAuthSessionId();
@@ -144,6 +147,9 @@ export const handlers = [
     }
 
     const { username, password } = body;
+    /*
+     * In a real backend, use Argon2id.
+     */
     const passwordHash = getStringHash(password);
 
     const token = generateAuthSessionId();
