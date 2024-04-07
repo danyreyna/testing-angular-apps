@@ -115,6 +115,7 @@ export const handlers = [
         headers: {
           ...CORS_HEADERS,
           "Set-Cookie": buildAuthSessionCookie(token),
+          "Cache-Control": "no-store",
           Location: `https://api.example.com/user/${id}`,
           "Content-Location": `https://api.example.com/user/${id}`,
         },
@@ -191,6 +192,7 @@ export const handlers = [
         headers: {
           ...CORS_HEADERS,
           "Set-Cookie": buildAuthSessionCookie(token),
+          "Cache-Control": "no-store",
           "Content-Location": `https://api.example.com/user/${user.id}`,
         },
       },
@@ -224,6 +226,7 @@ export const handlers = [
         headers: {
           ...CORS_HEADERS,
           "Set-Cookie": removeAuthSessionCookie(),
+          "Cache-Control": "no-store",
         },
       });
     },
