@@ -13,7 +13,7 @@ const config = {
   requirePragma: false,
   insertPragma: false,
   proseWrap: "preserve",
-  htmlWhitespaceSensitivity: "ignore",
+  htmlWhitespaceSensitivity: "css",
   endOfLine: "lf",
   embeddedLanguageFormatting: "auto",
   singleAttributePerLine: false,
