@@ -180,7 +180,7 @@ export class PlusCircleIconComponent {}
   ],
   template: `
     <app-circle-button-content>
-      <ng-container textLabelSlot>{{ getLabel() }}</ng-container>
+      <ng-container text-label-slot>{{ getLabel() }}</ng-container>
 
       @if (httpCommand.state === "error") {
         <app-times-circle-icon />

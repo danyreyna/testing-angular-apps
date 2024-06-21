@@ -117,7 +117,7 @@ export type UserFormValues = Pick<User, "username" | "password">;
       <input app-input id="password" ngModel name="password" type="password" />
     </app-form-group>
     <div>
-      <ng-content select="[content-submit-button]" />
+      <ng-content select="[submit-button-slot]" />
     </div>
     @if (commandResponse | typeGuard: isHttpCommandError; as errorResponse) {
       <app-error-message [errorMessage]="errorResponse.error.message" />
@@ -196,7 +196,7 @@ export class UserFormComponent {
             [commandResponse]="viewModel.login"
           >
             <button
-              content-submit-button
+              submit-button-slot
               app-user-form-submit-button
               variant="primary"
               [isLoading]="viewModel.login.state === 'pending'"
@@ -215,7 +215,7 @@ export class UserFormComponent {
             [commandResponse]="viewModel.register"
           >
             <button
-              content-submit-button
+              submit-button-slot
               app-user-form-submit-button
               variant="secondary"
               [isLoading]="viewModel.register.state === 'pending'"

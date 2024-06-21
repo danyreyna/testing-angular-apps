@@ -30,7 +30,7 @@ export const circleButtonStyles = `
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="screen-reader-only">
-      <ng-content select="[textLabelSlot]" />
+      <ng-content select="[text-label-slot]" />
     </div>
     <span aria-hidden="true">
       <ng-content />
@@ -71,7 +71,7 @@ export class CircleButtonDirective {
   styles: circleButtonStyles,
   template: `
     <app-circle-button-content>
-      <ng-container textLabelSlot>{{ textLabel }}</ng-container>
+      <ng-container text-label-slot>{{ textLabel }}</ng-container>
       <ng-content />
     </app-circle-button-content>
   `,
