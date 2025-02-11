@@ -144,6 +144,7 @@ export class PlusCircleIconComponent {}
    */
   // eslint-disable-next-line @angular-eslint/no-host-metadata-property
   host: {
+    // TODO: ngClass doesn't work in host, use attr.data-attributes instead
     "[ngClass]": `{
       "error-color": httpCommand.state === "error",
       "loading-color": httpCommand.state === "pending",
