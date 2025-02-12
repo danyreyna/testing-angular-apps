@@ -5,7 +5,7 @@ import {
   isRfc9457ProblemDetail,
   type RequiredPropertiesProblemDetail,
   type Rfc9457ProblemDetail,
-} from "../error/rfc-9457-problem-detail";
+} from "../http/rfc-9457-problem-detail";
 import { isObjectLike } from "../is-object-like";
 import { handleError } from "./handle-error";
 

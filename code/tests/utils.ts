@@ -12,6 +12,7 @@ import {
   screen,
   waitForElementToBeRemoved,
 } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { type Mock as VitestFunctionMock, vi } from "vitest";
 import { routes } from "../src/app/app.routes";
 import { provideAuth } from "../src/app/common/auth/auth.service.provider";
@@ -79,24 +80,21 @@ async function render<ComponentType>(
   } = {},
 ) {
   const loggedInUser = user === undefined ? await loginAsUser() : user;
-
-  const result = await atlRender(ui, {
-    providers: [
-      provideHttpClient(),
-      provideAuth(),
-      provideTheme(theme),
-      ...(options.providers ?? []),
-    ],
-    routes,
-    ...options,
-  });
-
   if (route !== undefined) {
-    await result.navigate(route);
+    window.history.pushState({}, "", route);
   }
 
   const returnValue = {
-    ...result,
+    ...(await atlRender(ui, {
+      providers: [
+        provideHttpClient(),
+        provideAuth(),
+        provideTheme(theme),
+        ...(options.providers ?? []),
+      ],
+      routes,
+      ...options,
+    })),
     user: loggedInUser,
   };
 
@@ -180,13 +178,17 @@ export async function renderService<
     }
   }
 
-  const { fixture } = await render(TestComponent, {
+  const { fixture, rerender } = await render(TestComponent, {
     componentProviders: initialValues,
   });
 
-  return { result: result as AssignedResult, unmount: fixture.destroy };
+  return {
+    result: result as AssignedResult,
+    rerender,
+    unmount: fixture.destroy,
+  };
 }
 
 export * from "@testing-library/angular";
 // override Angular Testing Library's render with our own
-export { render };
+export { render, userEvent };

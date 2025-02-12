@@ -9,9 +9,7 @@ export const INITIAL_COUNTER_VALUES = new InjectionToken<InitialCounterValues>(
   "initialCounterValues",
 );
 
-@Injectable({
-  providedIn: "root",
-})
+@Injectable()
 export class CounterService {
   readonly #initialCounterValues = inject<null | InitialCounterValues>(
     INITIAL_COUNTER_VALUES,

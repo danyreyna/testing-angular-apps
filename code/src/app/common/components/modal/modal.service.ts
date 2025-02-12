@@ -1,9 +1,7 @@
 import { Dialog } from "@angular/cdk/dialog";
 import { inject, Injectable, type TemplateRef } from "@angular/core";
 
-@Injectable({
-  providedIn: "root",
-})
+@Injectable()
 export class ModalService {
   readonly #dialog = inject(Dialog);
 

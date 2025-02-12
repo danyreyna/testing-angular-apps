@@ -10,6 +10,7 @@ import { RouterLink } from "@angular/router";
 import type { Subscription } from "rxjs";
 import { AuthService } from "./common/auth/auth.service";
 import type { ErrorBoundaryHandler } from "./common/error/error-boundary";
+import { fetchResponse } from "./common/fetch-utils";
 import { startPerformanceMonitor } from "./common/profiler";
 import {
   GRAY_10_COLOR,
@@ -17,6 +18,7 @@ import {
   TEXT_COLOR,
 } from "./common/styles/colors";
 import { MEDIUM_BREAKPOINT } from "./common/styles/media-queries";
+import { ListItemsService } from "./list-item/list-items.service";
 
 @Component({
   selector: "a[app-nav-link]",
@@ -73,16 +75,18 @@ export class NavLinkComponent {}
         padding: 1em 1.5em;
         border: 1px solid ${GRAY_10_COLOR};
         border-radius: 3px;
-
-        @media (min-width: ${MEDIUM_BREAKPOINT}) {
-          position: sticky;
-          top: 4px;
-        }
       }
 
       .links-list {
         list-style: none;
         padding: 0;
+      }
+
+      @media (min-width: ${MEDIUM_BREAKPOINT}) {
+        :host {
+          position: sticky;
+          top: 4px;
+        }
       }
     `,
   template: `
@@ -108,6 +112,7 @@ export class NavComponent {}
 @Component({
   selector: "app-authenticated-app",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [ListItemsService],
   styles: `
       .user-bar {
         display: flex;
@@ -130,11 +135,6 @@ export class NavComponent {}
         grid-gap: 1em;
         grid-template-columns: 1fr;
         grid-template-rows: auto;
-
-        @media (min-width: ${MEDIUM_BREAKPOINT}) {
-          grid-template-columns: 1fr 3fr;
-          grid-template-rows: none;
-        }
       }
 
       .nav-container {
@@ -143,6 +143,13 @@ export class NavComponent {}
 
       .routes-container {
         width: 100%;
+      }
+
+      @media (min-width: ${MEDIUM_BREAKPOINT}) {
+        .app-container {
+          grid-template-columns: 1fr 3fr;
+          grid-template-rows: none;
+        }
       }
     `,
   template: `
@@ -158,7 +165,7 @@ export class NavComponent {}
           app-button
           variant="secondary"
           class="logout-button"
-          (click)="authService.logoutSubject.next('logout')"
+          (click)="authService.logoutCommand.run()"
         >
           Logout
         </button>
@@ -186,16 +193,26 @@ export class AuthenticatedAppComponent implements OnDestroy {
   constructor() {
     this.#performanceMonitorIntervalId = startPerformanceMonitor(
       10_000,
-      (changeDetectionPerfRecord) => {
-        fetch("https://api.example.com/profiler", {
-          method: "post",
-          credentials: "include",
-          body: JSON.stringify(changeDetectionPerfRecord),
-        });
+      async (changeDetectionPerfRecord) => {
+        const response = await fetchResponse(() =>
+          fetch("https://api.example.com/profiler", {
+            method: "post",
+            credentials: "include",
+            body: JSON.stringify(changeDetectionPerfRecord),
+          }),
+        );
+
+        if (
+          response instanceof Error &&
+          this.#performanceMonitorIntervalId !== null
+        ) {
+          clearInterval(this.#performanceMonitorIntervalId);
+        }
       },
     );
 
-    this.#logoutSubscription = this.authService.logout$.subscribe();
+    this.#logoutSubscription =
+      this.authService.logoutCommand.observable$.subscribe();
   }
 
   ngOnDestroy() {

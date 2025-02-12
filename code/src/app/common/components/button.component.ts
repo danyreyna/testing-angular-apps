@@ -9,12 +9,14 @@ import {
 
 export type ButtonVariant = "primary" | "secondary";
 
-export const buttonStyles = `
+export function getButtonStyles(additionalHostStyles = "") {
+  return `
     :host {
       padding: 10px 15px;
       border: 0;
       line-height: 1;
       border-radius: 3px;
+      ${additionalHostStyles}
     }
 
     :host[variant=primary] {
@@ -27,13 +29,14 @@ export const buttonStyles = `
       color: ${TEXT_COLOR};
     }
   `;
+}
 
 @Component({
   selector: "button[app-button]",
   standalone: true,
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: buttonStyles,
+  styles: getButtonStyles(),
   template: `
     <ng-content />
   `,
