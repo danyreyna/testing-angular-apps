@@ -79,24 +79,21 @@ async function render<ComponentType>(
   } = {},
 ) {
   const loggedInUser = user === undefined ? await loginAsUser() : user;
-
-  const result = await atlRender(ui, {
-    providers: [
-      provideHttpClient(),
-      provideAuth(),
-      provideTheme(theme),
-      ...(options.providers ?? []),
-    ],
-    routes,
-    ...options,
-  });
-
   if (route !== undefined) {
-    await result.navigate(route);
+    window.history.pushState({}, "", route);
   }
 
   const returnValue = {
-    ...result,
+    ...(await atlRender(ui, {
+      providers: [
+        provideHttpClient(),
+        provideAuth(),
+        provideTheme(theme),
+        ...(options.providers ?? []),
+      ],
+      routes,
+      ...options,
+    })),
     user: loggedInUser,
   };
 
