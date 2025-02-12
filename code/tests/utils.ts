@@ -12,6 +12,7 @@ import {
   screen,
   waitForElementToBeRemoved,
 } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { type Mock as VitestFunctionMock, vi } from "vitest";
 import { routes } from "../src/app/app.routes";
 import { provideAuth } from "../src/app/common/auth/auth.service.provider";
@@ -190,4 +191,4 @@ export async function renderService<
 
 export * from "@testing-library/angular";
 // override Angular Testing Library's render with our own
-export { render };
+export { render, userEvent };
