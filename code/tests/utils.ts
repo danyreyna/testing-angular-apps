@@ -69,20 +69,15 @@ async function render<ComponentType>(
   ui: Type<ComponentType>,
   {
     theme = "light",
-    route,
     user,
     ...options
   }: RenderComponentOptions<ComponentType> & {
     theme?: Theme;
-    route?: string;
     // Pass `null` to render the app without authenticating.
     user?: null | UserWithoutPassword;
   } = {},
 ) {
   const loggedInUser = user === undefined ? await loginAsUser() : user;
-  if (route !== undefined) {
-    window.history.pushState({}, "", route);
-  }
 
   const returnValue = {
     ...(await atlRender(ui, {
