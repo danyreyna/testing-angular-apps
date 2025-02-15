@@ -150,7 +150,7 @@ export async function renderService<
   TService extends abstract new (...args: any) => any,
 >(
   service: TService,
-  initialValues: RenderComponentOptions<unknown>["componentProviders"] = [],
+  componentProviders: RenderComponentOptions<unknown>["componentProviders"] = [],
 ) {
   type ServiceInstance = InstanceType<TService>;
   type AssignedResult = { current: ServiceInstance };
@@ -174,7 +174,7 @@ export async function renderService<
   }
 
   const { fixture, rerender } = await render(TestComponent, {
-    componentProviders: initialValues,
+    componentProviders,
   });
 
   return {
