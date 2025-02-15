@@ -4,7 +4,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
-  type ProviderToken,
   type Type,
 } from "@angular/core";
 import {
@@ -146,13 +145,17 @@ export function createMock<T>(type: Type<T>) {
  * Recommended when publishing services as packages or for complex services.
  * For all other services, prefer testing a component using the service instead.
  */
-export async function renderService<TService>(
-  service: ProviderToken<TService>,
+export async function renderService<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TService extends abstract new (...args: any) => any,
+>(
+  service: TService,
   componentProviders: RenderComponentOptions<unknown>["componentProviders"] = [],
 ) {
-  type AssignedResult = { current: TService };
+  type ServiceInstance = InstanceType<TService>;
+  type AssignedResult = { current: ServiceInstance };
 
-  const result: { current: null | TService } = { current: null };
+  const result: { current: null | ServiceInstance } = { current: null };
 
   @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
