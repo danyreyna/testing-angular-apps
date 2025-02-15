@@ -65,6 +65,10 @@ export async function loginAsUser(userProperties?: User) {
   return (await authUserResponse.json()) as UserWithoutPassword;
 }
 
+export function getGlobalProviders(theme: Theme = "light") {
+  return [provideHttpClient(), provideAuth(), provideTheme(theme)];
+}
+
 async function render<ComponentType>(
   ui: Type<ComponentType>,
   {
@@ -81,12 +85,7 @@ async function render<ComponentType>(
 
   const returnValue = {
     ...(await atlRender(ui, {
-      providers: [
-        provideHttpClient(),
-        provideAuth(),
-        provideTheme(theme),
-        ...(options.providers ?? []),
-      ],
+      providers: getGlobalProviders(theme),
       routes,
       ...options,
     })),
