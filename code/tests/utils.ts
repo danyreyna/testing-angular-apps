@@ -173,7 +173,7 @@ export async function renderService<
     }
   }
 
-  const { fixture, rerender } = await atlRender(TestComponent, {
+  const { fixture, rerender } = await render(TestComponent, {
     componentProviders: initialValues,
   });
 
