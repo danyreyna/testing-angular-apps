@@ -1596,6 +1596,11 @@ test('calling "run" without a promise results in an early error', async () => {
 
 # TODO
 
+- angular testing library has a bug where it doesn't accept [SomeService] in component providers
+  - it explicitly needs [{provide: SomeService}]
+  - https://github.com/testing-library/angular-testing-library/blob/31ad7ceba8e79d9c921d6f0800fa6cb7629924f0/projects/testing-library/src/lib/testing-library.ts#L123
+  - even the only example in the docs uses [AppComponentService]
+  - https://testing-library.com/docs/angular-testing-library/api#componentproviders
 - bookshelf tests 13
 - bookshelf tests 14
 - get rid of @analogjs deps
