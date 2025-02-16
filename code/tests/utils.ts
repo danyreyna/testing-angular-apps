@@ -144,13 +144,14 @@ export function createMock<T>(type: Type<T>) {
  * Recommended when publishing services as packages or for complex services.
  * For all other services, prefer testing a component using the service instead.
  */
-export async function renderService<
+export type RenderServiceOptions = {
+  componentProviders?: RenderComponentOptions<unknown>["componentProviders"];
+  routes?: RenderComponentOptions<unknown>["routes"];
+};
+export async function internalRenderService<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TService extends abstract new (...args: any) => any,
->(
-  service: TService,
-  componentProviders: RenderComponentOptions<unknown>["componentProviders"] = [],
-) {
+>(service: TService, renderServiceOptions?: RenderServiceOptions) {
   type ServiceInstance = InstanceType<TService>;
   type AssignedResult = { current: ServiceInstance };
 
@@ -172,9 +173,10 @@ export async function renderService<
     }
   }
 
-  const { fixture, rerender } = await render(TestComponent, {
-    componentProviders,
-  });
+  const { fixture, rerender } = await atlRender(
+    TestComponent,
+    renderServiceOptions,
+  );
 
   return {
     result: result as AssignedResult,
