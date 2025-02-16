@@ -65,8 +65,10 @@ export async function loginAsUser(userProperties?: User) {
   return (await authUserResponse.json()) as UserWithoutPassword;
 }
 
+const DEFAULT_THEME = "light";
+
 export function getGlobalProviders({
-  theme = "light",
+  theme = DEFAULT_THEME,
 }: { theme?: Theme } = {}) {
   return [provideHttpClient(), provideAuth(), provideTheme(theme)];
 }
@@ -74,7 +76,7 @@ export function getGlobalProviders({
 async function render<ComponentType>(
   ui: Type<ComponentType>,
   {
-    theme = "light",
+    theme = DEFAULT_THEME,
     user,
     ...options
   }: RenderComponentOptions<ComponentType> & {
@@ -193,7 +195,7 @@ async function renderService<
 >(
   service: TService,
   {
-    theme = "light",
+    theme = DEFAULT_THEME,
     user,
     ...options
   }: RenderServiceOptions & {
