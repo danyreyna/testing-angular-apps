@@ -109,7 +109,6 @@ async function render<ComponentType>(
 export type CreatedMock<T> = T & {
   [K in keyof T]: T[K] & VitestFunctionMock;
 };
-
 export function createMock<T>(type: Type<T>) {
   const mock: { [property: string]: VitestFunctionMock } = {};
 
