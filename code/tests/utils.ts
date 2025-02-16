@@ -94,7 +94,9 @@ async function render<ComponentType>(
   });
   const returnValue = {
     ...renderResult,
-    unmount: renderResult.fixture.destroy,
+    unmount: () => {
+      renderResult.fixture.destroy();
+    },
     user: loggedInUser,
   };
 
@@ -187,7 +189,9 @@ export async function internalRenderService<
   return {
     result: result as AssignedResult,
     rerender,
-    unmount: fixture.destroy,
+    unmount: () => {
+      fixture.destroy();
+    },
   };
 }
 
