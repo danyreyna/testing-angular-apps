@@ -87,12 +87,14 @@ async function render<ComponentType>(
 ) {
   const loggedInUser = user === undefined ? await loginAsUser() : user;
 
+  const renderResult = await atlRender(ui, {
+    providers: getGlobalProviders({ theme }),
+    routes,
+    ...options,
+  });
   const returnValue = {
-    ...(await atlRender(ui, {
-      providers: getGlobalProviders({ theme }),
-      routes,
-      ...options,
-    })),
+    ...renderResult,
+    unmount: renderResult.fixture.destroy,
     user: loggedInUser,
   };
 
