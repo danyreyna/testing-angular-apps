@@ -76,13 +76,13 @@ export function getGlobalProviders({
 async function render<ComponentType>(
   ui: Type<ComponentType>,
   {
-    theme = DEFAULT_THEME,
     user,
+    theme = DEFAULT_THEME,
     ...options
   }: RenderComponentOptions<ComponentType> & {
-    theme?: Theme;
     // Pass `null` to render the app without authenticating.
     user?: null | UserWithoutPassword;
+    theme?: Theme;
   } = {},
 ) {
   const loggedInUser = user === undefined ? await loginAsUser() : user;
@@ -195,13 +195,13 @@ async function renderService<
 >(
   service: TService,
   {
-    theme = DEFAULT_THEME,
     user,
+    theme = DEFAULT_THEME,
     ...options
   }: RenderServiceOptions & {
-    theme?: Theme;
     // Pass `null` to render the app without authenticating.
     user?: null | UserWithoutPassword;
+    theme?: Theme;
   } = {},
 ) {
   const loggedInUser = user === undefined ? await loginAsUser() : user;
