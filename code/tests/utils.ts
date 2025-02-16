@@ -6,6 +6,7 @@ import {
   inject,
   type Type,
 } from "@angular/core";
+import { TestBed } from "@angular/core/testing";
 import {
   render as atlRender,
   type RenderComponentOptions,
@@ -96,6 +97,8 @@ async function render<ComponentType>(
     ...renderResult,
     unmount: () => {
       renderResult.fixture.destroy();
+      document.body.removeChild(renderResult.fixture.nativeElement);
+      TestBed.resetTestingModule();
     },
     user: loggedInUser,
   };
@@ -191,6 +194,8 @@ export async function internalRenderService<
     rerender,
     unmount: () => {
       fixture.destroy();
+      document.body.removeChild(fixture.nativeElement);
+      TestBed.resetTestingModule();
     },
   };
 }
