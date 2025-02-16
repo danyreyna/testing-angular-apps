@@ -185,6 +185,42 @@ export async function internalRenderService<
   };
 }
 
+async function renderService<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TService extends abstract new (...args: any) => any,
+>(
+  service: TService,
+  {
+    theme = "light",
+    user,
+    ...options
+  }: RenderServiceOptions & {
+    theme?: Theme;
+    // Pass `null` to render the app without authenticating.
+    user?: null | UserWithoutPassword;
+  } = {},
+) {
+  const loggedInUser = user === undefined ? await loginAsUser() : user;
+
+  const returnValue = {
+    ...(await internalRenderService(service, {
+      componentProviders: getGlobalProviders(theme),
+      routes,
+      ...options,
+    })),
+    user: loggedInUser,
+  };
+
+  await waitForLoadingToFinish();
+
+  return returnValue;
+}
+
 export * from "@testing-library/angular";
-// override Angular Testing Library's render with our own
-export { render, userEvent };
+export {
+  // override Angular Testing Library's render with our own
+  render,
+  // override the internal renderService with our own wrapper
+  renderService,
+  userEvent,
+};
