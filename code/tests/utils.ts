@@ -148,6 +148,7 @@ export function createMock<T>(type: Type<T>) {
  * For all other services, prefer testing a component using the service instead.
  */
 export type RenderServiceOptions = {
+  providers?: RenderComponentOptions<unknown>["providers"];
   componentProviders?: RenderComponentOptions<unknown>["componentProviders"];
   routes?: RenderComponentOptions<unknown>["routes"];
 };
@@ -207,7 +208,7 @@ async function renderService<
 
   const returnValue = {
     ...(await internalRenderService(service, {
-      componentProviders: getGlobalProviders({ theme }),
+      providers: getGlobalProviders({ theme }),
       routes,
       ...options,
     })),
