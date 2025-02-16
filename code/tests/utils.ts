@@ -33,7 +33,7 @@ export async function waitForLoadingToFinish() {
   await waitForElementToBeRemoved(() => loadingElements);
 }
 
-export async function loginAsUser(userProperties?: User) {
+export async function loginAsUser(userProperties?: Partial<User>) {
   const user = buildUser.one({
     overrides: userProperties,
     traits: "generatedInTest",
