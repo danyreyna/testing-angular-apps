@@ -77,17 +77,19 @@ export function getGlobalProviders({
   return [provideHttpClient(), provideAuth(), provideTheme(theme)];
 }
 
+type AdditionalRenderOptions = {
+  // Pass `null` to render the app without authenticating.
+  user?: null | UserWithoutPassword;
+  theme?: Theme;
+};
+
 export async function render<ComponentType>(
   ui: Type<ComponentType>,
   {
     user,
     theme = DEFAULT_THEME,
     ...options
-  }: RenderComponentOptions<ComponentType> & {
-    // Pass `null` to render the app without authenticating.
-    user?: null | UserWithoutPassword;
-    theme?: Theme;
-  } = {},
+  }: RenderComponentOptions<ComponentType> & AdditionalRenderOptions = {},
 ) {
   const loggedInUser = user === undefined ? await loginAsUser() : user;
 
@@ -212,11 +214,7 @@ export async function renderService<
     user,
     theme = DEFAULT_THEME,
     ...options
-  }: RenderServiceOptions & {
-    // Pass `null` to render the app without authenticating.
-    user?: null | UserWithoutPassword;
-    theme?: Theme;
-  } = {},
+  }: RenderServiceOptions & AdditionalRenderOptions = {},
 ) {
   const loggedInUser = user === undefined ? await loginAsUser() : user;
 
