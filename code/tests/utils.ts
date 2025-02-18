@@ -11,6 +11,7 @@ import {
   render as atlRender,
   type RenderComponentOptions,
   type RenderResult,
+  type RenderTemplateOptions,
   screen,
   waitForElementToBeRemoved,
 } from "@testing-library/angular";
@@ -90,22 +91,45 @@ type AdditionalRenderResult = {
 };
 
 export async function render<ComponentType>(
-  ui: Type<ComponentType>,
+  component: Type<ComponentType>,
+  renderOptions?: RenderComponentOptions<ComponentType> &
+    AdditionalRenderOptions,
+): Promise<RenderResult<ComponentType, ComponentType> & AdditionalRenderResult>;
+export async function render<WrapperType>(
+  template: string,
+  renderOptions?: RenderTemplateOptions<WrapperType> & AdditionalRenderOptions,
+): Promise<RenderResult<WrapperType> & AdditionalRenderResult>;
+export async function render<UiType, WrapperType = UiType>(
+  ui: Type<UiType> | string,
   {
     user,
     theme = DEFAULT_THEME,
     ...options
-  }: RenderComponentOptions<ComponentType> & AdditionalRenderOptions = {},
-): Promise<
-  RenderResult<ComponentType, ComponentType> & AdditionalRenderResult
-> {
+  }:
+    | (RenderComponentOptions<UiType> & AdditionalRenderOptions)
+    | (RenderTemplateOptions<WrapperType> & AdditionalRenderOptions) = {},
+) {
   const loggedInUser = user === undefined ? await loginAsUser() : user;
 
-  const renderResult = await atlRender(ui, {
-    providers: getGlobalProviders({ theme }),
-    routes,
-    ...options,
-  });
+  const renderResult = await (() => {
+    const globalProvidersAndRoutes = {
+      providers: getGlobalProviders({ theme }),
+      routes,
+    };
+
+    if (typeof ui !== "string") {
+      return atlRender(ui, {
+        ...globalProvidersAndRoutes,
+        ...(options as RenderComponentOptions<UiType>),
+      });
+    }
+
+    return atlRender(ui, {
+      ...globalProvidersAndRoutes,
+      ...(options as RenderTemplateOptions<WrapperType>),
+    });
+  })();
+
   const returnValue = {
     ...renderResult,
     unmount: () => {
