@@ -22,6 +22,9 @@ import { provideTheme } from "../src/app/common/theme/theme.service.provider";
 import type { User, UserWithoutPassword } from "../src/app/common/user";
 import { buildUser } from "./mocks/user/build-user";
 
+export * from "@testing-library/angular";
+export { userEvent };
+
 export async function waitForLoadingToFinish() {
   const loadingElements = [
     ...screen.queryAllByLabelText(/loading/i),
@@ -74,7 +77,7 @@ export function getGlobalProviders({
   return [provideHttpClient(), provideAuth(), provideTheme(theme)];
 }
 
-async function render<ComponentType>(
+export async function render<ComponentType>(
   ui: Type<ComponentType>,
   {
     user,
@@ -200,7 +203,7 @@ export async function internalRenderService<
   };
 }
 
-async function renderService<
+export async function renderService<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TService extends abstract new (...args: any) => any,
 >(
@@ -230,12 +233,3 @@ async function renderService<
 
   return returnValue;
 }
-
-export * from "@testing-library/angular";
-export {
-  // override Angular Testing Library's render with our own
-  render,
-  // override the internal renderService with our own wrapper
-  renderService,
-  userEvent,
-};
