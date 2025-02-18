@@ -10,6 +10,7 @@ import { TestBed } from "@angular/core/testing";
 import {
   render as atlRender,
   type RenderComponentOptions,
+  type RenderResult,
   screen,
   waitForElementToBeRemoved,
 } from "@testing-library/angular";
@@ -83,6 +84,11 @@ type AdditionalRenderOptions = {
   theme?: Theme;
 };
 
+type AdditionalRenderResult = {
+  unmount: () => void;
+  user: null | UserWithoutPassword;
+};
+
 export async function render<ComponentType>(
   ui: Type<ComponentType>,
   {
@@ -90,7 +96,9 @@ export async function render<ComponentType>(
     theme = DEFAULT_THEME,
     ...options
   }: RenderComponentOptions<ComponentType> & AdditionalRenderOptions = {},
-) {
+): Promise<
+  RenderResult<ComponentType, ComponentType> & AdditionalRenderResult
+> {
   const loggedInUser = user === undefined ? await loginAsUser() : user;
 
   const renderResult = await atlRender(ui, {
